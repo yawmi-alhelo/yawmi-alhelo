@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Send, Sparkles, CheckCircle2, Mic, MicOff, Brain, WifiOff } from 'lucide-react';
+import { Send, Sparkles, CheckCircle2, Mic, MicOff, WifiOff } from 'lucide-react';
 import Layout from '../components/Layout';
 import { generateLocalReply, type Suggestion } from '../lib/assistant';
 import { useTasks } from '../stores/useTasks';
@@ -205,7 +205,7 @@ export default function Assistant() {
                 <div className="flex items-center gap-1 mb-1.5 text-[10px] font-bold">
                   {m.source === 'ai'
                     ? <span className="text-lavender-300 flex items-center gap-1"><Sparkles size={10} /> رفيق</span>
-                    : <span className="text-ink-300 flex items-center gap-1"><WifiOff size={10} /> محلي{getLastLocalReason() ? ` — ${getLastLocalReason()}` : ''}</span>}
+                    : <span className="text-ink-300 flex items-center gap-1"><WifiOff size={10} /> رفيق محلي{getLastLocalReason() ? ` — ${getLastLocalReason()}` : ''}</span>}
                 </div>
               )}
               <p className="text-sm whitespace-pre-line leading-relaxed">{formatText(m.text)}</p>

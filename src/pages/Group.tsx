@@ -12,8 +12,8 @@ import {
   generateDeviceId, createRoom, joinRoom,
   getRoomMembers, subscribeToRoom, leaveRoom,
   sendMessage, getMessages, subscribeToMessages,
-  type RoomMember, type ChatMessage,
   getGroupStreak, type GroupStreakInfo,
+  type RoomMember, type ChatMessage,
 } from '../lib/group';
 import { notifyGroupMessage } from '../lib/notifications';
 import { getLevelTier } from '../lib/rewards/levels';
@@ -240,7 +240,6 @@ export default function Group() {
             <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-2">شاركي هذا الكود مع صاحباتج للانضمام</p>
           </div>
 
-          {/* بطاقة الستريك الجماعي */}
           <div
             className="card-soft mb-4 text-center relative overflow-hidden"
             style={{
@@ -329,7 +328,6 @@ export default function Group() {
 
           {tab === 'chat' && (
             <div className="flex flex-col">
-              {/* صندوق الرسائل: ثابت مع سكرول داخلي */}
               <div className="card-soft p-3 overflow-y-auto" style={{ height: '400px' }}>
                 {messages.length === 0 ? (
                   <div className="text-center py-12 text-sm text-ink-500 dark:text-rose-300/80 m-auto">
@@ -368,7 +366,6 @@ export default function Group() {
                 )}
               </div>
 
-              {/* حقل الإدخال: ثابت تحت الصندوق */}
               <div className="flex gap-2 mt-3">
                 <input type="text" value={messageText} onChange={e => setMessageText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleSend(); }}
                   placeholder="اكتبي رسالة..." maxLength={500}
