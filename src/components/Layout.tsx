@@ -8,8 +8,10 @@ interface Props {
 
 export default function Layout({ children, hideNav }: Props) {
   return (
-    <div className="min-h-screen w-full bg-rose-50 dark:bg-[#1a1a24]">
-      <main className="max-w-lg mx-auto px-4 pt-6 pb-32">{children}</main>
+    <div className="min-h-screen bg-rose-50 dark:bg-[#1a1a24] flex flex-col">
+      <main className="flex-1 max-w-lg w-full mx-auto px-4 pt-6 pb-24">
+        {children}
+      </main>
       {!hideNav && <BottomNav />}
     </div>
   );
