@@ -1,0 +1,9 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.yawmialhelo.app',
+  appName: 'Yawmi Alhelo',
+  webDir: 'dist'
+};
+
+export default config;

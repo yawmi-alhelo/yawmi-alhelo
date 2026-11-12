@@ -1,0 +1,130 @@
+@import '@fontsource/cairo/400.css';
+@import '@fontsource/cairo/600.css';
+@import '@fontsource/cairo/700.css';
+@import '@fontsource/cairo/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Cairo', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-rose-50 text-ink-900 antialiased;
+    margin: 0;
+    min-height: 100vh;
+    overscroll-behavior-y: contain;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  /* الوضع الداكن */
+  html.dark body {
+    @apply bg-[#1a1a24] text-rose-100;
+  }
+
+  /* منع التحديد على الأزرار */
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-rose-400 text-white font-semibold rounded-xl2 px-6 py-3 shadow-soft active:scale-95 transition-transform;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-rose-600 font-semibold rounded-xl2 px-6 py-3 shadow-soft border border-rose-100 active:scale-95 transition-transform;
+  }
+
+  .card-soft {
+    @apply bg-white rounded-xl2 p-4 shadow-card;
+  }
+
+  .dark .card-soft {
+    @apply bg-[#252532] shadow-none;
+  }
+}
+
+
+
+
+
+@keyframes fadeInScale {
+  0% { transform: scale(0.9); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+
+/* توهج نيون للمهمة القادمة */
+@keyframes neon-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 8px rgba(255, 143, 177, 0.6),
+      0 0 20px rgba(184, 164, 236, 0.4),
+      inset 0 0 10px rgba(255, 143, 177, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(255, 143, 177, 0.95),
+      0 0 40px rgba(184, 164, 236, 0.7),
+      inset 0 0 16px rgba(255, 143, 177, 0.35);
+  }
+}
+
+.animate-neon-glow {
+  animation: neon-glow 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-neon-glow { animation: none; }
+}
+
+
+@keyframes popIn {
+  0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+
+/* توهج النصوص الإرشادية */
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(255, 143, 177, 0.4);
+    opacity: 0.85;
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(255, 143, 177, 0.9), 0 0 20px rgba(184, 164, 236, 0.5);
+    opacity: 1;
+  }
+}
+
+.text-glow {
+  animation: text-glow 2.5s ease-in-out infinite;
+}
+
+/* للمستوى الأفتح - ينبض بلطف */
+@keyframes text-glow-soft {
+  0%, 100% {
+    text-shadow: 0 0 3px rgba(255, 143, 177, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 143, 177, 0.8), 0 0 16px rgba(184, 164, 236, 0.4);
+  }
+}
+
+.text-glow-soft {
+  animation: text-glow-soft 3s ease-in-out infinite;
+}
