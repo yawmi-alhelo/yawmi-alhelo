@@ -386,34 +386,34 @@ export default function Group() {
           )}
 
           {tab === 'chat' && (
-          <>
-            <div className="card-soft mb-2 chat-scroll-area" style={{ minHeight: '320px', maxHeight: '55vh' }}>
+          <div className="flex flex-col mb-4">
+            {/* صندوق الرسائل: ارتفاع ثابت وسكرول داخلي */}
+            <div className="card-soft p-3 overflow-y-auto" style={{ height: '450px' }}>
               {messages.length === 0 ? (
-                <div className="text-center py-12 text-sm text-ink-500 dark:text-rose-300/80">
+                <div className="text-center py-12 text-sm text-ink-500 dark:text-rose-300/80 m-auto">
                   <MessageCircle size={40} className="mx-auto mb-3 text-rose-300" />
                   <p>ما في رسائل بعد</p>
                   <p className="text-xs mt-1">كوني أول من يكتب 💬</p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {messages.map(m => {
                     const isMe = m.device_id === deviceId;
                     const senderPoints = members.find(x => x.device_id === m.device_id)?.points || 0;
                     const tier = getLevelTier(senderPoints);
                     return (
                       <div key={m.id} className={`flex ${isMe ? 'justify-start' : 'justify-end'}`}>
-                        <div className={`max-w-[85%] rounded-xl3 px-3 py-2 ${
+                        <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${
                           isMe
-                            ? 'bg-gradient-to-br from-rose-400 to-rose-500 text-white rounded-tl-sm'
-                            : `${tier.chatBubble} ${tier.chatText} rounded-tr-sm border ${tier.border}`
+                            ? 'bg-gradient-to-br from-rose-400 to-rose-500 text-white rounded-tr-sm'
+                            : `${tier.chatBubble} ${tier.chatText} rounded-tl-sm border ${tier.border}`
                         }`}>
                           {!isMe && (
                             <p className="text-[10px] font-bold opacity-80 mb-0.5">
                               {tier.emoji} {m.nickname}
-                              {members.find(x => x.device_id === m.device_id)?.title && ` 🏅 ${members.find(x => x.device_id === m.device_id)?.title}`}
                             </p>
                           )}
-                          <p className="text-sm whitespace-pre-line break-words">{m.text}</p>
+                          <p className="text-sm break-words leading-relaxed">{m.text}</p>
                           <p className={`text-[9px] mt-1 ${isMe ? 'text-white/70' : 'opacity-60'}`}>
                             {new Date(m.created_at).toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' })}
                           </p>
@@ -426,7 +426,8 @@ export default function Group() {
               )}
             </div>
 
-            <div className="flex gap-2 mb-4">
+            {/* حقل الإدخال: ثابت تحت الصندوق */}
+            <div className="flex gap-2 mt-3 shrink-0">
               <input
                 type="text"
                 value={messageText}
@@ -439,23 +440,12 @@ export default function Group() {
               <button
                 onClick={handleSend}
                 disabled={!messageText.trim() || sending}
-                className="w-12 h-12 rounded-xl2 bg-rose-400 text-white flex items-center justify-center disabled:opacity-40 active:scale-95"
+                className="w-12 h-12 rounded-xl2 bg-rose-400 text-white flex items-center justify-center disabled:opacity-40 active:scale-95 shrink-0"
               >
                 {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               </button>
             </div>
-          </>
-          )}
-        </>
-      )}
-
-      {/* معلومة */}
-      <div className="card-soft bg-lavender-100 dark:bg-[#2a2535] border border-lavender-200 dark:border-[#3a3545]">
-        <p className="text-xs text-ink-700 dark:text-rose-200 leading-relaxed">
-          <strong>💡 الخصوصية:</strong> بس المستوى والنقاط والستريك والزهور يشوفهن الباقي.
-          مهامك، مواعيدك، ملاحظاتك — <strong>كلها خاصة بيج</strong> ولا أحد يشوفها.
-        </p>
-      </div>
-    </Layout>
+          </div>
+        </Layout>
   );
 }
