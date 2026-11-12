@@ -344,12 +344,18 @@ export default function Group() {
                       const senderPoints = members.find(x => x.device_id === m.device_id)?.points || 0;
                       const tier = getLevelTier(senderPoints);
                       return (
-                        <div key={m.id} className={`flex ${isMe ? 'justify-start' : 'justify-end'}`}>
-                          <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${
-                            isMe ? 'bg-gradient-to-br from-rose-400 to-rose-500 text-white rounded-tr-sm' : `${tier.chatBubble} ${tier.chatText} rounded-tl-sm border ${tier.border}`
+                        <div key={m.id} className={`flex w-full ${isMe ? 'ml-auto' : 'mr-auto'}`}>
+                          <div className={`max-w-[85%] px-3 py-2 ${
+                            isMe 
+                              ? 'bg-gradient-to-br from-rose-400 to-rose-500 text-white rounded-xl rounded-tr-sm' 
+                              : `${tier.chatBubble} ${tier.chatText} rounded-xl rounded-tl-sm border ${tier.border}`
                           }`}>
-                            {!isMe && <p className="text-[10px] font-bold opacity-80 mb-0.5">{tier.emoji} {m.nickname}</p>}
-                            <p className="text-sm break-words leading-relaxed">{m.text}</p>
+                            {!isMe && (
+                              <p className="text-[10px] font-bold opacity-80 mb-0.5">
+                                {tier.emoji} {m.nickname}
+                              </p>
+                            )}
+                            <p className="text-sm break-words leading-relaxed whitespace-pre-line">{m.text}</p>
                             <p className={`text-[9px] mt-1 ${isMe ? 'text-white/70' : 'opacity-60'}`}>
                               {new Date(m.created_at).toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' })}
                             </p>
