@@ -20,6 +20,7 @@ export interface RoomMember {
   streak: number;
   flowers: number;
   title?: string;
+  last_active_date?: string;
   updated_at: string;
 }
 
@@ -27,6 +28,15 @@ export interface RoomInfo {
   roomId: string;
   code: string;
   name: string;
+  groupStreak?: number;
+  lastStreakDate?: string;
+}
+
+export interface GroupStreakInfo {
+  streak: number;
+  lastStreakDate: string | null;
+  membersActiveToday: string[];
+  allActiveToday: boolean;
 }
 
 export interface ChatMessage {
@@ -168,6 +178,80 @@ export async function syncMyStats(
     .update({ ...stats, updated_at: new Date().toISOString() })
     .eq('room_id', roomId)
     .eq('device_id', deviceId);
+}
+
+export async function updateMyActivity(roomId: string, deviceId: string): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10);
+  await supabase.from('room_members')
+    .update({ last_active_date: today })
+    .eq('room_id', roomId)
+    .eq('device_id', deviceId);
+}
+
+export async function getGroupStreak(roomId: string): Promise<GroupStreakInfo> {
+  const today = new Date().toISOString().slice(0, 10);
+  
+  // جلب بيانات المجموعة
+  const { data: room } = await supabase
+    .from('rooms')
+    .select('group_streak, last_streak_date')
+    .eq('id', roomId)
+    .single();
+  
+  // جلب الأعضاء النشطين اليوم
+  const { data: members } = await supabase
+    .from('room_members')
+    .select('device_id, last_active_date')
+    .eq('room_id', roomId);
+  
+  const activeToday = (members || []).filter(m => m.last_active_date === today).map(m => m.device_id);
+  const allActive = members && members.length > 0 && activeToday.length === members.length;
+  
+  // حساب الستريك الجماعي
+  let streak = room?.group_streak || 0;
+  const lastDate = room?.last_streak_date;
+  
+  if (allActive) {
+    if (!lastDate) {
+      // أول يوم — نبدأ الستريك من 1
+      streak = 1;
+      await supabase.from('rooms').update({ group_streak: 1, last_streak_date: today }).eq('id', roomId);
+    } else if (lastDate === today) {
+      // محسوب أصلاً اليوم
+      streak = room?.group_streak || 1;
+    } else {
+      // يوم جديد
+      const lastDateObj = new Date(lastDate);
+      const todayObj = new Date(today);
+      const daysDiff = Math.round((todayObj.getTime() - lastDateObj.getTime()) / 86400000);
+      
+      if (daysDiff === 1) {
+        // استمرارية — +1
+        streak = (room?.group_streak || 0) + 1;
+      } else {
+        // انكسر — يبدأ من 1
+        streak = 1;
+      }
+      await supabase.from('rooms').update({ group_streak: streak, last_streak_date: today }).eq('id', roomId);
+    }
+  } else if (lastDate && lastDate !== today) {
+    // اليوم ما خلص الكل بعد، نتحقق إذا فاتت أيام كاملة
+    const lastDateObj = new Date(lastDate);
+    const todayObj = new Date(today);
+    const daysDiff = Math.round((todayObj.getTime() - lastDateObj.getTime()) / 86400000);
+    if (daysDiff > 1) {
+      // فات يوم كامل ما شاركوا فيه — انكسر
+      streak = 0;
+      await supabase.from('rooms').update({ group_streak: 0 }).eq('id', roomId);
+    }
+  }
+  
+  return {
+    streak,
+    lastStreakDate: lastDate,
+    membersActiveToday: activeToday,
+    allActiveToday: !!allActive,
+  };
 }
 
 export async function leaveRoom(roomId: string, deviceId: string): Promise<void> {

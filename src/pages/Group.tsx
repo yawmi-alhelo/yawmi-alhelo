@@ -13,6 +13,7 @@ import {
   getRoomMembers, subscribeToRoom, leaveRoom,
   sendMessage, getMessages, subscribeToMessages,
   type RoomMember, type ChatMessage,
+  getGroupStreak, type GroupStreakInfo,
 } from '../lib/group';
 import { notifyGroupMessage } from '../lib/notifications';
 import { getLevelTier } from '../lib/rewards/levels';
@@ -29,6 +30,7 @@ export default function Group() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [streakInfo, setStreakInfo] = useState<GroupStreakInfo | null>(null);
 
   const [tab, setTab] = useState<'members' | 'chat'>('members');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -55,6 +57,8 @@ export default function Group() {
     try {
       const m = await getRoomMembers(settings.groupId);
       setMembers(m);
+      const sInfo = await getGroupStreak(settings.groupId);
+      setStreakInfo(sInfo);
     } catch (e) { console.warn(e); }
   }, [settings.groupId]);
 
@@ -234,6 +238,34 @@ export default function Group() {
               </button>
             </div>
             <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-2">شاركي هذا الكود مع صاحباتج للانضمام</p>
+          </div>
+
+          {/* بطاقة الستريك الجماعي */}
+          <div
+            className="card-soft mb-4 text-center relative overflow-hidden"
+            style={{
+              background: streakInfo && streakInfo.streak > 0 
+                ? 'linear-gradient(135deg, rgba(255,143,177,0.25) 0%, rgba(184,164,236,0.25) 100%)' 
+                : 'rgba(255,255,255,0.5)'
+            }}
+          >
+            <div className="text-6xl mb-1 animate-pulse" style={{ animationDuration: '2s' }}>🔥</div>
+            <p className="text-5xl font-extrabold text-rose-500 tabular-nums mb-1">
+              {streakInfo?.streak || 0}
+            </p>
+            <p className="text-sm font-bold text-ink-700 dark:text-rose-100">ستريك مجموعتنا</p>
+            {streakInfo && (
+              <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-1">
+                {streakInfo.allActiveToday
+                  ? '✅ كل الأعضاء خلصوا اليوم — الستريك محسوب!'
+                  : `⏳ ${streakInfo.membersActiveToday.length} من ${members.length} خلصوا اليوم`}
+              </p>
+            )}
+            {streakInfo && !streakInfo.allActiveToday && streakInfo.streak > 0 && (
+              <p className="text-xs font-bold text-peach-300 mt-2">
+                ⚠️ لازم كل الأعضاء يخلصون مهمة وحدة اليوم عشان نكمل الستريك!
+              </p>
+            )}
           </div>
 
           <div className="flex gap-1 mb-3 p-1 rounded-xl2 bg-rose-100 dark:bg-[#1a1a24]">

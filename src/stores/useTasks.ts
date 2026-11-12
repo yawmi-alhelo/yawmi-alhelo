@@ -4,6 +4,7 @@ import { todayISO } from '../lib/date';
 import { scheduleTaskReminder, cancelTaskReminder } from '../lib/notifications';
 import { useSettings } from './useSettings';
 import { useRewards } from './useRewards';
+import { updateMyActivity } from '../lib/group';
 import type { Task } from '../types';
 
 interface TasksState {
@@ -79,6 +80,15 @@ export const useTasks = create<TasksState>((set, get) => ({
           console.log('[Rewards] +10 نقطة، المجموع:', useRewards.getState().state.points);
         } catch (e) {
           console.error('[Rewards] فشل:', e);
+        }
+        // تسجيل النشاط للستريك الجماعي
+        const settings = useSettings.getState().settings;
+        if (settings.groupId && settings.deviceId) {
+          try {
+            await updateMyActivity(settings.groupId, settings.deviceId);
+          } catch (e) {
+            console.warn('[activity] فشل:', e);
+          }
         }
       }
     } else if (updated) {
