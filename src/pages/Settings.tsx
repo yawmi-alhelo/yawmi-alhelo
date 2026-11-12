@@ -5,12 +5,14 @@ import {User, Moon, Bell, Volume2, Timer,
   Users, Sprout, ShoppingCart} from 'lucide-react';
 import Layout from '../components/Layout';
 import { useSettings } from '../stores/useSettings';
-import { checkUpdates } from '../lib/updates';
+import { checkUpdates, APP_VERSION } from '../lib/updates';
+import ConfirmModal from '../components/ConfirmModal';
 import { Download } from 'lucide-react';
 import { requestNotificationPermission } from '../lib/notifications';
 
 export default function Settings() {
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
+  const [updateConfirmData, setUpdateConfirmData] = useState<{version: string, url: string} | null>(null);
   const nav = useNavigate();
   const { settings, update } = useSettings();
 
@@ -207,7 +209,7 @@ export default function Settings() {
         <div className="relative">
           <Info size={20} className="mx-auto text-rose-400 mb-2" />
           <p className="text-sm font-semibold text-ink-700 dark:text-rose-100">يومي الحلو 🌸</p>
-          <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-1">الإصدار 1.0.0</p>
+          <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-1">الإصدار {APP_VERSION}</p>
           <p className="text-xs text-ink-300 mt-3">يومك مرتب وراحتج أهم</p>
 
           <div className="mt-4 pt-4 border-t border-rose-100 dark:border-[#34343f]">
@@ -246,6 +248,19 @@ export default function Settings() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={!!updateConfirmData}
+        title="تحديث جديد متوفر! ✨"
+        message={`الإصدار ${updateConfirmData?.version} صار جاهز للتنزيل. تحبين ننتقل لصفحة التحديث هسة؟`}
+        confirmText="نعم، ننزل التحديث"
+        cancelText="لاحقاً"
+        onConfirm={() => {
+          if (updateConfirmData) window.open(updateConfirmData.url, '_blank');
+          setUpdateConfirmData(null);
+        }}
+        onCancel={() => setUpdateConfirmData(null)}
+        variant="info"
+      />
     </Layout>
   );
 }
