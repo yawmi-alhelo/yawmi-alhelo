@@ -128,3 +128,9 @@
 .text-glow-soft {
   animation: text-glow-soft 3s ease-in-out infinite;
 }
+
+*:not(input):not(textarea):not([contenteditable="true"]) {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+}
