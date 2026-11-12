@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.2.0';
 export async function checkUpdates() {
   try {
     const res = await fetch('https://raw.githubusercontent.com/yawmi-alhelo/yawmi-alhelo/master/package.json?t=' + Date.now());

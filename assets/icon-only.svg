@@ -1,19 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF8FB1"/>
       <stop offset="100%" stop-color="#B8A4EC"/>
     </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FFE4EC"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <rect width="1024" height="1024" fill="url(#bg)"/>
   <g transform="translate(512, 512)">
-    <g fill="white" opacity="0.95">
-      <ellipse cx="0" cy="-140" rx="90" ry="150"/>
-      <ellipse cx="0" cy="-140" rx="90" ry="150" transform="rotate(72)"/>
-      <ellipse cx="0" cy="-140" rx="90" ry="150" transform="rotate(144)"/>
-      <ellipse cx="0" cy="-140" rx="90" ry="150" transform="rotate(216)"/>
-      <ellipse cx="0" cy="-140" rx="90" ry="150" transform="rotate(288)"/>
-    </g>
-    <circle r="80" fill="#FFE4EC"/>
+    <path d="M 0,-200 C 100,-200 150,-100 150,0 C 150,100 100,150 0,150 C -100,150 -150,100 -150,0 C -150,-100 -100,-200 0,-200 Z" fill="url(#grad1)" filter="url(#glow)"/>
+    <path d="M 0,-200 C 100,-200 150,-100 150,0 C 150,100 100,150 0,150 C -100,150 -150,100 -150,0 C -150,-100 -100,-200 0,-200 Z" fill="url(#grad1)" transform="rotate(72)" filter="url(#glow)"/>
+    <path d="M 0,-200 C 100,-200 150,-100 150,0 C 150,100 100,150 0,150 C -100,150 -150,100 -150,0 C -150,-100 -100,-200 0,-200 Z" fill="url(#grad1)" transform="rotate(144)" filter="url(#glow)"/>
+    <path d="M 0,-200 C 100,-200 150,-100 150,0 C 150,100 100,150 0,150 C -100,150 -150,100 -150,0 C -150,-100 -100,-200 0,-200 Z" fill="url(#grad1)" transform="rotate(216)" filter="url(#glow)"/>
+    <path d="M 0,-200 C 100,-200 150,-100 150,0 C 150,100 100,150 0,150 C -100,150 -150,100 -150,0 C -150,-100 -100,-200 0,-200 Z" fill="url(#grad1)" transform="rotate(288)" filter="url(#glow)"/>
+    <circle cx="0" cy="0" r="80" fill="url(#grad2)"/>
   </g>
 </svg>
