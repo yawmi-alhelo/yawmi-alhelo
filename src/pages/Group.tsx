@@ -63,16 +63,19 @@ export default function Group() {
   const loadChat = useCallback(async () => {
     if (!settings.groupId) return;
     const m = await getMessages(settings.groupId);
-    // إشعار لآخر رسالة إذا مو مني
-    const lastMsg = m[m.length - 1];
-    const prevLast = messages[messages.length - 1];
-    if (lastMsg && lastMsg.device_id !== deviceId && (!prevLast || prevLast.id !== lastMsg.id)) {
-      if (settings.notificationsEnabled) {
-        notifyGroupMessage(lastMsg.nickname, lastMsg.text);
+    
+    // نستخدم دالة التحديث الـ functional عشان نتجنب اللوب
+    setMessages(prev => {
+      const lastMsg = m[m.length - 1];
+      const prevLast = prev[prev.length - 1];
+      if (lastMsg && lastMsg.device_id !== deviceId && (!prevLast || prevLast.id !== lastMsg.id)) {
+        if (settings.notificationsEnabled) {
+          notifyGroupMessage(lastMsg.nickname, lastMsg.text);
+        }
       }
-    }
-    setMessages(m);
-  }, [settings.groupId, deviceId, messages, settings.notificationsEnabled]);
+      return m;
+    });
+  }, [settings.groupId, deviceId, settings.notificationsEnabled]);
 
   useEffect(() => {
     if (!settings.groupId || tab !== 'chat') return;
@@ -83,7 +86,12 @@ export default function Group() {
   }, [settings.groupId, tab, loadChat]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const timer = setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'auto', block: 'end' });
+      }
+    }, 150);
+    return () => clearTimeout(timer);
   }, [messages]);
 
   useEffect(() => {
