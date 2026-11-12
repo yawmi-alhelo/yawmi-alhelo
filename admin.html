@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>يومي الحلو — لوحة التحكم</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body{font-family:'Cairo',sans-serif}</style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<div id="loginScreen" class="flex items-center justify-center min-h-screen p-4">
+  <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm">
+    <div class="text-center mb-6">
+      <div class="text-6xl mb-3">🌸</div>
+      <h1 class="text-2xl font-extrabold text-gray-800">لوحة التحكم</h1>
+      <p class="text-sm text-gray-500 mt-1">يومي الحلو</p>
+    </div>
+    <input id="pwd" type="password" placeholder="كلمة السر" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-pink-400 outline-none mb-3 text-center">
+    <button onclick="login()" class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold">دخول</button>
+    <p id="err" class="text-red-500 text-sm text-center mt-3 hidden">كلمة السر غلط</p>
+  </div>
+</div>
+
+<div id="dash" class="hidden">
+  <div class="bg-white shadow-sm px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🌸</span>
+      <div><p class="font-extrabold text-gray-800 text-sm">لوحة تحكم يومي الحلو</p><p class="text-xs text-gray-500">إدارة كاملة</p></div>
+    </div>
+    <button onclick="logout()" class="px-3 py-1.5 rounded-lg bg-red-100 text-red-600 text-xs font-bold">خروج</button>
+  </div>
+
+  <div class="flex gap-1 p-2 bg-white border-b overflow-x-auto">
+    <button onclick="showTab('stats')" data-tab="stats" class="tb px-4 py-2 rounded-lg text-sm font-bold bg-pink-400 text-white whitespace-nowrap">📊 إحصائيات</button>
+    <button onclick="showTab('users')" data-tab="users" class="tb px-4 py-2 rounded-lg text-sm font-bold text-gray-600 whitespace-nowrap">👥 المستخدمين</button>
+    <button onclick="showTab('levels')" data-tab="levels" class="tb px-4 py-2 rounded-lg text-sm font-bold text-gray-600 whitespace-nowrap">🏆 المستويات</button>
+    <button onclick="showTab('ann')" data-tab="ann" class="tb px-4 py-2 rounded-lg text-sm font-bold text-gray-600 whitespace-nowrap">📢 إعلانات</button>
+    <button onclick="showTab('cfg')" data-tab="cfg" class="tb px-4 py-2 rounded-lg text-sm font-bold text-gray-600 whitespace-nowrap">⚙️ إعدادات</button>
+  </div>
+
+  <div class="p-4 max-w-6xl mx-auto">
+    <div id="tab-stats" class="tc">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div class="bg-white rounded-2xl p-4 text-center shadow"><p id="nUsers" class="text-3xl font-extrabold text-pink-500">-</p><p class="text-xs text-gray-500 mt-1">إجمالي المستخدمين</p></div>
+        <div class="bg-white rounded-2xl p-4 text-center shadow"><p id="nActive" class="text-3xl font-extrabold text-green-500">-</p><p class="text-xs text-gray-500 mt-1">نشطون اليوم</p></div>
+        <div class="bg-white rounded-2xl p-4 text-center shadow"><p id="nBlocked" class="text-3xl font-extrabold text-red-500">-</p><p class="text-xs text-gray-500 mt-1">محظورون</p></div>
+        <div class="bg-white rounded-2xl p-4 text-center shadow"><p id="nGroups" class="text-3xl font-extrabold text-purple-500">-</p><p class="text-xs text-gray-500 mt-1">مجموعات</p></div>
+      </div>
+      <button onclick="loadStats()" class="w-full py-3 rounded-xl bg-blue-500 text-white font-bold">🔄 تحديث</button>
+    </div>
+
+    <div id="tab-users" class="tc hidden">
+      <div class="flex gap-2 mb-3">
+        <input id="search" type="text" placeholder="بحث بالاسم أو IP..." class="flex-1 px-4 py-2 rounded-xl border-2 border-gray-200 outline-none">
+        <button onclick="loadUsers()" class="px-4 py-2 rounded-xl bg-blue-500 text-white font-bold">بحث</button>
+      </div>
+      <div id="users" class="space-y-2"></div>
+    </div>
+
+    <div id="tab-levels" class="tc hidden">
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h3 class="font-bold mb-3">تعديل المستويات</h3>
+        <p class="text-xs text-gray-500 mb-3">الرقم = النقاط المطلوبة</p>
+        <div id="levels" class="space-y-2"></div>
+        <button onclick="saveLevels()" class="w-full mt-4 py-3 rounded-xl bg-green-500 text-white font-bold">💾 حفظ</button>
+      </div>
+    </div>
+
+    <div id="tab-ann" class="tc hidden">
+      <div class="bg-white rounded-2xl p-4 shadow mb-3">
+        <h3 class="font-bold mb-3">إعلان جديد</h3>
+        <input id="aTitle" type="text" placeholder="العنوان" class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 mb-2 outline-none">
+        <textarea id="aMsg" placeholder="النص..." rows="3" class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 mb-2 outline-none"></textarea>
+        <select id="aType" class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 mb-2">
+          <option value="info">ℹ️ معلومات</option>
+          <option value="success">✅ نجاح</option>
+          <option value="warning">⚠️ تحذير</option>
+        </select>
+        <button onclick="postAnn()" class="w-full py-3 rounded-xl bg-pink-500 text-white font-bold">📢 نشر</button>
+      </div>
+      <div id="anns" class="space-y-2"></div>
+    </div>
+
+    <div id="tab-cfg" class="tc hidden">
+      <div class="bg-white rounded-2xl p-4 shadow mb-3">
+        <h3 class="font-bold mb-3">مفتاح الذكاء الاصطناعي</h3>
+        <input id="aiKey" type="text" placeholder="gsk_..." class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 mb-2 outline-none font-mono text-xs">
+        <input id="aiModel" type="text" placeholder="openai/gpt-oss-20b" class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 mb-2 outline-none font-mono text-xs">
+        <button onclick="saveAi()" class="w-full py-3 rounded-xl bg-purple-500 text-white font-bold">💾 حفظ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB = supabase.createClient('https://evvlndiftoywyhcaigjn.supabase.co', 'sb_publishable_5dzvoIa77IBQRm_B5Vlhhw_w86a0ZAl');
+let ADMIN_PWD = 'admin2026';
+
+async function loadPwd() {
+  try {
+    const { data } = await SB.from('app_config').select('value').eq('key','admin_password').single();
+    if (data?.value) ADMIN_PWD = String(data.value).replace(/"/g,'');
+  } catch {}
+}
+
+function login() {
+  if (document.getElementById('pwd').value === ADMIN_PWD) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('dash').classList.remove('hidden');
+    loadStats(); loadUsers(); loadAnn(); loadCfg();
+  } else {
+    document.getElementById('err').classList.remove('hidden');
+  }
+}
+function logout() { location.reload(); }
+function showTab(n) {
+  document.querySelectorAll('.tc').forEach(e => e.classList.add('hidden'));
+  document.getElementById('tab-' + n).classList.remove('hidden');
+  document.querySelectorAll('.tb').forEach(e => { e.classList.remove('bg-pink-400','text-white'); e.classList.add('text-gray-600'); });
+  const b = document.querySelector(`[data-tab="${n}"]`);
+  b.classList.add('bg-pink-400','text-white'); b.classList.remove('text-gray-600');
+  if (n === 'levels') loadLevels();
+  if (n === 'cfg') loadCfg();
+  if (n === 'ann') loadAnn();
+}
+
+async function loadStats() {
+  const { data: users } = await SB.from('app_users').select('*');
+  const { data: groups } = await SB.from('rooms').select('id');
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('nUsers').textContent = users?.length || 0;
+  document.getElementById('nActive').textContent = users?.filter(u => u.last_seen?.startsWith(today)).length || 0;
+  document.getElementById('nBlocked').textContent = users?.filter(u => u.is_blocked).length || 0;
+  document.getElementById('nGroups').textContent = groups?.length || 0;
+}
+
+async function loadUsers() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const { data } = await SB.from('app_users').select('*').order('last_seen', { ascending: false });
+  let list = data || [];
+  if (q) list = list.filter(u => (u.nickname||'').toLowerCase().includes(q) || (u.device_id||'').includes(q) || (u.ip_address||'').includes(q));
+  
+  document.getElementById('users').innerHTML = list.map(u => `
+    <div class="bg-white rounded-xl p-3 shadow">
+      <div class="flex justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-sm">${u.is_blocked?'🚫 ':''}${u.nickname || 'بدون اسم'}</p>
+          <p class="text-xs text-gray-500 font-mono">ID: ${(u.device_id||'').slice(0,16)}...</p>
+          <p class="text-xs text-gray-500">🌐 IP: ${u.ip_address || '—'}</p>
+          <p class="text-xs text-gray-500">📱 ${u.platform || '—'} · v${u.app_version || '?'}</p>
+          <p class="text-xs text-gray-500">🕐 ${u.last_seen ? new Date(u.last_seen).toLocaleString('ar-IQ') : '—'}</p>
+          <p class="text-xs text-pink-500 font-bold mt-1">⭐ ${u.total_points||0} نقطة · 🔥 ${u.streak||0} يوم</p>
+        </div>
+        <div class="flex flex-col gap-1">
+          <button onclick="toggleBlock('${u.device_id}', ${u.is_blocked})" class="px-2 py-1 rounded text-xs font-bold ${u.is_blocked?'bg-green-500':'bg-red-500'} text-white">${u.is_blocked?'فك الحظر':'حظر'}</button>
+          <button onclick="givePoints('${u.device_id}')" class="px-2 py-1 rounded text-xs font-bold bg-yellow-500 text-white">+50 نقطة</button>
+          <button onclick="giveStreak('${u.device_id}')" class="px-2 py-1 rounded text-xs font-bold bg-orange-500 text-white">+1 ستريك</button>
+        </div>
+      </div>
+    </div>
+  `).join('') || '<p class="text-center text-gray-500 py-4">ما في مستخدمين بعد</p>';
+}
+
+async function toggleBlock(id, cur) {
+  await SB.from('app_users').update({ is_blocked: !cur, blocked_reason: !cur ? 'تم الحظر من الإدارة' : '' }).eq('device_id', id);
+  loadUsers(); loadStats();
+}
+async function givePoints(id) {
+  const { data } = await SB.from('app_users').select('total_points').eq('device_id', id).single();
+  await SB.from('app_users').update({ total_points: (data?.total_points||0) + 50 }).eq('device_id', id);
+  loadUsers();
+}
+async function giveStreak(id) {
+  const { data } = await SB.from('app_users').select('streak').eq('device_id', id).single();
+  await SB.from('app_users').update({ streak: (data?.streak||0) + 1 }).eq('device_id', id);
+  loadUsers();
+}
+
+async function loadLevels() {
+  const { data } = await SB.from('app_config').select('value').eq('key','levels').single();
+  const lv = data?.value || [];
+  document.getElementById('levels').innerHTML = lv.map((l,i) => `
+    <div class="flex gap-2 items-center">
+      <input value="${l.emoji||''}" class="w-14 px-2 py-1 rounded border-2 border-gray-200 text-center" data-e="${i}">
+      <input value="${l.name||''}" class="flex-1 px-2 py-1 rounded border-2 border-gray-200" data-n="${i}">
+      <input type="number" value="${l.minPoints||0}" class="w-24 px-2 py-1 rounded border-2 border-gray-200" data-p="${i}">
+    </div>
+  `).join('');
+}
+async function saveLevels() {
+  const e = document.querySelectorAll('[data-e]'), n = document.querySelectorAll('[data-n]'), p = document.querySelectorAll('[data-p]');
+  const levels = [];
+  for (let i=0;i<n.length;i++) levels.push({ emoji: e[i].value, name: n[i].value, minPoints: parseInt(p[i].value)||0 });
+  await SB.from('app_config').upsert({ key:'levels', value: levels, updated_at: new Date().toISOString() });
+  alert('✅ تم الحفظ');
+}
+
+async function loadAnn() {
+  const { data } = await SB.from('announcements').select('*').order('created_at', { ascending: false });
+  document.getElementById('anns').innerHTML = (data||[]).map(a => `
+    <div class="bg-white rounded-xl p-3 shadow flex justify-between gap-2">
+      <div class="flex-1">
+        <p class="font-bold text-sm">${a.title}</p>
+        <p class="text-xs text-gray-500 mt-1">${a.message}</p>
+        <p class="text-xs text-gray-400 mt-1">${new Date(a.created_at).toLocaleString('ar-IQ')} · ${a.is_active?'✅ نشط':'⏸️ متوقف'}</p>
+      </div>
+      <button onclick="delAnn('${a.id}')" class="text-red-500">🗑️</button>
+    </div>
+  `).join('') || '<p class="text-center text-gray-500 py-4">ما في إعلانات</p>';
+}
+async function postAnn() {
+  const t = document.getElementById('aTitle').value.trim();
+  const m = document.getElementById('aMsg').value.trim();
+  if (!t || !m) { alert('اكتبي العنوان والرسالة'); return; }
+  await SB.from('announcements').update({ is_active: false }).eq('is_active', true);
+  await SB.from('announcements').insert({ title: t, message: m, type: document.getElementById('aType').value, is_active: true });
+  document.getElementById('aTitle').value = ''; document.getElementById('aMsg').value = '';
+  loadAnn();
+}
+async function delAnn(id) { if(confirm('حذف؟')) { await SB.from('announcements').delete().eq('id', id); loadAnn(); } }
+
+async function loadCfg() {
+  const { data } = await SB.from('app_config').select('*');
+  const cfg = {};
+  for (const r of data||[]) cfg[r.key] = r.value;
+  if (cfg.ai_key) document.getElementById('aiKey').value = String(cfg.ai_key).replace(/"/g,'');
+  if (cfg.ai_model) document.getElementById('aiModel').value = String(cfg.ai_model).replace(/"/g,'');
+}
+async function saveAi() {
+  const k = document.getElementById('aiKey').value.trim();
+  const m = document.getElementById('aiModel').value.trim();
+  await SB.from('app_config').upsert([
+    { key:'ai_key', value: JSON.stringify(k), updated_at: new Date().toISOString() },
+    { key:'ai_model', value: JSON.stringify(m), updated_at: new Date().toISOString() }
+  ]);
+  alert('✅ تم الحفظ');
+}
+
+loadPwd();
+</script>
+</body>
+</html>
