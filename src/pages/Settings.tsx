@@ -94,6 +94,12 @@ export default function Settings() {
 
       {/* مؤقت التركيز */}
       <Section title="مؤقت التركيز">
+        <RowButton
+          icon={<Timer size={18} className="text-rose-500" />}
+          label="افتحي المؤقت ▶️"
+          sub="ابدئي جلسة تركيز أو استراحة"
+          onClick={() => nav('/focus')}
+        />
         <NumberRow
           icon={<Timer size={18} className="text-rose-500" />}
           label="مدة التركيز (دقيقة)"
