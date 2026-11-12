@@ -176,11 +176,35 @@ export default function Settings() {
         />
       </Section>
 
-      <div className="card-soft mt-4 text-center">
-        <Info size={20} className="mx-auto text-rose-400 mb-2" />
-        <p className="text-sm font-semibold text-ink-700 dark:text-rose-100">يومي الحلو 🌸</p>
-        <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-1">الإصدار 1.0.0</p>
-        <p className="text-xs text-ink-300 mt-3">يومك مرتب وراحتج أهم</p>
+      <div className="card-soft mt-4 text-center relative overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-30 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at 50% 0%, rgba(255,143,177,0.3) 0%, transparent 70%)'
+          }}
+        />
+        <div className="relative">
+          <Info size={20} className="mx-auto text-rose-400 mb-2" />
+          <p className="text-sm font-semibold text-ink-700 dark:text-rose-100">يومي الحلو 🌸</p>
+          <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-1">الإصدار 1.0.0</p>
+          <p className="text-xs text-ink-300 mt-3">يومك مرتب وراحتج أهم</p>
+
+          <div className="mt-4 pt-4 border-t border-rose-100 dark:border-[#34343f]">
+            <p className="text-[10px] font-bold text-ink-500 dark:text-rose-300/60 mb-1">تطوير وبرمجة</p>
+            <p
+              className="text-sm font-extrabold tracking-wide"
+              style={{
+                background: 'linear-gradient(135deg, #FF8FB1 0%, #B8A4EC 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              مهند الطائي
+            </p>
+            <p className="text-[10px] text-ink-300 dark:text-rose-300/40 mt-1">✨ بكل حب 🤍</p>
+          </div>
+        </div>
       </div>
     </Layout>
   );
