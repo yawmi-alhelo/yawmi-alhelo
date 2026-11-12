@@ -198,7 +198,7 @@ export default function Assistant() {
       </div>
 
 
-      <div className="space-y-3 mb-4 pb-32">
+      <div className="space-y-3 mb-4 pb-44">
         {messages.map(m => (
           <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-start' : 'justify-end'}`}>
             <div className={`max-w-[85%] rounded-xl3 px-4 py-3 ${
@@ -277,7 +277,7 @@ export default function Assistant() {
         </div>
       )}
 
-      <div className="fixed bottom-20 left-0 right-0 z-40 px-4">
+      <div className="fixed left-0 right-0 z-40 px-4" style={{ bottom: 'calc(64px + env(safe-area-inset-bottom, 0px) + 8px)' }}>
         {voiceError && (
           <div className="max-w-lg mx-auto mb-2 bg-rose-100 dark:bg-[#2a1f2a] border border-rose-200 rounded-xl2 px-3 py-2 text-xs text-rose-600 font-semibold text-center">
             {voiceError}

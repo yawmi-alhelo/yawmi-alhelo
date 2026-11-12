@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { useSettings } from '../stores/useSettings';
+import { checkUpdates } from '../lib/updates';
+import { Download } from 'lucide-react';
 import { requestNotificationPermission } from '../lib/notifications';
 
 export default function Settings() {
@@ -146,6 +148,25 @@ export default function Settings() {
       </Section>
 
       {/* البيانات */}
+      <Section title="التحديثات">
+        <RowButton
+          icon={<Download size={18} className="text-rose-500" />}
+          label="البحث عن تحديثات"
+          sub="تحققي إذا فيه إصدار جديد"
+          onClick={async () => {
+            const res = await checkUpdates();
+            if (res.hasUpdate) {
+              if (confirm(`تحديث جديد متوفر (v${res.latestVersion})!
+تريدين الانتقال لصفحة التنزيل؟`)) {
+                window.open(res.url, '_blank');
+              }
+            } else {
+              alert('تطبيقك محدث لآخر إصدار! ✨');
+            }
+          }}
+        />
+      </Section>
+
       <Section title="البيانات">
         <RowButton
           icon={<Database size={18} className="text-lavender-300" />}
