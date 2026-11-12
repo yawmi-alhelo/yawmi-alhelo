@@ -379,7 +379,7 @@ export default function Group() {
 
           {tab === 'chat' && (
           <>
-            <div className="card-soft mb-2" style={{ minHeight: '320px', maxHeight: '400px', overflowY: 'auto' }}>
+            <div className="card-soft mb-2 chat-scroll-area" style={{ minHeight: '320px', maxHeight: '55vh' }}>
               {messages.length === 0 ? (
                 <div className="text-center py-12 text-sm text-ink-500 dark:text-rose-300/80">
                   <MessageCircle size={40} className="mx-auto mb-3 text-rose-300" />
