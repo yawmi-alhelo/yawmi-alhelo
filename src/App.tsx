@@ -34,22 +34,78 @@ function AchievementNotifier() {
 
 function AnnouncementBanner() {
   const [ann, setAnn] = useState<any>(null);
+  const [dm, setDm] = useState<any>(null);
+  const [maintenance, setMaintenance] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
   useEffect(() => {
     registerAndSync().then(r => {
       if (r.blocked) {
-        alert('🚫 تم إيقاف حسابك من الإدارة: ' + r.reason);
+        alert('🚫 تم إيقاف حسابك: ' + r.reason);
         return;
       }
+      if (r.maintenance) setMaintenance(true);
+      if (r.forceUpdate) setForceUpdate(true);
       if (r.announcement) setAnn(r.announcement);
+      if (r.directMessage) setDm(r.directMessage);
     });
   }, []);
-  if (!ann) return null;
-  const colors: any = { info: 'from-blue-400 to-cyan-400', success: 'from-green-400 to-emerald-400', warning: 'from-orange-400 to-red-400' };
+
+  if (maintenance) {
+    return (
+      <div className="fixed inset-0 z-[400] bg-gradient-to-br from-rose-50 to-lavender-100 dark:from-[#1a1a24] dark:to-[#2a2535] flex items-center justify-center p-6 text-center">
+        <div>
+          <div className="text-8xl mb-6 animate-pulse">🛠️</div>
+          <h1 className="text-2xl font-extrabold text-rose-500 mb-3">التطبيق تحت الصيانة</h1>
+          <p className="text-ink-700 dark:text-rose-200 text-sm">نعتذر عن الإزعاج، نرجع لج بأسرع وقت 💗</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (forceUpdate) {
+    return (
+      <div className="fixed inset-0 z-[400] bg-gradient-to-br from-rose-50 to-lavender-100 dark:from-[#1a1a24] dark:to-[#2a2535] flex items-center justify-center p-6 text-center">
+        <div>
+          <div className="text-8xl mb-6">📲</div>
+          <h1 className="text-2xl font-extrabold text-rose-500 mb-3">تحديث مطلوب</h1>
+          <p className="text-ink-700 dark:text-rose-200 text-sm mb-6">فيه نسخة جديدة لازم تنزلينها عشان تستمري</p>
+          <button
+            onClick={() => window.open('https://github.com/yawmi-alhelo/yawmi-alhelo/releases/latest/download/app-debug.apk', '_blank')}
+            className="bg-rose-400 text-white rounded-xl2 px-8 py-3 font-bold"
+          >
+            تحديث الآن
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`fixed top-0 left-0 right-0 z-[250] bg-gradient-to-r ${colors[ann.type] || colors.info} text-white px-4 py-2 text-center text-sm font-bold shadow-lg`}>
-      <p>📢 {ann.title}</p>
-      <p className="text-xs opacity-90 mt-0.5">{ann.message}</p>
-    </div>
+    <>
+      {ann && !dismissed && (
+        <div className={`fixed top-0 left-0 right-0 z-[250] px-4 py-2 text-center text-sm font-bold shadow-lg text-white ${
+          ann.priority === 'urgent' ? 'bg-gradient-to-r from-red-500 to-rose-600'
+          : ann.priority === 'important' ? 'bg-gradient-to-r from-orange-400 to-amber-500'
+          : 'bg-gradient-to-r from-blue-400 to-cyan-400'
+        }`}>
+          <button onClick={() => setDismissed(true)} className="absolute left-2 top-1/2 -translate-y-1/2 text-white/80 text-xs">✕</button>
+          <p>📢 {ann.title}</p>
+          <p className="text-xs opacity-90 mt-0.5">{ann.message}</p>
+        </div>
+      )}
+      {dm && (
+        <div className="fixed inset-0 z-[300] bg-black/60 flex items-center justify-center p-4" onClick={() => setDm(null)}>
+          <div className="bg-white dark:bg-[#252532] rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="text-6xl mb-3">💌</div>
+            <h3 className="text-lg font-extrabold text-ink-900 dark:text-rose-100 mb-2">{dm.title}</h3>
+            <p className="text-sm text-ink-500 dark:text-rose-300/80 leading-relaxed mb-4">{dm.message}</p>
+            <button onClick={() => setDm(null)} className="w-full py-3 rounded-xl2 bg-gradient-to-r from-rose-400 to-lavender-300 text-white font-bold">تمام</button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
