@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Play, Pause, Square, Coffee, Target, RotateCcw } from 'lucide-react';
 import Layout from '../components/Layout';
+import ConfirmModal from '../components/ConfirmModal';
 import { useFocusTimer } from '../stores/useFocusTimer';
 import { scheduleFocusTimer, cancelFocusTimer } from '../lib/notifications';
 import { useSettings } from '../stores/useSettings';
@@ -17,6 +18,7 @@ export default function Focus() {
   const { settings } = useSettings();
   const t = useFocusTimer();
   const [stats, setStats] = useState({ sessions: 0, minutes: 0 });
+  const [confirmStop, setConfirmStop] = useState<{ type: FocusType; minutes: number } | null>(null);
 
   useEffect(() => { loadStats(); }, [t.status]);
 
@@ -47,8 +49,8 @@ export default function Focus() {
 
   function selectType(type: FocusType) {
     if (t.status === 'running' || t.status === 'paused') {
-      if (!confirm('توقف الجلسة الحالية ونبدي وحدة جديدة؟')) return;
-      t.stop();
+      setConfirmStop({ type, minutes: minutesFor(type) });
+      return;
     }
     t.setType(type, minutesFor(type));
   }
@@ -187,6 +189,21 @@ export default function Focus() {
       <p className="text-center text-xs text-ink-300 dark:text-rose-300/50 mt-4">
         💡 المؤقت يشتغل حتى لو سكرتي التطبيق
       </p>
+      {confirmStop && (
+        <ConfirmModal
+          isOpen={true}
+          title="تغيير الجلسة"
+          message="توقف الجلسة الحالية ونبدي وحدة جديدة؟"
+          confirmText="حسنًا، غيريها"
+          cancelText="إلغاء"
+          onConfirm={() => {
+            t.stop();
+            t.setType(confirmStop.type, confirmStop.minutes);
+            setConfirmStop(null);
+          }}
+          onCancel={() => setConfirmStop(null)}
+        />
+      )}
     </Layout>
   );
 }
