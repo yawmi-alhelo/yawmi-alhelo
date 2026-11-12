@@ -204,7 +204,7 @@ export default function Assistant() {
               {m.role === 'assistant' && m.source && (
                 <div className="flex items-center gap-1 mb-1.5 text-[10px] font-bold">
                   {m.source === 'ai'
-                    ? <span className="text-lavender-300 flex items-center gap-1"><Brain size={10} /> ذكاء اصطناعي</span>
+                    ? <span className="text-lavender-300 flex items-center gap-1"><Sparkles size={10} /> رفيق</span>
                     : <span className="text-ink-300 flex items-center gap-1"><WifiOff size={10} /> محلي{getLastLocalReason() ? ` — ${getLastLocalReason()}` : ''}</span>}
                 </div>
               )}
