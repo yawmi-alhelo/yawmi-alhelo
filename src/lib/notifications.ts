@@ -88,7 +88,8 @@ export async function scheduleTaskReminder(task: Task, soundId: string): Promise
         body: `بعد شوية: ${task.title}`,
         schedule: { at: when, allowWhileIdle: true },
         channelId: sound.channelId,
-        smallIcon: 'ic_stat_icon_config_sample',
+        smallIcon: 'ic_notif_flower',
+        largeIcon: 'ic_launcher',
         sound: sound.rawFile,
         extra: { taskId: task.id, type: 'task' },
       }],
@@ -118,7 +119,8 @@ export async function scheduleAppointmentReminder(appt: Appointment, soundId: st
         body: `بعد ${appt.reminderMinutes} دقيقة: ${appt.title}`,
         schedule: { at: when, allowWhileIdle: true },
         channelId: sound.channelId,
-        smallIcon: 'ic_stat_icon_config_sample',
+        smallIcon: 'ic_notif_flower',
+        largeIcon: 'ic_launcher',
         sound: sound.rawFile,
         extra: { apptId: appt.id, type: 'appointment' },
       }],
@@ -150,7 +152,8 @@ export async function scheduleFocusTimer(seconds: number, type: string): Promise
         body: type === 'focus' ? 'عاشت إيدج، خذي استراحة' : 'يلا نرجع نكمل',
         schedule: { at: when, allowWhileIdle: true },
         channelId: type === 'focus' ? 'sound_success' : 'sound_rest',
-        smallIcon: 'ic_stat_icon_config_sample',
+        smallIcon: 'ic_notif_flower',
+        largeIcon: 'ic_launcher',
       }],
     });
   } catch (e) { console.warn('[Notif] focus فشل', e); }
@@ -173,7 +176,8 @@ export async function notifyGroupMessage(senderName: string, text: string): Prom
         title: `💬 ${senderName}`,
         body: text.slice(0, 100),
         channelId: 'sound_ping',
-        smallIcon: 'ic_stat_icon_config_sample',
+        smallIcon: 'ic_notif_flower',
+        largeIcon: 'ic_launcher',
       }],
     });
   } catch {}
@@ -190,7 +194,8 @@ export async function notifyNow(title: string, body: string, soundId: string): P
         title, body,
         channelId: sound.channelId,
         sound: sound.rawFile,
-        smallIcon: 'ic_stat_icon_config_sample',
+        smallIcon: 'ic_notif_flower',
+        largeIcon: 'ic_launcher',
       }],
     });
     return true;
@@ -207,7 +212,8 @@ export async function scheduleDailySummary(hour: number, minute: number): Promis
         body: 'خلينا نشوف شغلات اليوم سوا',
         schedule: { on: { hour, minute }, repeats: true, allowWhileIdle: true },
         channelId: 'sound_gentle',
-        smallIcon: 'ic_stat_icon_config_sample',
+        smallIcon: 'ic_notif_flower',
+        largeIcon: 'ic_launcher',
       }],
     });
     return true;
