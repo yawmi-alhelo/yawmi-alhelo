@@ -14,6 +14,8 @@ import Achievements from './pages/Achievements';
 import Profile from './pages/Profile';
 import AchievementPopup from './components/AchievementPopup';
 import { useRewards } from './stores/useRewards';
+import { registerAndSync, syncMyStats } from './lib/admin/sync';
+import { useSettings } from './stores/useSettings';
 import Stats from './pages/Stats';
 import Notes from './pages/Notes';
 import Shopping from './pages/Shopping';
@@ -30,6 +32,28 @@ function AchievementNotifier() {
   return <AchievementPopup achievement={lastAchievement} onClose={clearUnlock} />;
 }
 
+
+function AnnouncementBanner() {
+  const [ann, setAnn] = useState<any>(null);
+  useEffect(() => {
+    registerAndSync().then(r => {
+      if (r.blocked) {
+        alert('🚫 تم إيقاف حسابك من الإدارة: ' + r.reason);
+        return;
+      }
+      if (r.announcement) setAnn(r.announcement);
+    });
+  }, []);
+  if (!ann) return null;
+  const colors: any = { info: 'from-blue-400 to-cyan-400', success: 'from-green-400 to-emerald-400', warning: 'from-orange-400 to-red-400' };
+  return (
+    <div className={`fixed top-0 left-0 right-0 z-[250] bg-gradient-to-r ${colors[ann.type] || colors.info} text-white px-4 py-2 text-center text-sm font-bold shadow-lg`}>
+      <p>📢 {ann.title}</p>
+      <p className="text-xs opacity-90 mt-0.5">{ann.message}</p>
+    </div>
+  );
+}
+
 export default function App() {
   const load = useSettings(s => s.load);
 
@@ -43,6 +67,7 @@ export default function App() {
   return (
     <ErrorBoundary>
     <BrowserRouter>
+      <AnnouncementBanner />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/tasks" element={<Tasks />} />
