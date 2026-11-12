@@ -134,3 +134,19 @@
     user-select: none !important;
     -webkit-touch-callout: none !important;
 }
+
+html, body, #root {
+  overscroll-behavior: none !important;
+  overflow: hidden; /* منع السكرول في الـ body */
+  height: 100%;
+  position: fixed;
+  width: 100%;
+}
+
+/* السماح بالسكرول داخل التطبيق فقط */
+.main-scroll-container {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
