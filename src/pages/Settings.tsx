@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Moon, Bell, Volume2, Timer,
@@ -12,6 +12,7 @@ import { Download } from 'lucide-react';
 import { requestNotificationPermission } from '../lib/notifications';
 
 export default function Settings() {
+  const [showUpdateAlert, setShowUpdateAlert] = useState(false);
   const nav = useNavigate();
   const { settings, update } = useSettings();
 
