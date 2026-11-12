@@ -21,11 +21,6 @@ interface Message {
   source?: 'ai' | 'local';
 }
 
-const SUGGESTIONS_START = [
-  'عندي طبخ وتنظيف وتسوق',
-  'أريد أدرس ساعتين',
-  'شسوي اليوم؟',
-];
 
 
 function formatText(text: string) {
@@ -266,16 +261,7 @@ export default function Assistant() {
           </button>
         </div>
       )}
-      {messages.length <= 1 && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {SUGGESTIONS_START.map(s => (
-            <button key={s} onClick={() => send(s)}
-              className="text-xs bg-white dark:bg-[#252532] text-rose-500 font-semibold border border-rose-100 dark:border-[#34343f] rounded-full px-3 py-2 active:scale-95 transition-transform">
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
+      
 
       <div className="fixed left-0 right-0 z-40 px-4" style={{ bottom: 'calc(64px + env(safe-area-inset-bottom, 0px) + 8px)' }}>
         {voiceError && (
