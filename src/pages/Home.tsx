@@ -143,7 +143,11 @@ export default function Home() {
       </div>
 
       {/* مهام اليوم */}
-      <div className="flex items-center justify-between mb-3 mt-6">
+      
+
+
+
+<div className="flex items-center justify-between mb-3 mt-6">
         <h2 className="text-lg font-bold text-ink-900 dark:text-rose-100">شغلات اليوم</h2>
         <button
           onClick={() => nav('/tasks')}

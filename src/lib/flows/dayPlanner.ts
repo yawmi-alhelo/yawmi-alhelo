@@ -30,7 +30,7 @@ function formatHM(totalMin: number): string {
 // fallback محلي — جدولة تسلسلية من وقت البدء
 export function buildLocalDayPlan(
   selectedTaskIds: string[],
-  hours: number,
+  _hours: number,
   startTime: string
 ): DayPlanResult {
   const selected = getSelectedPresets(selectedTaskIds);
@@ -43,7 +43,6 @@ export function buildLocalDayPlan(
     (a, b) => PERIOD_ORDER.indexOf(a.defaultPeriod) - PERIOD_ORDER.indexOf(b.defaultPeriod)
   );
 
-  const totalMinutes = hours * 60;
   const BREAK = 15;
 
   const tasks: DayPlanResult['tasks'] = [];
@@ -51,7 +50,7 @@ export function buildLocalDayPlan(
   let used = 0;
 
   for (const preset of sorted) {
-    if (used + preset.defaultDuration > totalMinutes) break;
+    // removed break to force all tasks
     tasks.push({
       title: preset.label,
       period: preset.defaultPeriod,

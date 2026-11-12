@@ -48,7 +48,13 @@ export const useTasks = create<TasksState>((set, get) => ({
     await cancelTaskReminder(id);
     const prevTask = get().tasks.find(t => t.id === id);
     const wasCompleted = prevTask?.completed;
-    const updated = await TasksRepo.updateTask(id, patch);
+    
+    const patchWithDate = { ...patch };
+    if (patch.completed && !wasCompleted) {
+      patchWithDate.completedAt = new Date().toISOString();
+    }
+    
+    const updated = await TasksRepo.updateTask(id, patchWithDate);
     const soundId = useSettings.getState().settings.notificationSound;
     if (updated && !updated.completed && useSettings.getState().settings.soundsEnabled) {
       await scheduleTaskReminder(updated, soundId);

@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  User, Moon, Bell, Volume2, Timer,
+import {User, Moon, Bell, Volume2, Timer,
   Database, Info, ChevronLeft, Sparkles,
-  Users,
-} from 'lucide-react';
+  Users, Sprout, ShoppingCart} from 'lucide-react';
 import Layout from '../components/Layout';
 import { useSettings } from '../stores/useSettings';
 import { checkUpdates } from '../lib/updates';
@@ -154,7 +152,23 @@ export default function Settings() {
         />
       </Section>
 
-      {/* البيانات */}
+            {/* أدواتي */}
+      <Section title="أدواتي">
+        <RowButton
+          icon={<Sprout size={18} className="text-mint-300" />}
+          label="عاداتي اليومية 🌱"
+          sub="شرب الماي، القراءة، إلخ"
+          onClick={() => nav('/habits')}
+        />
+        <RowButton
+          icon={<ShoppingCart size={18} className="text-peach-300" />}
+          label="قائمة المشتريات 🛒"
+          sub="شنو نشتري اليوم؟"
+          onClick={() => nav('/shopping')}
+        />
+      </Section>
+
+{/* البيانات */}
       <Section title="التحديثات">
         <RowButton
           icon={<Download size={18} className="text-rose-500" />}

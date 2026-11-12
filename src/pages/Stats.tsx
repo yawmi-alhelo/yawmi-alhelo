@@ -1,23 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Flame, Coffee, TrendingUp, TrendingDown, Award, Clock } from 'lucide-react';
+import { Flame, Coffee, TrendingUp, TrendingDown } from 'lucide-react';
 import Layout from '../components/Layout';
 import { Tasks as TasksRepo } from '../lib/repositories';
 import { Focus as FocusRepo } from '../lib/repositories';
 import { addDays, todayISO, weekRange, monthRange } from '../lib/date';
 import { PERIOD_LABELS, type PeriodType } from '../types';
-import {
-  getHourlyProductivity,
-  getBestTimeOfDay,
-  getTopPeriods,
-  getTopCategories,
-  getWeekdayPattern,
-  getComparison,
-  getCompletedTasksThisMonth,
-} from '../lib/analytics';
+import { getHourlyProductivity, getBestTimeOfDay, getComparison } from '../lib/analytics';
+import { useRewards } from '../stores/useRewards';
+import { getLevelTier } from '../lib/rewards/levels';
 
 interface DayStat { date: string; total: number; done: number; }
 
 export default function Stats() {
+  const { state: rewards } = useRewards();
   const [loading, setLoading] = useState(true);
   const [week, setWeek] = useState<DayStat[]>([]);
   const [todayStats, setTodayStats] = useState({ total: 0, done: 0 });
@@ -25,14 +20,10 @@ export default function Stats() {
   const [monthStats, setMonthStats] = useState({ total: 0, done: 0 });
   const [focusToday, setFocusToday] = useState(0);
   const [focusTotal, setFocusTotal] = useState(0);
-  const [streak, setStreak] = useState(0);
 
-  // New analytics
   const [bestTime, setBestTime] = useState<{ label: string; count: number; emoji: string } | null>(null);
   const [hourly, setHourly] = useState<{ hour: number; count: number }[]>([]);
   const [topPeriods, setTopPeriods] = useState<Array<{ period: PeriodType; count: number }>>([]);
-  const [topCategories, setTopCategories] = useState<Array<{ name: string; count: number }>>([]);
-  const [weekday, setWeekday] = useState<Array<{ day: string; count: number }>>([]);
   const [comparison, setComparison] = useState<{ thisWeek: number; lastWeek: number; change: number } | null>(null);
 
   useEffect(() => { loadAll(); }, []);
@@ -43,45 +34,48 @@ export default function Stats() {
     const w = weekRange(today);
     const m = monthRange(today);
 
+    // جلب كل المهام مرة وحدة
+    const allTasks = await TasksRepo.getAllTasks();
+
+    // إحصائية اليوم (بناءً على المهام المجدولة لليوم)
+    const todayTasks = allTasks.filter(t => t.date === today);
+    setTodayStats({ total: todayTasks.length, done: todayTasks.filter(t => t.completed).length });
+
+    // إحصائية الأسبوع (بناءً على المهام المجدولة في هذا الأسبوع)
+    const weekTasks = allTasks.filter(t => t.date >= w.start && t.date <= w.end);
+    setWeekStats({ total: weekTasks.length, done: weekTasks.filter(t => t.completed).length });
+
+    // إحصائية الشهر
+    const monthTasks = allTasks.filter(t => t.date >= m.start && t.date <= m.end);
+    setMonthStats({ total: monthTasks.length, done: monthTasks.filter(t => t.completed).length });
+
+    // آخر 7 أيام (بناءً على تاريخ الإنجاز الفعلي)
     const last7: DayStat[] = [];
     for (let i = 6; i >= 0; i--) {
       const d = addDays(today, -i);
-      const tasks = await TasksRepo.getTasksByDate(d);
-      last7.push({ date: d, total: tasks.length, done: tasks.filter(t => t.completed).length });
+      const totalOnDay = allTasks.filter(t => t.date === d).length;
+      const doneOnDay = allTasks.filter(t => t.completed && t.completedAt && t.completedAt.startsWith(d)).length;
+      last7.push({ date: d, total: totalOnDay, done: doneOnDay });
     }
     setWeek(last7);
-    setTodayStats({ total: last7[6].total, done: last7[6].done });
 
-    const weekTasks = await TasksRepo.getTasksRange(w.start, w.end);
-    setWeekStats({ total: weekTasks.length, done: weekTasks.filter(t => t.completed).length });
-
-    const monthTasks = await TasksRepo.getTasksRange(m.start, m.end);
-    setMonthStats({ total: monthTasks.length, done: monthTasks.filter(t => t.completed).length });
-
+    // التركيز
     const todayFocus = await FocusRepo.getTodayFocusSessions();
-    setFocusToday(todayFocus.filter(s => s.type === 'focus' && s.completed)
-      .reduce((sum, s) => sum + s.durationMinutes, 0));
+    setFocusToday(todayFocus.filter(s => s.type === 'focus' && s.completed).reduce((sum, s) => sum + s.durationMinutes, 0));
     setFocusTotal(await FocusRepo.getTotalFocusMinutes());
 
-    let s = 0;
-    for (let i = 0; i < 60; i++) {
-      const d = addDays(today, -i);
-      const dayTasks = await TasksRepo.getTasksByDate(d);
-      const done = dayTasks.filter(t => t.completed).length;
-      if (done > 0) s++;
-      else if (i > 0) break;
-      else continue;
-    }
-    setStreak(s);
-
-    // Analytics
-    const completedTasks = await getCompletedTasksThisMonth();
+    // تحليلات متقدمة (بناءً على completedAt)
+    const completedTasks = allTasks.filter(t => t.completed && t.completedAt);
+    
     const buckets = getHourlyProductivity(completedTasks);
     setHourly(buckets.map(b => ({ hour: b.hour, count: b.count })));
     setBestTime(getBestTimeOfDay(buckets));
-    setTopPeriods(await getTopPeriods());
-    setTopCategories(await getTopCategories());
-    setWeekday(await getWeekdayPattern());
+    
+    const byPeriod = new Map<PeriodType, number>();
+    for (const t of completedTasks) byPeriod.set(t.period, (byPeriod.get(t.period) || 0) + 1);
+    setTopPeriods(Array.from(byPeriod.entries()).map(([p, c]) => ({ period: p, count: c })).sort((a, b) => b.count - a.count).slice(0, 5));
+
+
     setComparison(await getComparison());
 
     setLoading(false);
@@ -89,6 +83,7 @@ export default function Stats() {
 
   const maxBar = Math.max(1, ...week.map(d => d.total));
   const maxHourly = Math.max(1, ...hourly.map(h => h.count));
+  const tier = getLevelTier(rewards.points);
 
   if (loading) {
     return (
@@ -108,25 +103,26 @@ export default function Stats() {
         <p className="text-sm text-ink-500 dark:text-rose-300/80 mt-1">شوفي شكد إنجاز مسوية 🌷</p>
       </div>
 
-      {/* 3 بطاقات */}
+      {/* بطاقة المكافآت (مدمجة مع الإحصائيات) */}
+      <div className={`card-soft mb-4 flex items-center gap-3 py-3 border-2 ${tier.border}`}>
+        <div className={`text-4xl w-14 h-14 rounded-2xl bg-gradient-to-br ${tier.gradient} flex items-center justify-center shadow-soft`}>{tier.emoji}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2">
+            <p className="text-sm font-extrabold text-ink-900 dark:text-rose-100">المستوى {Math.floor(rewards.points / 100) + 1}</p>
+            <p className="text-xs text-rose-500 font-bold">{rewards.points} نقطة</p>
+          </div>
+          <p className="text-[10px] text-ink-500 dark:text-rose-300/80 mt-1">
+            {rewards.flowers} وردة · 🔥 {rewards.streak || 0} يوم ستريك
+          </p>
+        </div>
+      </div>
+
+      {/* 3 بطاقات النسب */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <StatCard label="اليوم" done={todayStats.done} total={todayStats.total} color="rose" />
         <StatCard label="الأسبوع" done={weekStats.done} total={weekStats.total} color="lavender" />
         <StatCard label="الشهر" done={monthStats.done} total={monthStats.total} color="mint" />
       </div>
-
-      {/* أفضل وقت إنتاجية */}
-      {bestTime && bestTime.count > 0 && (
-        <div className="card-soft mb-4 text-center py-5 border-2 border-rose-200 dark:border-[#34343f]"
-          style={{ background: 'linear-gradient(135deg, rgba(255,143,177,0.15) 0%, rgba(184,164,236,0.15) 100%)' }}>
-          <div className="text-5xl mb-2">{bestTime.emoji}</div>
-          <p className="text-xs font-bold text-rose-500 mb-1">أكثر وقت إنتاجية</p>
-          <p className="text-2xl font-extrabold text-ink-900 dark:text-rose-100">{bestTime.label}</p>
-          <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-1">
-            خلصتي {bestTime.count} مهمة بهذا الوقت 🌸
-          </p>
-        </div>
-      )}
 
       {/* مقارنة الأسبوع */}
       {comparison && (
@@ -134,9 +130,7 @@ export default function Stats() {
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80">هذا الأسبوع vs اللي قبله</p>
             {comparison.change !== 0 && (
-              <span className={`flex items-center gap-1 text-xs font-extrabold ${
-                comparison.change > 0 ? 'text-mint-300' : 'text-rose-500'
-              }`}>
+              <span className={`flex items-center gap-1 text-xs font-extrabold ${comparison.change > 0 ? 'text-mint-300' : 'text-rose-500'}`}>
                 {comparison.change > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                 {Math.abs(comparison.change)}%
               </span>
@@ -156,7 +150,7 @@ export default function Stats() {
         </div>
       )}
 
-      {/* رسم أعمدة آخر 7 أيام */}
+      {/* آخر 7 أيام */}
       <div className="card-soft mb-4">
         <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80 mb-4">آخر 7 أيام</p>
         <div className="flex items-end justify-between gap-2 h-32">
@@ -168,8 +162,7 @@ export default function Stats() {
               <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
                 <div className="relative w-full h-full flex items-end justify-center">
                   <div className="w-full bg-rose-100 dark:bg-[#34343f] rounded-t-lg" style={{ height: `${h}%` }} />
-                  <div className={`absolute bottom-0 w-full rounded-t-lg ${isToday ? 'bg-rose-400' : 'bg-rose-300'}`}
-                    style={{ height: `${doneH}%` }} />
+                  <div className={`absolute bottom-0 w-full rounded-t-lg ${isToday ? 'bg-rose-400' : 'bg-rose-300'}`} style={{ height: `${doneH}%` }} />
                 </div>
                 <span className={`text-[10px] ${isToday ? 'font-bold text-rose-500' : 'text-ink-500 dark:text-rose-300/80'}`}>
                   {d.date.slice(8)}
@@ -180,11 +173,9 @@ export default function Stats() {
         </div>
       </div>
 
-      {/* توزيع الإنتاجية بالساعات */}
+      {/* الإنتاجية بالساعات */}
       <div className="card-soft mb-4">
-        <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80 mb-3 flex items-center gap-1">
-          <Clock size={12} /> الإنتاجية بالساعات (هالشهر)
-        </p>
+        <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80 mb-3">الإنتاجية بالساعات (هالشهر)</p>
         <div className="flex items-end gap-0.5 h-24">
           {hourly.map(h => {
             const height = maxHourly === 0 ? 0 : (h.count / maxHourly) * 100;
@@ -196,55 +187,27 @@ export default function Stats() {
             );
             return (
               <div key={h.hour} className="flex-1 flex flex-col items-center justify-end h-full">
-                <div className="w-full rounded-sm transition-all"
-                  style={{
-                    height: `${Math.max(2, height)}%`,
-                    background: isBest
-                      ? 'linear-gradient(to top, #FF8FB1, #B8A4EC)'
-                      : 'rgba(255,143,177,0.35)',
-                  }} />
+                <div className="w-full rounded-sm transition-all" style={{
+                  height: `${Math.max(2, height)}%`,
+                  background: isBest ? 'linear-gradient(to top, #FF8FB1, #B8A4EC)' : 'rgba(255,143,177,0.35)'
+                }} />
               </div>
             );
           })}
         </div>
         <div className="flex justify-between mt-1 text-[8px] text-ink-500 dark:text-rose-300/80">
-          <span>12ص</span>
-          <span>6ص</span>
-          <span>12م</span>
-          <span>6م</span>
-          <span>12ص</span>
+          <span>12ص</span><span>6ص</span><span>12م</span><span>6م</span><span>12ص</span>
         </div>
       </div>
 
-      {/* أنماط أيام الأسبوع */}
-      <div className="card-soft mb-4">
-        <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80 mb-3">إنتاجية أيام الأسبوع</p>
-        <div className="space-y-2">
-          {weekday.map(({ day, count }) => {
-            const max = Math.max(1, ...weekday.map(w => w.count));
-            const w = (count / max) * 100;
-            return (
-              <div key={day} className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-ink-700 dark:text-rose-200 w-16">{day}</span>
-                <div className="flex-1 h-2 rounded-full bg-rose-100 dark:bg-[#34343f] overflow-hidden">
-                  <div className="h-full bg-gradient-to-l from-lavender-300 to-rose-400 transition-all duration-500"
-                    style={{ width: `${w}%` }} />
-                </div>
-                <span className="text-xs font-bold text-rose-500 tabular-nums w-6 text-left">{count}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* الفترات + التصنيفات */}
+      {/* الفترات والتصنيفات */}
       <div className="card-soft mb-4">
         <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80 mb-3">أكثر فتراتج إنتاجية</p>
         {topPeriods.length === 0 ? (
           <p className="text-sm text-ink-500 dark:text-rose-300/80 text-center py-4">بعد ما عندج بيانات</p>
         ) : (
           <div className="space-y-2">
-            {topPeriods.slice(0, 5).map(({ period, count }) => {
+            {topPeriods.map(({ period, count }) => {
               const max = topPeriods[0].count;
               const w = (count / max) * 100;
               return (
@@ -261,22 +224,7 @@ export default function Stats() {
         )}
       </div>
 
-      {topCategories.length > 0 && (
-        <div className="card-soft mb-4">
-          <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80 mb-3 flex items-center gap-1">
-            <Award size={12} /> أكثر التصنيفات
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {topCategories.map(({ name, count }) => (
-              <div key={name} className="px-3 py-1.5 rounded-xl2 bg-gradient-to-l from-rose-100 to-lavender-100 dark:from-[#2a1f2a] dark:to-[#2a2535] text-xs font-bold text-rose-500">
-                {name} · {count}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* التركيز + السلسلة */}
+      {/* التركيز */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="card-soft text-center">
           <Coffee size={22} className="mx-auto text-lavender-300 mb-2" />
@@ -286,7 +234,7 @@ export default function Stats() {
         </div>
         <div className="card-soft text-center">
           <Flame size={22} className="mx-auto text-peach-300 mb-2" />
-          <p className="text-2xl font-extrabold text-ink-900 dark:text-rose-100">{streak}</p>
+          <p className="text-2xl font-extrabold text-ink-900 dark:text-rose-100">{rewards.streak || 0}</p>
           <p className="text-xs text-ink-500 dark:text-rose-300/80 mt-1">يوم متتالي</p>
           <p className="text-[10px] text-ink-300 dark:text-rose-300/50 mt-2">لا تنكسر السلسلة 🔥</p>
         </div>
@@ -295,11 +243,7 @@ export default function Stats() {
       {todayStats.done > 0 && (
         <div className="card-soft text-center bg-gradient-to-br from-rose-50 to-lavender-100 dark:from-[#252532] dark:to-[#2a2a3a]">
           <p className="text-sm font-bold text-rose-500 mb-1">
-            {Math.round((todayStats.done / Math.max(1, todayStats.total)) * 100) >= 80
-              ? 'اليوم إنجازج خارق! 🌟'
-              : Math.round((todayStats.done / Math.max(1, todayStats.total)) * 100) >= 50
-                ? 'عاشت إيدج، نص الطريق ✨'
-                : 'بداية طيبة، كملي 💪'}
+            {Math.round((todayStats.done / Math.max(1, todayStats.total)) * 100) >= 80 ? 'اليوم إنجازج خارق! 🌟' : Math.round((todayStats.done / Math.max(1, todayStats.total)) * 100) >= 50 ? 'عاشت إيدج، نص الطريق ✨' : 'بداية طيبة، كملي 💪'}
           </p>
           <p className="text-xs text-ink-500 dark:text-rose-300/80">شغلاتج محفوظة دايمياً 💾</p>
         </div>
@@ -308,18 +252,14 @@ export default function Stats() {
   );
 }
 
-function StatCard({ label, done, total, color }: {
-  label: string; done: number; total: number; color: 'rose' | 'lavender' | 'mint';
-}) {
+function StatCard({ label, done, total, color }: { label: string; done: number; total: number; color: 'rose' | 'lavender' | 'mint' }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
   return (
     <div className="card-soft text-center py-4">
       <div className="relative w-14 h-14 mx-auto mb-2">
         <svg className="-rotate-90" width="56" height="56">
           <circle cx="28" cy="28" r="22" stroke="#FFE4EC" strokeWidth="6" fill="none" />
-          <circle cx="28" cy="28" r="22" stroke={`url(#g_${color})`} strokeWidth="6" fill="none"
-            strokeLinecap="round" strokeDasharray={2 * Math.PI * 22}
-            strokeDashoffset={2 * Math.PI * 22 * (1 - pct / 100)} />
+          <circle cx="28" cy="28" r="22" stroke={`url(#g_${color})`} strokeWidth="6" fill="none" strokeLinecap="round" strokeDasharray={2 * Math.PI * 22} strokeDashoffset={2 * Math.PI * 22 * (1 - pct / 100)} />
           <defs>
             <linearGradient id={`g_${color}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={color === 'rose' ? '#FF8FB1' : color === 'lavender' ? '#B8A4EC' : '#7DD3A8'} />
@@ -327,9 +267,7 @@ function StatCard({ label, done, total, color }: {
             </linearGradient>
           </defs>
         </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-ink-900 dark:text-rose-100">
-          {pct}%
-        </span>
+        <span className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-ink-900 dark:text-rose-100">{pct}%</span>
       </div>
       <p className="text-xs font-bold text-ink-500 dark:text-rose-300/80">{label}</p>
       <p className="text-[10px] mt-0.5 text-rose-500 font-bold">{done}/{total}</p>

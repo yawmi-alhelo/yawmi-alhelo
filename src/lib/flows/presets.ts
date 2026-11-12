@@ -59,7 +59,6 @@ export const INGREDIENT_GROUPS: IngredientGroup[] = [
   { id: 'grains',   label: 'حبوب وأرز',    emoji: '🌾' },
   { id: 'dairy',    label: 'ألبان',        emoji: '🧀' },
   { id: 'pantry',   label: 'أساسيات',      emoji: '🧂' },
-  { id: 'sweets',   label: 'للحلويات',     emoji: '🍯' },
 ];
 
 export const INGREDIENT_PRESETS: IngredientPreset[] = [
@@ -193,3 +192,10 @@ export const IRAQI_DISHES: LocalDish[] = [
     steps: ['اخلطي الحليب مع النشاء', 'اطبخي على نار هادية', 'ضيفي السكر وماء الورد', 'صبها بأكواب', 'زينيها بالفستق'] },
 
 ];
+
+
+export { SWEET_INGREDIENTS } from './sweetPresets';
+
+export { BREAKFAST_INGREDIENTS } from './breakfastPresets';
+
+export { SNACK_INGREDIENTS } from './snackPresets';

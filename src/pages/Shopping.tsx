@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { Plus, Trash2, ShoppingCart } from 'lucide-react';
 import Layout from '../components/Layout';
 import { useShopping } from '../stores/useShopping';
+import ConfirmModal from '../components/ConfirmModal';
+import AlertModal from '../components/AlertModal';
 
 export default function Shopping() {
   const { items, load, add, toggle, remove, clearChecked } = useShopping();
   const [newItem, setNewItem] = useState('');
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [alertMsg, setAlertMsg] = useState<string | null>(null);
 
   useEffect(() => { load(); }, [load]);
 
@@ -72,7 +76,7 @@ export default function Shopping() {
         <div>
           <div className="flex items-center justify-between mb-2 px-1">
             <h2 className="text-sm font-bold text-ink-500 dark:text-rose-300/80">خلصنا ({done.length})</h2>
-            <button onClick={() => { if (confirm('نمسح المشطوب؟')) clearChecked(); }}
+            <button onClick={() => setShowClearConfirm(true)}
               className="text-xs font-semibold text-rose-500">امسحي المشطوب</button>
           </div>
           <div className="card-soft divide-y divide-rose-50 dark:divide-[#34343f] p-0 overflow-hidden">
@@ -91,6 +95,22 @@ export default function Shopping() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={showClearConfirm}
+        title="مسح المشطوب"
+        message="هل تريدين مسح كل الأشياء اللي تم شراؤها من القائمة؟"
+        confirmText="نعم، امسحي"
+        onConfirm={() => { clearChecked(); setShowClearConfirm(false); }}
+        onCancel={() => setShowClearConfirm(false)}
+        variant="danger"
+      />
+      <AlertModal
+        isOpen={!!alertMsg}
+        title="تنبيه"
+        message={alertMsg || ''}
+        onClose={() => setAlertMsg(null)}
+        variant="warning"
+      />
     </Layout>
   );
 }

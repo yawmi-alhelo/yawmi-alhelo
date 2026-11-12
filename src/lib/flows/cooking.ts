@@ -1,151 +1,92 @@
 import type { CookResult } from './types';
-import { INGREDIENT_PRESETS, IRAQI_DISHES } from './presets';
+import { INGREDIENT_PRESETS, SWEET_INGREDIENTS, BREAKFAST_INGREDIENTS, SNACK_INGREDIENTS } from './presets';
 
-const CACHE_KEY = 'yawmi_cook_cache_v3';
-const CACHE_TTL = 12 * 60 * 60 * 1000;
-
-interface CacheEntry {
-  key: string;
-  result: CookResult;
-  ts: number;
-}
-
-function getCache(): CacheEntry[] {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
-}
-
-function setCache(entries: CacheEntry[]) {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify(entries.slice(-20))); } catch {}
-}
-
-function cacheKey(meal: string, people: number, ids: string[], custom: string[], maxTime: number): string {
-  return meal + '|' + people + '|' + [...ids].sort().join(',') + '|' + [...custom].sort().join(',') + '|' + maxTime;
-}
-
-type IngItem = typeof INGREDIENT_PRESETS[number];
-
-function getIngredientNames(ids: string[]): string[] {
-  return ids.map(id => INGREDIENT_PRESETS.find(p => p.id === id)).filter((p): p is IngItem => p !== undefined).map(p => p.label);
-}
-
-function mapCustomToIds(custom: string[]): string[] {
-  const ids: string[] = [];
-  for (const c of custom) {
-    const found = INGREDIENT_PRESETS.find(p => p.label.includes(c) || c.includes(p.label));
-    if (found) ids.push(found.id);
-  }
-  return ids;
-}
-
-// ==================== محلي ====================
-export function suggestLocalDish(
-  meal: string, _people: number, ingredientIds: string[], customIngredients: string[],
-  maxTime: number = 999, excludeNames: string[] = []
-): CookResult | null {
-  const allIds = new Set([...ingredientIds, ...mapCustomToIds(customIngredients)]);
-  const candidates = IRAQI_DISHES
-    .filter(d => d.meals.includes(meal))
-    .filter(d => !excludeNames.includes(d.name))
-    .filter(d => (d.prepTime + d.cookTime) <= maxTime)
-    .map(d => {
-      const matched = d.needs.filter(n => allIds.has(n)).length;
-      const missing = d.needs.length - matched;
-      return { dish: d, matched, missing, ratio: d.needs.length === 0 ? 0 : matched / d.needs.length };
-    })
-    // شرط صارم: على الأقل 50% من المكونات متوفرة + مكونين على الأقل
-    .filter(x => x.ratio >= 0.5 && x.matched >= 2)
-    .sort((a, b) => {
-      if (Math.abs(a.ratio - b.ratio) > 0.001) return b.ratio - a.ratio;
-      if (a.missing !== b.missing) return a.missing - b.missing;
-      return b.matched - a.matched;
-    });
-
-  if (candidates.length === 0) {
-    console.log('[CookLocal] ما في أكلة مناسبة، المكونات:', [...allIds]);
-    return null;
-  }
-  const best = candidates[0];
-  const dish = best.dish;
-  const used = dish.needs.filter(n => allIds.has(n)).map(n => INGREDIENT_PRESETS.find(p => p.id === n)?.label || n);
-  const missing = dish.needs.filter(n => !allIds.has(n)).map(n => INGREDIENT_PRESETS.find(p => p.id === n)?.label || n);
-
-  return {
-    dish: dish.name, emoji: dish.emoji,
-    reason: missing.length === 0
-      ? `عندج كل المكونات — يلا نسويها 🌸`
-      : `عندج ${used.join('، ')} — بس تحتاجين: ${missing.slice(0, 3).join('، ')}`,
-    ingredientsUsed: used,
-    missingIngredients: missing,
-    steps: dish.steps,
-    prepTime: dish.prepTime, cookTime: dish.cookTime, source: 'local',
-  };
-}
-
-// ==================== AI ====================
 async function suggestAIDish(
   meal: string, people: number, ingredientIds: string[], customIngredients: string[],
   maxTime: number, excludeNames: string[], apiKey: string, model: string
-): Promise<CookResult | null> {
-  const chipNames = getIngredientNames(ingredientIds);
+): Promise<CookResult> {
+  const allPresets = [...INGREDIENT_PRESETS, ...SWEET_INGREDIENTS, ...BREAKFAST_INGREDIENTS, ...SNACK_INGREDIENTS];
+  const chipNames = ingredientIds
+    .map(id => allPresets.find(p => p.id === id)?.label)
+    .filter((x): x is string => !!x);
   const allIngredients = [...chipNames, ...customIngredients];
-  if (allIngredients.length === 0) return null;
+  if (allIngredients.length === 0) throw new Error('اختاري مكونات أولاً');
 
-  const excludeStr = excludeNames.length > 0 ? `لا تقترحي هذه الأكلات (اقترحي غيرها): ${excludeNames.join('، ')}.` : '';
+  const excludeStr = excludeNames.length > 0 ? `لا تقترحي: ${excludeNames.join('، ')}.` : '';
   
-  const prompt = `اقترحي أكلة عراقية حقيقية لـ "${meal}" تكفي ${people} أشخاص، بناءً على هذي المكونات المتوفرة فقط:
+  let typeRule = '';
+  if (meal === 'فطور') {
+    typeRule = `⚠️ فطور صباحي بحت. المسموح فقط:
+- أساسيات: بيض، جبن، فول، لبن، خبز
+- حلويات الصبح: دبس، قشطة، عسل، زبدة، طحينية، زيت زيتون
+- مشروبات: شاي، قهوة، نسكافيه، عصير، حليب
+- إضافات: تمر، مكسرات
+
+⛔ ممنوع تماماً: دجاج، لحم، سمك، رز، معكرونة، دولمة، بامية، برياني، مقلوبة، كبسة، كبة، أو أي وجبة رئيسية ثقيلة.
+إذا المكونات قليلة، اقترحي فطور بسيط (بيض بالخبز، جبن وزعتر، قشطة وعسل، أو شاي مع خبز).`;
+  } else if (meal === 'نواشف') {
+    typeRule = `⚠️ نواشف (مقليات فقط). المسموح:
+- سمبوسة (باللحم أو الجبن)
+- فلافل
+- بطاطا مقلية
+- كبة مقلية
+- بصل مقلي
+- رقاق مقلي
+
+⛔ ممنوع: أي أكلة مطبوخة (مرقة، رز، دولمة، إلخ).
+اقترحي فقط شي يُقلى بالزيت ويكون كنوع من المقبلات أو العشاء الخفيف.`;
+  } else if (meal === 'حلو') {
+    typeRule = '⚠️ هذا حلى. اقترحي فقط حلويات (كيك، حلى بارد، بسكويت، كنافة). ممنوع اقتراح أكلات مالحة.';
+  } else {
+    typeRule = `⚠️ هذا ${meal}. اقترحي وجبة رئيسية مالحة. ممنوع اقتراح حلويات.`;
+  }
+  
+  const prompt = `اقترحي ${meal === 'حلو' ? 'حلى' : 'أكلة'} عربية حقيقية لـ "${meal}" لـ ${people} أشخاص، بناءً على هذي المكونات فقط:
 ${allIngredients.join('، ')}
 
-⚠️ قواعد صارمة جداً (لا تكسرينها):
-1. **لا تقترحي أكلة تحتاج مكونات مو متوفرة!** إذا المستخدمة ما ذكرت "دجاج" لا تضيفين دجاج.
-2. **التزمي بالمكونات المتوفرة فقط** (+ المكونات الأساسية مثل: ملح، بهارات، زيت، ماء).
-3. إذا المكونات المتوفرة **أقل من 3**، اقترحي **أكلة بسيطة جداً** (بيض، شكشوكة، سلطة) — لا تقترحين دولمة أو برياني!
-4. في حقل "reason" اكتبي بصراحة: "عندج X فقط، هذا اللي ينفع" أو "تحتاجين مكونات إضافية لهذي الأكلة".
-5. **الأكلة تكون عراقية** (بيض بالطماطة، شكشوكة، شوربة، مقلوبة، قيمة، برياني، إلخ).
-6. 5-7 خطوات باللهجة العراقية.
-7. وقت التحضير + الطبخ ≤ ${maxTime} دقيقة.
+قيود:
+- الوقت: ${maxTime} دقيقة.
+- ${excludeStr}
+- ${typeRule}
+- التزمي بالمكونات المتوفرة. لو قليلة، اقترحي شي بسيط.
+- 5-7 خطوات تحضير واضحة.
 
-الوقت المتاح: ${maxTime} دقيقة.
-${excludeStr}
-
-أرجعي **JSON فقط** بدون أي نص إضافي:
-{"dish":"اسم الأكلة","emoji":"🍲","reason":"جملة قصيرة عراقية","ingredientsUsed":["مكون1","مكون2"],"missingIngredients":["مكون ناقص1"],"steps":["خطوة 1","خطوة 2"],"prepTime":15,"cookTime":45}`;
+أرجعي JSON فقط بدون أي نص آخر:
+{"dish":"اسم الأكلة","emoji":"🍲","reason":"جملة قصيرة","ingredientsUsed":["مكون1"],"steps":["خطوة 1"],"prepTime":15,"cookTime":45}`;
 
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 30000);
-    console.log('[CookAI] بدء الاتصال بـ Groq...');
+    const timer = setTimeout(() => controller.abort(), 25000);
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST', signal: controller.signal,
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.8, max_tokens: 800 }),
+      body: JSON.stringify({ 
+        model, 
+        messages: [{ role: 'user', content: prompt }], 
+        temperature: 0.6, 
+        max_tokens: 2000
+      }),
     });
     clearTimeout(timer);
+    
     if (!res.ok) {
-      const errBody = await res.text().catch(() => '');
-      console.warn('[CookAI] فشل:', res.status, errBody.slice(0, 200));
-      return null;
+      if (res.status === 429) throw new Error('وصلتي للحد اليومي. جربي باجر.');
+      if (res.status === 401) throw new Error('مفتاح AI غير صالح. روحي للإعدادات.');
+      throw new Error(`فشل الاتصال (كود ${res.status})`);
     }
+    
     const json = await res.json();
-    let content: string = json?.choices?.[0]?.message?.content?.trim() || '';
-    // إزالة markdown wrappers
+    const msg = json?.choices?.[0]?.message;
+    let content: string = msg?.content?.trim() || '';
+    if (!content && msg?.reasoning) content = msg.reasoning;
     content = content.replace(/```json/gi, '').replace(/```/g, '').trim();
+    
     const start = content.indexOf('{');
     const end = content.lastIndexOf('}');
-    if (start === -1 || end === -1) {
-      console.warn('[Cooking AI] ما لقى JSON');
-      return null;
-    }
-    let parsed;
-    try {
-      parsed = JSON.parse(content.substring(start, end + 1));
-    } catch (e) {
-      console.warn('[Cooking AI] JSON فاشل:', e, content.substring(0, 200));
-      return null;
-    }
-    if (!parsed?.dish) return null;
+    if (start === -1 || end === -1) throw new Error('الرد غير مفهوم. جربي مرة ثانية.');
+    
+    const parsed = JSON.parse(content.substring(start, end + 1));
+    if (!parsed?.dish) throw new Error('ما قدر يقترح أكلة.');
 
     return {
       dish: String(parsed.dish), emoji: parsed.emoji || '🍲',
@@ -157,8 +98,8 @@ ${excludeStr}
       source: 'ai',
     };
   } catch (e: any) {
-    console.warn('[CookAI] threw:', e?.message);
-    return null;
+    if (e.name === 'AbortError') throw new Error('انتهت المهلة. تحققي من الإنترنت.');
+    throw e;
   }
 }
 
@@ -166,46 +107,7 @@ export async function suggestDish(opts: {
   meal: string; people: number; ingredientIds: string[]; customIngredients?: string[];
   maxTime?: number; forceNew?: boolean; exclude?: string[]; apiKey?: string; model?: string;
 }): Promise<CookResult> {
-  const { meal, people, ingredientIds, customIngredients = [], maxTime = 90, forceNew = false, exclude = [], apiKey, model = 'openai/gpt-oss-20b' } = opts;
-  const key = cacheKey(meal, people, ingredientIds, customIngredients, maxTime);
-
-  if (!forceNew) {
-    const hit = getCache().find(c => c.key === key && Date.now() - c.ts < CACHE_TTL);
-    if (hit) return hit.result;
-  }
-
-  if (apiKey) {
-    const ai = await suggestAIDish(meal, people, ingredientIds, customIngredients, maxTime, exclude, apiKey, model);
-    if (ai) {
-      const cache = getCache();
-      cache.push({ key, result: ai, ts: Date.now() });
-      setCache(cache);
-      return ai;
-    }
-  }
-
-  const local = suggestLocalDish(meal, people, ingredientIds, customIngredients, maxTime, exclude);
-  if (local) {
-    const cache = getCache();
-    cache.push({ key, result: local, ts: Date.now() });
-    setCache(cache);
-    return local;
-  }
-
-  // Fallback إذا كلشي فشل — نختار أي أكلة سريعة
-  const fallback = IRAQI_DISHES.filter(d => d.meals.includes(meal) && (d.prepTime + d.cookTime) <= Math.max(maxTime, 120))[0];
-  if (fallback) {
-    return {
-      dish: fallback.name, emoji: fallback.emoji, reason: 'أسرع أكلة متوفرة 🌸',
-      ingredientsUsed: fallback.needs, steps: fallback.steps,
-      prepTime: fallback.prepTime, cookTime: fallback.cookTime, source: 'local',
-    };
-  }
-
-  return {
-    dish: 'بيض بالطماطة', emoji: '🍳', reason: 'أسهل شي بسرعة 🌸',
-    ingredientsUsed: ['بيض', 'طماطة'],
-    steps: ['حمري بصل', 'ضيفي طماطة', 'ضيفي بيض', 'قدميها بالخبز'],
-    prepTime: 5, cookTime: 10, source: 'local',
-  };
+  const { meal, people, ingredientIds, customIngredients = [], maxTime = 90, exclude = [], apiKey, model = 'openai/gpt-oss-20b' } = opts;
+  if (!apiKey) throw new Error('AI غير مفعل. روحي للإعدادات.');
+  return await suggestAIDish(meal, people, ingredientIds, customIngredients, maxTime, exclude, apiKey, model);
 }
