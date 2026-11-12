@@ -12,7 +12,7 @@ const items = [
 export default function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-rose-100 dark:bg-[#252532] dark:border-[#34343f] z-50"
+      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#252532] border-t border-rose-100 dark:border-[#34343f] z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto px-2">
