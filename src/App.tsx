@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
+import {useEffect , useState} from 'react';
 import Home from './pages/Home';
 import Tasks from './pages/Tasks';
 import Calendar from './pages/Calendar';
@@ -14,7 +14,7 @@ import Achievements from './pages/Achievements';
 import Profile from './pages/Profile';
 import AchievementPopup from './components/AchievementPopup';
 import { useRewards } from './stores/useRewards';
-import { registerAndSync, syncMyStats } from './lib/admin/sync';
+import { registerAndSync } from './lib/admin/sync';
 import { useSettings } from './stores/useSettings';
 import Stats from './pages/Stats';
 import Notes from './pages/Notes';
@@ -22,7 +22,6 @@ import Shopping from './pages/Shopping';
 import Backup from './pages/Backup';
 import Placeholder from './pages/Placeholder';
 import ErrorBoundary from './components/ErrorBoundary';
-import { useSettings } from './stores/useSettings';
 import { initNotifications } from './lib/notifications';
 import { ensureTicker, useFocusTimer } from './stores/useFocusTimer';
 
