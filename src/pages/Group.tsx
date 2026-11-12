@@ -342,7 +342,7 @@ export default function Group() {
                       const senderPoints = members.find(x => x.device_id === m.device_id)?.points || 0;
                       const tier = getLevelTier(senderPoints);
                       return (
-                        <div key={m.id} className={`flex w-full ${isMe ? 'ml-auto' : 'mr-auto'}`}>
+                        <div key={m.id} className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[85%] px-3 py-2 ${
                             isMe 
                               ? 'bg-gradient-to-br from-rose-400 to-rose-500 text-white rounded-xl rounded-tr-sm' 

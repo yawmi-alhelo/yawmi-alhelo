@@ -167,7 +167,7 @@ export default function Settings() {
                 window.open(res.url, '_blank');
               }
             } else {
-              alert('تطبيقك محدث لآخر إصدار! ✨');
+              setShowUpdateAlert(true);
             }
           }}
         />
@@ -212,6 +212,25 @@ export default function Settings() {
           </div>
         </div>
       </div>
+      {showUpdateAlert && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setShowUpdateAlert(false)}>
+          <div 
+            className="bg-white dark:bg-[#252532] rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center"
+            style={{ animation: 'popIn 0.3s ease-out' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-6xl mb-4">✨</div>
+            <h3 className="text-xl font-extrabold text-ink-900 dark:text-rose-100 mb-2">كلك ذوق!</h3>
+            <p className="text-sm text-ink-500 dark:text-rose-300/80 leading-relaxed mb-6">تطبيقك محدث لآخر إصدار، عاشت إيدج! 🌸</p>
+            <button 
+              onClick={() => setShowUpdateAlert(false)}
+              className="w-full py-3 rounded-xl2 bg-gradient-to-r from-rose-400 to-lavender-300 text-white font-bold shadow-soft active:scale-95"
+            >
+              تمام
+            </button>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
