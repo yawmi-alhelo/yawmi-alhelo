@@ -40,7 +40,10 @@ function AnnouncementBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    registerAndSync().then(r => {
+    registerAndSync().then(async r => {
+      if (r.overrideApplied) {
+        await useRewards.getState().load();
+      }
       if (r.blocked) {
         alert('🚫 تم إيقاف حسابك: ' + r.reason);
         return;
