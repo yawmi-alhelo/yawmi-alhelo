@@ -11,6 +11,7 @@
   html {
     font-family: 'Cairo', system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none !important;
   }
 
   body {
