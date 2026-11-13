@@ -50,7 +50,7 @@ export default function Home() {
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold text-ink-900 dark:text-rose-100">
           {greetingAr(now.getHours())}
-          {settings.userName ? ` يا ${settings.userName}` : ''}
+          {settings.syncUsername ? ` يا ${settings.syncUsername}` : ''}
         </h1>
         <p className="text-sm text-ink-500 dark:text-rose-300/80 mt-1">{formatDateAr(todayISO())}</p>
       </div>

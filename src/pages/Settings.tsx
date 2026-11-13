@@ -82,15 +82,26 @@ export default function Settings() {
         <p className="text-sm text-ink-500 dark:text-rose-300/80 mt-1">خلينا نضبط التطبيق على ذوقج</p>
       </div>
 
-      <div className="card-soft mb-4">
-        <label className="flex items-center gap-3 mb-2">
-          <User size={18} className="text-rose-500" />
-          <span className="font-semibold text-ink-900 dark:text-rose-100 text-sm">شسمج؟</span>
-        </label>
-        <input type="text" value={settings.userName} onChange={e => update({ userName: e.target.value })}
-          placeholder="اكتبي اسمج الحلو..."
-          className="w-full px-4 py-3 rounded-xl2 bg-rose-50 dark:bg-[#1a1a24] border border-rose-100 dark:border-[#34343f] text-ink-900 dark:text-rose-100 outline-none focus:border-rose-400" />
-      </div>
+      <Section title="الملف الشخصي">
+        <RowButton icon={<User size={18} className="text-rose-500" />} label="ملفي 🌸" sub={settings.activeTitle ? `اللقب: ${settings.activeTitle}` : 'اختاري لقبج'} onClick={() => nav('/profile')} />
+      </Section>
+
+      <Section title="☁️ الحفظ السحابي">
+        <RowButton icon={<Cloud size={18} className="text-blue-500" />} label="مزامنة الحساب" sub={settings.syncUsername ? `مربوط: ${settings.syncUsername}` : 'احفظي بياناتج باسم وكلمة سر'} onClick={() => setShowSyncModal(true)} />
+      </Section>
+
+      <Section title="التحفيز">
+        <RowButton icon={<Users size={18} className="text-rose-500" />} label="إنجازاتي 🏆" sub="شوفي كل الشارات اللي حصلتي عليها" onClick={() => nav('/achievements')} />
+      </Section>
+
+      <Section title="المجموعة">
+        <RowButton icon={<Users size={18} className="text-rose-500" />} label={settings.groupId ? `مجموعتنا (${settings.groupCode})` : 'انضمي لمجموعة'} sub={settings.groupId ? 'شوفي تقدم صاحباتج 🌸' : 'شاركي تقدمج مع صاحباتج'} onClick={() => nav('/group')} />
+      </Section>
+
+      <Section title="أدواتي">
+        <RowButton icon={<Sprout size={18} className="text-mint-300" />} label="عاداتي اليومية 🌱" sub="شرب الماي، القراءة، إلخ" onClick={() => nav('/habits')} />
+        <RowButton icon={<ShoppingCart size={18} className="text-peach-300" />} label="قائمة المشتريات 🛒" sub="شنو نشتري اليوم؟" onClick={() => nav('/shopping')} />
+      </Section>
 
       <Section title="المظهر">
         <ToggleRow icon={<Moon size={18} className="text-lavender-300" />} label="الوضع الداكن" sub="مريح للعين بالليل"
@@ -119,27 +130,6 @@ export default function Settings() {
         <NumberRow icon={<Timer size={18} className="text-rose-500" />} label="مدة التركيز (دقيقة)" value={settings.focusDuration} min={5} max={90} onChange={v => update({ focusDuration: v })} />
         <NumberRow icon={<Timer size={18} className="text-lavender-300" />} label="استراحة قصيرة (دقيقة)" value={settings.shortBreakDuration} min={1} max={15} onChange={v => update({ shortBreakDuration: v })} />
         <NumberRow icon={<Timer size={18} className="text-mint-300" />} label="استراحة طويلة (دقيقة)" value={settings.longBreakDuration} min={10} max={45} onChange={v => update({ longBreakDuration: v })} />
-      </Section>
-
-      <Section title="الملف الشخصي">
-        <RowButton icon={<User size={18} className="text-rose-500" />} label="ملفي 🌸" sub={settings.activeTitle ? `اللقب: ${settings.activeTitle}` : 'اختاري لقبج'} onClick={() => nav('/profile')} />
-      </Section>
-
-      <Section title="التحفيز">
-        <RowButton icon={<Users size={18} className="text-rose-500" />} label="إنجازاتي 🏆" sub="شوفي كل الشارات اللي حصلتي عليها" onClick={() => nav('/achievements')} />
-      </Section>
-
-      <Section title="المجموعة">
-        <RowButton icon={<Users size={18} className="text-rose-500" />} label={settings.groupId ? `مجموعتنا (${settings.groupCode})` : 'انضمي لمجموعة'} sub={settings.groupId ? 'شوفي تقدم صاحباتج 🌸' : 'شاركي تقدمج مع صاحباتج'} onClick={() => nav('/group')} />
-      </Section>
-
-      <Section title="أدواتي">
-        <RowButton icon={<Sprout size={18} className="text-mint-300" />} label="عاداتي اليومية 🌱" sub="شرب الماي، القراءة، إلخ" onClick={() => nav('/habits')} />
-        <RowButton icon={<ShoppingCart size={18} className="text-peach-300" />} label="قائمة المشتريات 🛒" sub="شنو نشتري اليوم؟" onClick={() => nav('/shopping')} />
-      </Section>
-
-      <Section title="☁️ الحفظ السحابي">
-        <RowButton icon={<Cloud size={18} className="text-blue-500" />} label="مزامنة الحساب" sub={settings.syncUsername ? `مربوط: ${settings.syncUsername}` : 'احفظي بياناتج باسم وكلمة سر'} onClick={() => setShowSyncModal(true)} />
       </Section>
 
       <Section title="التحديثات">

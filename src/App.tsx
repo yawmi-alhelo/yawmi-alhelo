@@ -17,7 +17,6 @@ import { useRewards } from './stores/useRewards';
 import { registerAndSync } from './lib/admin/sync';
 import { saveBackupToCloud } from './lib/admin/backup';
 import { useSettings } from './stores/useSettings';
-import { useTasks } from './stores/useTasks';
 import Stats from './pages/Stats';
 import Notes from './pages/Notes';
 import Shopping from './pages/Shopping';
@@ -124,16 +123,6 @@ function AnnouncementBanner() {
 
 export default function App() {
   const load = useSettings(s => s.load);
-
-  useEffect(() => {
-    const unsub = useTasks.subscribe(() => {
-      const s = useSettings.getState().settings;
-      if (s.syncUsername && s.syncPassword) {
-        saveBackupToCloud(s.syncUsername, s.syncPassword);
-      }
-    });
-    return unsub;
-  }, []);
 
   useEffect(() => {
     load();

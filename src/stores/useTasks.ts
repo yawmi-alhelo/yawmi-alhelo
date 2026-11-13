@@ -4,6 +4,7 @@ import { todayISO } from '../lib/date';
 import { scheduleTaskReminder, cancelTaskReminder } from '../lib/notifications';
 import { useSettings } from './useSettings';
 import { useRewards } from './useRewards';
+import { saveBackupToCloud } from '../lib/admin/backup';
 import { updateMyActivity } from '../lib/group';
 import type { Task } from '../types';
 
@@ -20,11 +21,20 @@ interface TasksState {
   defer: (id: string, newDate: string) => Promise<void>;
 }
 
+
+async function triggerCloudSave() {
+  const s = useSettings.getState().settings;
+  if (s.syncUsername && s.syncPassword) {
+    await saveBackupToCloud(s.syncUsername, s.syncPassword).catch(() => {});
+  }
+}
+
 export const useTasks = create<TasksState>((set, get) => ({
   date: todayISO(),
   tasks: [],
   loading: false,
-  setDate: async (d) => { set({ date: d }); await get().load(d); },
+  setDate: async (d) => { set({ date: d }); await get().load(d);
+    triggerCloudSave(); },
   load: async (d) => {
     set({ loading: true });
     const date = d || get().date;
@@ -43,6 +53,7 @@ export const useTasks = create<TasksState>((set, get) => ({
     }
     // 🔑 نستخدم تاريخ المهمة نفسها، ليس date القديم
     await get().load(input.date);
+    triggerCloudSave();
   },
   update: async (id, patch) => {
     await cancelTaskReminder(id);
@@ -68,11 +79,13 @@ export const useTasks = create<TasksState>((set, get) => ({
       }
     }
     await get().load();
+    triggerCloudSave();
   },
   remove: async (id) => {
     await cancelTaskReminder(id);
     await TasksRepo.deleteTask(id);
     await get().load();
+    triggerCloudSave();
   },
   toggle: async (id) => {
     const prevTask = get().tasks.find(t => t.id === id);
@@ -102,6 +115,7 @@ export const useTasks = create<TasksState>((set, get) => ({
       await scheduleTaskReminder(updated, soundId);
     }
     await get().load();
+    triggerCloudSave();
   },
   defer: async (id, newDate) => {
     const t = get().tasks.find(x => x.id === id);
@@ -113,5 +127,6 @@ export const useTasks = create<TasksState>((set, get) => ({
       await scheduleTaskReminder(updated, soundId);
     }
     await get().load();
+    triggerCloudSave();
   },
 }));
