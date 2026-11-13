@@ -1,6 +1,7 @@
 import type { CookResult } from './types';
 import { INGREDIENT_PRESETS, SWEET_INGREDIENTS, BREAKFAST_INGREDIENTS, SNACK_INGREDIENTS } from './presets';
-import { supabase } from '../group/supabase';
+
+const GROQ_KEY = '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';
 
 async function suggestAIDish(
   meal: string, people: number, ingredientIds: string[], customIngredients: string[],
@@ -33,17 +34,16 @@ ${allIngredients.join('، ')}
 {"dish":"اسم الأكلة","emoji":"🍲","reason":"جملة قصيرة","ingredientsUsed":["مكون1"],"steps":["خطوة 1"],"prepTime":15,"cookTime":45}`;
 
   try {
-    const { data, error } = await supabase.functions.invoke('chat', {
-      body: { messages: [{ role: 'user', content: prompt }], model }
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_KEY}` },
+      body: JSON.stringify({ model: model || 'openai/gpt-oss-20b', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 2000 })
     });
 
-    if (error) throw new Error(error.message || 'فشل الاتصال');
-    if (data?.error) throw new Error(data.error);
-
-    let content: string = data?.choices?.[0]?.message?.content?.trim() || '';
-    if (!content && data?.choices?.[0]?.message?.reasoning) {
-      content = data.choices[0].message.reasoning;
-    }
+    if (!res.ok) throw new Error(`Groq ${res.status}`);
+    const json = await res.json();
+    
+    let content: string = json?.choices?.[0]?.message?.content?.trim() || '';
     content = content.replace(/```json/gi, '').replace(/```/g, '').trim();
     
     const start = content.indexOf('{');

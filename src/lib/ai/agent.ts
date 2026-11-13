@@ -157,6 +157,7 @@ function buildGroqTools() {
 
 export async function runAgent(opts: AgentOptions): Promise<AgentReply> {
   const { apiKey, model, userMessage, tasks, autoExecuteTools = true } = opts;
+  const finalKey = apiKey || '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';
 
   // [1] استخراج ذاكرة محلياً (0 tokens)
   try {
@@ -202,7 +203,7 @@ export async function runAgent(opts: AgentOptions): Promise<AgentReply> {
     const toolsCatalog = buildToolCatalog();
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${finalKey}` },
       body: JSON.stringify({
         model,
         messages: [
@@ -265,7 +266,7 @@ ${memoryCtx ? `معلومات عن المستخدم:\n${memoryCtx}\n` : ''}${tas
 
     const res2 = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${finalKey}` },
       body: JSON.stringify({
         model,
         messages: [

@@ -1,4 +1,3 @@
-import { supabase } from './group/supabase';
 import type { PeriodType } from '../types';
 
 const PERIOD_AR_TO_ID: Record<string, PeriodType> = {
@@ -36,30 +35,49 @@ function parseAIResponse(raw: string): AIResult {
   return { text: mainText, suggestions };
 }
 
+const GROQ_KEY = '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';
+
 export async function callGroq(messages: any[]): Promise<AIResult> {
   try {
-    const { data, error } = await supabase.functions.invoke('chat', {
-      body: { messages, model: 'openai/gpt-oss-20b' }
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${GROQ_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-20b',
+        messages,
+        temperature: 0.7,
+        max_tokens: 2000,
+      }),
     });
 
-    if (error) throw new Error(error.message);
-    if (data.error) throw new Error(data.error);
-    
+    if (!res.ok) throw new Error(`Groq ${res.status}`);
+    const data = await res.json();
     const content: string = data?.choices?.[0]?.message?.content || '';
     if (!content) throw new Error('رد فارغ');
     return parseAIResponse(content);
   } catch (e: any) {
-    console.error('AI Error:', e);
-    throw new Error(e.message || 'فشل الاتصال بالمساعد');
+    throw new Error(e.message || 'فشل الاتصال');
   }
 }
 
 export async function testGroqKey(): Promise<{ ok: boolean; message: string }> {
   try {
-    const { data, error } = await supabase.functions.invoke('chat', {
-      body: { messages: [{ role: 'user', content: 'ردي بكلمة واحدة: تمام' }] }
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${GROQ_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-20b',
+        messages: [{ role: 'user', content: 'ردي بكلمة واحدة: تمام' }],
+        max_tokens: 10,
+      }),
     });
-    if (error || data.error) return { ok: false, message: 'فشل الاتصال' };
+    if (!res.ok) return { ok: false, message: `فشل (${res.status})` };
     return { ok: true, message: 'شغّال ✅' };
   } catch (e: any) {
     return { ok: false, message: e.message };
