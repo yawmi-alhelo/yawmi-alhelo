@@ -50,11 +50,17 @@ export default function Stats() {
     setMonthStats({ total: monthTasks.length, done: monthTasks.filter(t => t.completed).length });
 
     // آخر 7 أيام (بناءً على تاريخ الإنجاز الفعلي)
+    const getLocalDateStr = (iso: string) => new Date(iso).toLocaleDateString('en-CA');
     const last7: DayStat[] = [];
     for (let i = 6; i >= 0; i--) {
       const d = addDays(today, -i);
       const totalOnDay = allTasks.filter(t => t.date === d).length;
-      const doneOnDay = allTasks.filter(t => t.completed && t.completedAt && t.completedAt.startsWith(d)).length;
+      const doneOnDay = allTasks.filter(t => {
+        if (!t.completed) return false;
+        if (t.date === d) return true;
+        if (t.completedAt) return getLocalDateStr(t.completedAt) === d;
+        return false;
+      }).length;
       last7.push({ date: d, total: totalOnDay, done: doneOnDay });
     }
     setWeek(last7);
@@ -65,7 +71,7 @@ export default function Stats() {
     setFocusTotal(await FocusRepo.getTotalFocusMinutes());
 
     // تحليلات متقدمة (بناءً على completedAt)
-    const completedTasks = allTasks.filter(t => t.completed && t.completedAt);
+    const completedTasks = allTasks.filter(t => t.completed);
     
     const buckets = getHourlyProductivity(completedTasks);
     setHourly(buckets.map(b => ({ hour: b.hour, count: b.count })));

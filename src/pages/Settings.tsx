@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {User, Moon, Bell, Volume2, Timer,
   Database, Info, ChevronLeft, Sparkles,
-  Users, Sprout, ShoppingCart} from 'lucide-react';
+  Users, Sprout, ShoppingCart, Cloud} from 'lucide-react';
 import Layout from '../components/Layout';
 import { useSettings } from '../stores/useSettings';
 import { checkUpdates, APP_VERSION } from '../lib/updates';
+import { getCloudBackupInfo, restoreFromCloud } from '../lib/admin/backup';
 import ConfirmModal from '../components/ConfirmModal';
 import { Download } from 'lucide-react';
 import { requestNotificationPermission } from '../lib/notifications';
@@ -167,6 +168,27 @@ export default function Settings() {
           label="قائمة المشتريات 🛒"
           sub="شنو نشتري اليوم؟"
           onClick={() => nav('/shopping')}
+        />
+      </Section>
+
+      {/* النسخ السحابي */}
+      <Section title="☁️ الحفظ السحابي">
+        <RowButton
+          icon={<Cloud size={18} className="text-blue-500" />}
+          label="استعادة من السحابة"
+          sub="استرجاع بياناتج من أي جهاز"
+          onClick={async () => {
+            const s = useSettings.getState().settings;
+            if (!s.deviceId) { alert('ما في جهاز مسجل'); return; }
+            const info = await getCloudBackupInfo(s.deviceId);
+            if (!info) { alert('ما في نسخة محفوظة بعد. استخدام التطبيق بيحفظ تلقائياً.'); return; }
+            const dt = new Date(info.backupAt).toLocaleString('ar-IQ');
+            if (confirm(`آخر حفظ: ${dt}\nالمهام: ${info.taskCount}\nالعادات: ${info.habitCount}\nالملاحظات: ${info.noteCount}\n\nاستعادة كل شي؟ (البيانات الحالية راح تنمسح)`)) {
+              const r = await restoreFromCloud(s.deviceId);
+              if (r.ok) { alert(`✅ تم استرجاع ${r.restored} مهمة. راح يعيد التحميل.`); location.reload(); }
+              else alert('فشل الاسترجاع');
+            }
+          }}
         />
       </Section>
 

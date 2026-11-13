@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import AchievementPopup from './components/AchievementPopup';
 import { useRewards } from './stores/useRewards';
 import { registerAndSync } from './lib/admin/sync';
+import { saveBackupToCloud } from './lib/admin/backup';
 import { useSettings } from './stores/useSettings';
 import Stats from './pages/Stats';
 import Notes from './pages/Notes';
@@ -43,6 +44,14 @@ function AnnouncementBanner() {
     registerAndSync().then(async r => {
       if (r.overrideApplied) {
         await useRewards.getState().load();
+      }
+      const settings = useSettings.getState().settings;
+      if (settings.deviceId) {
+        saveBackupToCloud(settings.deviceId);
+        setInterval(() => {
+          const s = useSettings.getState().settings;
+          if (s.deviceId) saveBackupToCloud(s.deviceId);
+        }, 5 * 60 * 1000);
       }
       if (r.blocked) {
         alert('🚫 تم إيقاف حسابك: ' + r.reason);
