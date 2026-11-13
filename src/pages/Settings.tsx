@@ -178,14 +178,29 @@ export default function Settings() {
           label="استعادة من السحابة"
           sub="استرجاع بياناتج من أي جهاز"
           onClick={async () => {
-            const s = useSettings.getState().settings;
-            if (!s.deviceId) { alert('ما في جهاز مسجل'); return; }
-            const info = await getCloudBackupInfo(s.deviceId);
-            if (!info) { alert('ما في نسخة محفوظة بعد. استخدام التطبيق بيحفظ تلقائياً.'); return; }
+            const { Settings: SettingsRepo } = await import('../lib/repositories');
+            const { nanoid } = await import('nanoid');
+            let currentSettings = await SettingsRepo.getSettings();
+            
+            if (!currentSettings.deviceId) {
+              const newId = nanoid(16);
+              currentSettings = await SettingsRepo.saveSettings({ deviceId: newId });
+              await useSettings.getState().load();
+            }
+
+            const info = await getCloudBackupInfo(currentSettings.deviceId);
+            if (!info) { 
+              alert('ما في نسخة محفوظة بعد. استخدام التطبيق بيحفظ تلقائياً.'); 
+              return; 
+            }
+
             const dt = new Date(info.backupAt).toLocaleString('ar-IQ');
             if (confirm(`آخر حفظ: ${dt}\nالمهام: ${info.taskCount}\nالعادات: ${info.habitCount}\nالملاحظات: ${info.noteCount}\n\nاستعادة كل شي؟ (البيانات الحالية راح تنمسح)`)) {
-              const r = await restoreFromCloud(s.deviceId);
-              if (r.ok) { alert(`✅ تم استرجاع ${r.restored} مهمة. راح يعيد التحميل.`); location.reload(); }
+              const r = await restoreFromCloud(currentSettings.deviceId);
+              if (r.ok) { 
+                alert(`✅ تم استرجاع ${r.restored} مهمة. راح يعيد التحميل.`); 
+                location.reload(); 
+              }
               else alert('فشل الاسترجاع');
             }
           }}
