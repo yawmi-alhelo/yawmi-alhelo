@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Moon, Bell, Volume2, Timer, Database, Info, ChevronLeft,
-  Sparkles, Users, Sprout, ShoppingCart, Cloud, Download
+  Sparkles, Brain, Loader2, CheckCircle2, XCircle,
+  Users, Sprout, ShoppingCart, Cloud, Download
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { useSettings } from '../stores/useSettings';
 import { checkUpdates, APP_VERSION } from '../lib/updates';
 import { getCloudBackupInfo, restoreFromCloud, saveBackupToCloud } from '../lib/admin/backup';
+import { testGroqKey } from '../lib/ai';
 
 export default function Settings() {
   const nav = useNavigate();
@@ -19,11 +21,18 @@ export default function Settings() {
   const [syncPass, setSyncPass] = useState(settings.syncPassword || '');
   const [syncLoading, setSyncLoading] = useState(false);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  const [restoreConfirm, setRestoreConfirm] = useState<any>(null);
+  const [testState, setTestState] = useState<{ status: 'idle' | 'testing' | 'ok' | 'err'; msg: string }>({ status: 'idle', msg: '' });
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', settings.darkMode);
   }, [settings.darkMode]);
 
+  async function handleTest() {
+    setTestState({ status: 'testing', msg: 'جاري الاختبار...' });
+    const r = await testGroqKey();
+    setTestState({ status: r.ok ? 'ok' : 'err', msg: r.message });
+  }
 
   async function handleSyncSave() {
     if (!syncUser.trim() || !syncPass.trim()) { setSyncMsg('اكتبي الاسم وكلمة السر'); return; }
@@ -48,18 +57,22 @@ export default function Settings() {
       setSyncLoading(false);
       return;
     }
-    const ok = confirm(`آخر حفظ: ${new Date(info.backupAt).toLocaleString('ar-IQ')}\nالمهام: ${info.taskCount}\n\nاستعادة كل شي؟ (البيانات الحالية راح تنمسح)`);
-    if (ok) {
-      const r = await restoreFromCloud(syncUser, syncPass);
-      if (r.ok) {
-        await update({ syncUsername: syncUser.trim(), syncPassword: syncPass });
-        setSyncMsg('✅ تم الاسترجاع، جاري إعادة التحميل...');
-        setTimeout(() => location.reload(), 1000);
-      } else {
-        setSyncMsg('فشل الاسترجاع');
-      }
+    setRestoreConfirm(info);
+    setSyncLoading(false);
+  }
+
+  async function executeRestore() {
+    setSyncLoading(true);
+    const r = await restoreFromCloud(syncUser, syncPass);
+    if (r.ok) {
+      await update({ syncUsername: syncUser.trim(), syncPassword: syncPass });
+      setSyncMsg('✅ تم الاسترجاع، جاري إعادة التحميل...');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      setSyncMsg('فشل الاسترجاع');
     }
     setSyncLoading(false);
+    setRestoreConfirm(null);
   }
 
   return (
@@ -143,7 +156,20 @@ export default function Settings() {
         <RowButton icon={<Database size={18} className="text-lavender-300" />} label="النسخ الاحتياطي" sub="حفظ واستعادة البيانات (ملف)" onClick={() => nav('/backup')} />
       </Section>
 
-      
+      <Section title="المساعد الذكي 🧠">
+        <ToggleRow icon={<Brain size={18} className="text-lavender-300" />} label="تفعيل الذكاء الاصطناعي" sub="Groq — سريع ومجاني"
+          checked={settings.aiEnabled} onChange={v => update({ aiEnabled: v })} />
+        {settings.aiEnabled && (
+          <div className="px-4 py-3">
+            <button onClick={handleTest} disabled={testState.status === 'testing'}
+              className="w-full bg-lavender-300 text-white rounded-xl2 py-2.5 font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+              {testState.status === 'testing' ? <><Loader2 size={16} className="animate-spin" /> جاري...</> : <><Sparkles size={16} /> اختبار الاتصال</>}
+            </button>
+            {testState.status === 'ok' && <p className="mt-2 text-xs text-mint-300 font-semibold flex items-center gap-1"><CheckCircle2 size={14} /> {testState.msg}</p>}
+            {testState.status === 'err' && <p className="mt-2 text-xs text-rose-500 font-semibold flex items-center gap-1"><XCircle size={14} /> {testState.msg}</p>}
+          </div>
+        )}
+      </Section>
 
       <div className="card-soft mt-4 text-center relative overflow-hidden">
         <div className="relative">
@@ -189,6 +215,26 @@ export default function Settings() {
                 </button>
               </div>
               <button onClick={() => setShowSyncModal(false)} className="w-full mt-2 py-2 text-xs text-ink-500 dark:text-rose-300/80 font-semibold">إغلاق</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {restoreConfirm && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setRestoreConfirm(null)}>
+          <div className="bg-white dark:bg-[#252532] rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center" onClick={e => e.stopPropagation()}>
+            <div className="text-6xl mb-3">⚠️</div>
+            <h3 className="text-xl font-extrabold text-ink-900 dark:text-rose-100 mb-2">تأكيد الاستعادة</h3>
+            <p className="text-sm text-ink-500 dark:text-rose-300/80 mb-4">
+              آخر حفظ: {new Date(restoreConfirm.backupAt).toLocaleString('ar-IQ')}<br/>
+              عدد المهام في هذه النسخة: {restoreConfirm.taskCount}
+            </p>
+            <p className="text-xs text-rose-500 font-bold mb-5">هل أنتِ متأكدة؟ البيانات الحالية في التطبيق ستُمسح وتُستبدل بهذه النسخة.</p>
+            <div className="flex gap-2">
+              <button onClick={() => setRestoreConfirm(null)} className="flex-1 py-3 rounded-xl2 bg-rose-100 dark:bg-[#34343f] text-ink-700 dark:text-rose-200 font-bold">إلغاء</button>
+              <button onClick={executeRestore} disabled={syncLoading} className="flex-1 py-3 rounded-xl2 bg-blue-500 text-white font-bold">
+                {syncLoading ? 'جاري...' : 'نعم، استعادة'}
+              </button>
             </div>
           </div>
         </div>
