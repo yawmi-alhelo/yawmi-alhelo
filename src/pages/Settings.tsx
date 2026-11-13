@@ -2,23 +2,18 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Moon, Bell, Volume2, Timer, Database, Info, ChevronLeft,
-  Sparkles, Brain, Eye, EyeOff, Loader2, CheckCircle2, XCircle,
-  Users, Sprout, ShoppingCart, Cloud, Download
+  Sparkles, Users, Sprout, ShoppingCart, Cloud, Download
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { useSettings } from '../stores/useSettings';
 import { checkUpdates, APP_VERSION } from '../lib/updates';
 import { getCloudBackupInfo, restoreFromCloud, saveBackupToCloud } from '../lib/admin/backup';
-import { testGroqKey, GROQ_MODELS } from '../lib/ai';
 
 export default function Settings() {
   const nav = useNavigate();
   const { settings, update } = useSettings();
 
-  const [showKey, setShowKey] = useState(false);
-  const [testState, setTestState] = useState<{ status: 'idle' | 'testing' | 'ok' | 'err'; msg: string }>({ status: 'idle', msg: '' });
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
-
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [syncUser, setSyncUser] = useState(settings.syncUsername || '');
   const [syncPass, setSyncPass] = useState(settings.syncPassword || '');
@@ -29,11 +24,6 @@ export default function Settings() {
     document.documentElement.classList.toggle('dark', settings.darkMode);
   }, [settings.darkMode]);
 
-  async function handleTest() {
-    setTestState({ status: 'testing', msg: 'جاري الاختبار...' });
-    const r = await testGroqKey(settings.aiApiKey, settings.aiModel);
-    setTestState({ status: r.ok ? 'ok' : 'err', msg: r.message });
-  }
 
   async function handleSyncSave() {
     if (!syncUser.trim() || !syncPass.trim()) { setSyncMsg('اكتبي الاسم وكلمة السر'); return; }
@@ -153,40 +143,7 @@ export default function Settings() {
         <RowButton icon={<Database size={18} className="text-lavender-300" />} label="النسخ الاحتياطي" sub="حفظ واستعادة البيانات (ملف)" onClick={() => nav('/backup')} />
       </Section>
 
-      <Section title="المساعد الذكي 🧠">
-        <ToggleRow icon={<Brain size={18} className="text-lavender-300" />} label="تفعيل الذكاء الاصطناعي" sub="Groq — سريع ومجاني"
-          checked={settings.aiEnabled} onChange={v => update({ aiEnabled: v })} />
-        {settings.aiEnabled && (
-          <>
-            <div className="px-4 py-3">
-              <label className="block text-sm font-semibold text-ink-700 dark:text-rose-200 mb-1.5">مفتاح Groq API</label>
-              <div className="flex gap-2">
-                <input type={showKey ? 'text' : 'password'} value={settings.aiApiKey}
-                  onChange={e => update({ aiApiKey: e.target.value })} placeholder="gsk_..."
-                  className="flex-1 px-3 py-2 rounded-xl2 bg-rose-50 dark:bg-[#1a1a24] border border-rose-100 dark:border-[#34343f] text-ink-900 dark:text-rose-100 outline-none text-sm font-mono" />
-                <button onClick={() => setShowKey(!showKey)} className="w-10 h-10 rounded-xl2 bg-rose-50 dark:bg-[#1a1a24] flex items-center justify-center text-rose-500 shrink-0">
-                  {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-            <div className="px-4 py-3">
-              <label className="block text-sm font-semibold text-ink-700 dark:text-rose-200 mb-1.5">النموذج</label>
-              <select value={settings.aiModel} onChange={e => update({ aiModel: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl2 bg-rose-50 dark:bg-[#1a1a24] border border-rose-100 dark:border-[#34343f] text-ink-900 dark:text-rose-100 outline-none text-sm">
-                {GROQ_MODELS.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
-              </select>
-            </div>
-            <div className="px-4 py-3">
-              <button onClick={handleTest} disabled={testState.status === 'testing' || !settings.aiApiKey}
-                className="w-full bg-lavender-300 text-white rounded-xl2 py-2.5 font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50">
-                {testState.status === 'testing' ? <><Loader2 size={16} className="animate-spin" /> جاري...</> : <><Sparkles size={16} /> اختبار المفتاح</>}
-              </button>
-              {testState.status === 'ok' && <p className="mt-2 text-xs text-mint-300 font-semibold flex items-center gap-1"><CheckCircle2 size={14} /> {testState.msg}</p>}
-              {testState.status === 'err' && <p className="mt-2 text-xs text-rose-500 font-semibold flex items-center gap-1"><XCircle size={14} /> {testState.msg}</p>}
-            </div>
-          </>
-        )}
-      </Section>
+      
 
       <div className="card-soft mt-4 text-center relative overflow-hidden">
         <div className="relative">
