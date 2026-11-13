@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import {useEffect , useState} from 'react';
 import Home from './pages/Home';
 import Tasks from './pages/Tasks';
@@ -133,7 +133,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-    <BrowserRouter>
+    <HashRouter>
       <AnnouncementBanner />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -157,7 +157,7 @@ export default function App() {
         <Route path="*" element={<Placeholder title="صفحة غير موجودة" />} />
       </Routes>
       <AchievementNotifier />
-    </BrowserRouter>
+    </HashRouter>
     </ErrorBoundary>
   );
 }
