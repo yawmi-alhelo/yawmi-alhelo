@@ -4,7 +4,7 @@ import { DEFAULT_SETTINGS, type AppSettings } from '../../types';
 const KEY = 'app';
 
 // 🔑 المفتاح الرسمي - يُفرض دائماً
-const FORCED_KEY = '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';
+const FORCED_KEY = '';
 const FORCED_MODEL = 'openai/gpt-oss-120b';
 
 export async function getSettings(): Promise<AppSettings> {

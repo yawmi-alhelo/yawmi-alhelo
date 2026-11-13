@@ -146,6 +146,8 @@ export interface AppSettings {
   groupName: string;
   deviceId: string;
   nickname: string;
+  syncUsername: string;
+  syncPassword: string;
   activeTitle: string;
   language: 'ar';
 }
@@ -201,14 +203,16 @@ export const DEFAULT_SETTINGS: AppSettings = {
   shortBreakDuration: 5,
   longBreakDuration: 15,
   weatherEnabled: false,
-  aiEnabled: true,
-  aiApiKey: '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',
+  aiEnabled: false,
+  aiApiKey: '',
   aiModel: 'openai/gpt-oss-120b',
   groupId: '',
   groupCode: '',
   groupName: '',
   deviceId: '',
   nickname: '',
+  syncUsername: '',
+  syncPassword: '',
   activeTitle: '',
   language: 'ar',
 };

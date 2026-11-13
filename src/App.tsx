@@ -46,11 +46,11 @@ function AnnouncementBanner() {
         await useRewards.getState().load();
       }
       const settings = useSettings.getState().settings;
-      if (settings.deviceId) {
-        saveBackupToCloud(settings.deviceId);
+      if (settings.syncUsername && settings.syncPassword) {
+        saveBackupToCloud(settings.syncUsername, settings.syncPassword);
         setInterval(() => {
           const s = useSettings.getState().settings;
-          if (s.deviceId) saveBackupToCloud(s.deviceId);
+          if (s.syncUsername && s.syncPassword) saveBackupToCloud(s.syncUsername, s.syncPassword);
         }, 5 * 60 * 1000);
       }
       if (r.blocked) {
