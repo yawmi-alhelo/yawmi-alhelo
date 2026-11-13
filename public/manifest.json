@@ -1,0 +1,17 @@
+{
+  "name": "يومي الحلو",
+  "short_name": "يومي",
+  "description": "يومك مرتب وراحتج أهم",
+  "start_url": "/yawmi-alhelo/",
+  "scope": "/yawmi-alhelo/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF5F8",
+  "theme_color": "#FF8FB1",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/yawmi-alhelo/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/yawmi-alhelo/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
