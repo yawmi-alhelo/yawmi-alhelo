@@ -34,7 +34,7 @@ export async function initNotifications(): Promise<void> {
             visibility: ch.visibility as -1 | 0 | 1,
             vibration: ch.vibration, sound: ch.sound,
           });
-        } catch (e) { console.warn('[Notif] channel فشل', ch.id); }
+        } catch { console.warn('[Notif] channel فشل', ch.id); }
       }
       try {
         await LocalNotifications.createChannel({

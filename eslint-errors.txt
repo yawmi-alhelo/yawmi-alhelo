@@ -1,0 +1,242 @@
+npm notice run yawmi-alhelo@1.2.0 npx
+npm notice run 'eslint' .
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/achievements/store.ts
+  38:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/admin/backup.ts
+  30:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:87  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  83:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/admin/sync.ts
+   17:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   54:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   82:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  141:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/ai.ts
+  40:42  error  Unexpected any. Specify a different type                        @typescript-eslint/no-explicit-any
+  61:15  error  Unexpected any. Specify a different type                        @typescript-eslint/no-explicit-any
+  62:5   error  There is no `cause` attached to the symptom error being thrown  preserve-caught-error
+  82:15  error  Unexpected any. Specify a different type                        @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/ai/agent.ts
+   13:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   24:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  235:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  255:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  291:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  304:77  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/flows/cooking.ts
+  65:15  error  Unexpected any. Specify a different type                        @typescript-eslint/no-explicit-any
+  66:5   error  There is no `cause` attached to the symptom error being thrown  preserve-caught-error
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/prayers/api.ts
+  50:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/tools/registry.ts
+  14:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  65:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  84:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/lib/voice.ts
+  10:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  12:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  59:69  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  67:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  76:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  76:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  76:71  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  83:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  89:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  91:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  93:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Assistant.tsx
+  54:83  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Favorites.tsx
+  13:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Favorites.tsx:13:21
+  11 |
+  12 |   async function load() { setItems(await getAllFavorites()); }
+> 13 |   useEffect(() => { load(); }, []);
+     |                     ^^^^ Avoid calling setState() directly within an effect
+  14 |
+  15 |   async function handleDelete(id: string) {
+  16 |     if (!confirm('تحذفين هذي الوصفة من المفضلة؟')) return;  react-hooks/set-state-in-effect
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Focus.tsx
+  23:21  error    Error: Cannot access variable before it is declared
+
+`loadStats` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Focus.tsx:23:21
+  21 |   const [confirmStop, setConfirmStop] = useState<{ type: FocusType; minutes: number } | null>(null);
+  22 |
+> 23 |   useEffect(() => { loadStats(); }, [t.status]);
+     |                     ^^^^^^^^^ `loadStats` accessed before it is declared
+  24 |
+  25 |   // جدولة إشعار عند بدء المؤقت
+  26 |   useEffect(() => {
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Focus.tsx:35:3
+  33 |   }, [t.status, t.type, settings.notificationsEnabled]);
+  34 |
+> 35 |   async function loadStats() {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 36 |     const today = await getTodayFocusSessions();
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 37 |     const done = today.filter(s => s.completed && s.type === 'focus');
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 38 |     setStats({
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |       sessions: done.length,
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |       minutes: done.reduce((sum, x) => sum + x.durationMinutes, 0),
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 41 |     });
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 42 |   }
+     | ^^^^ `loadStats` is declared here
+  43 |
+  44 |   function minutesFor(type: FocusType): number {
+  45 |     if (type === 'focus') return settings.focusDuration;  react-hooks/immutability
+  33:6   warning  React Hook useEffect has a missing dependency: 't.remainingSeconds'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Group.tsx
+   84:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Group.tsx:84:5
+  82 |   useEffect(() => {
+  83 |     if (!settings.groupId) return;
+> 84 |     loadMembers();
+     |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  85 |     const unsub = subscribeToRoom(settings.groupId, loadMembers);
+  86 |     const interval = setInterval(loadMembers, 30000);
+  87 |     return () => { unsub(); clearInterval(interval); };           react-hooks/set-state-in-effect
+   92:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Group.tsx:92:5
+  90 |   useEffect(() => {
+  91 |     if (!settings.groupId || tab !== 'chat') return;
+> 92 |     loadChat();
+     |     ^^^^^^^^ Avoid calling setState() directly within an effect
+  93 |     const unsub = subscribeToMessages(settings.groupId, loadChat);
+  94 |     const interval = setInterval(loadChat, 5000);
+  95 |     return () => { unsub(); clearInterval(interval); };  react-hooks/set-state-in-effect
+  114:17  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+  129:17  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Home.tsx
+  115:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Home.tsx:115:5
+  113 |
+  114 |   useEffect(() => {
+> 115 |     setVerse(getRandomVerse());
+      |     ^^^^^^^^ Avoid calling setState() directly within an effect
+  116 |     setDua(getRandomDua());
+  117 |   }, [refreshKey]);
+  118 |  react-hooks/set-state-in-effect
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Prayers.tsx
+  99:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Settings.tsx
+  24:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Stats.tsx
+  29:21  error  Error: Cannot access variable before it is declared
+
+`loadAll` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Stats.tsx:29:21
+  27 |   const [comparison, setComparison] = useState<{ thisWeek: number; lastWeek: number; change: number } | null>(null);
+  28 |
+> 29 |   useEffect(() => { loadAll(); }, []);
+     |                     ^^^^^^^ `loadAll` accessed before it is declared
+  30 |
+  31 |   async function loadAll() {
+  32 |     setLoading(true);
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Stats.tsx:31:3
+  29 |   useEffect(() => { loadAll(); }, []);
+  30 |
+> 31 |   async function loadAll() {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |     setLoading(true);
+     | ^^^^^^^^^^^^^^^^^^^^^
+> 33 |     const today = todayISO();
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^
+> 87 |     setLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^
+> 88 |   }
+     | ^^^^ `loadAll` is declared here
+  89 |
+  90 |   const maxBar = Math.max(1, ...week.map(d => d.total));
+  91 |   const maxHourly = Math.max(1, ...hourly.map(h => h.count));  react-hooks/immutability
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Tasks.tsx
+  21:32  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/pages/Tasks.tsx:21:32
+  19 |
+  20 |   useEffect(() => { load(); }, [load]);
+> 21 |   useEffect(() => { if (isNew) setShowForm(true); }, [location.pathname, location.search]);
+     |                                ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  22 |
+  23 |   const filtered = filter === 'all' ? tasks : tasks.filter(t => t.period === filter);
+  24 |  react-hooks/set-state-in-effect
+  21:54  warning  React Hook useEffect has a missing dependency: 'isNew'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             react-hooks/exhaustive-deps
+
+/data/data/com.termux/files/home/yawmi-alhelo/src/stores/useRewards.ts
+  12:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 61 problems (59 errors, 2 warnings)
+

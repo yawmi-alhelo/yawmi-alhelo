@@ -75,7 +75,7 @@ export async function restoreFromCloud(username: string, password: string): Prom
     await tx.done;
     if (b.rewards) await db.put('rewards', b.rewards, 'state');
     return { ok: true, restored: (b.tasks || []).length };
-  } catch (e: any) {
+  } catch {
     return { ok: false, restored: 0 };
   }
 }
