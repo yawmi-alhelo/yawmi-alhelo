@@ -165,7 +165,7 @@ export async function runAgent(opts: AgentOptions): Promise<AgentReply> {
     for (const m of extracted) {
       await saveMemory({ ...m, source: 'auto', confirmed: true });
     }
-  } catch {}
+  } catch { /* ignore */ }
 
   // [2] كشف عمليات بسيطة (0 tokens)
   const quick = detectQuickAction(userMessage);

@@ -75,7 +75,7 @@ export async function registerAndSync(appVersion = '1.2.0'): Promise<SyncResult>
     try {
       const ipRes = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(3000) });
       ip = (await ipRes.json()).ip || '';
-    } catch {}
+    } catch { /* ignore */ }
 
     const deviceInfo = {
       ua: navigator.userAgent,
@@ -150,5 +150,5 @@ export async function syncMyStats(deviceId: string, points: number, streak: numb
       total_points: points, streak, achievements,
       last_seen: new Date().toISOString(),
     }).eq('device_id', deviceId);
-  } catch {}
+  } catch { /* ignore */ }
 }

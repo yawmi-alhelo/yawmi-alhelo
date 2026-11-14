@@ -40,7 +40,7 @@ function loadPersisted(): Persisted | null {
   } catch { return null; }
 }
 function persist(state: Persisted) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
 }
 
 function finishSession(s: Persisted) {
@@ -53,7 +53,7 @@ function finishSession(s: Persisted) {
         useRewards.setState({ lastAchievement: newAch[0] });
         setTimeout(() => useRewards.setState({ lastAchievement: null }), 6500);
       }
-    } catch {}
+    } catch { /* ignore */ }
   }, 1000);
   notifyNow(
     s.type === 'focus' ? '🎉 خلصتِ التركيز!' : '🌿 خلصتِ الاستراحة',

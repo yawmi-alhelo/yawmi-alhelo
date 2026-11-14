@@ -41,5 +41,5 @@ export async function cancelCycleReminder(cycleId: string): Promise<void> {
   if (!isNative) return;
   try {
     await LocalNotifications.cancel({ notifications: [{ id: hashId('cycle_' + cycleId) }] });
-  } catch {}
+  } catch { /* ignore */ }
 }

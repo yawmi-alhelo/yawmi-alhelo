@@ -36,7 +36,7 @@ export async function getMetrics(): Promise<Record<AchievementMetric, number>> {
     const db = await getDB();
     const sessions = await db.getAll('focusSessions');
     focusSessions = sessions.filter((s: any) => s.completed && s.type === 'focus').length;
-  } catch {}
+  } catch { /* ignore */ }
   
   // عدد العادات
   let habitsCount = 0;
@@ -44,7 +44,7 @@ export async function getMetrics(): Promise<Record<AchievementMetric, number>> {
     const db = await getDB();
     const habits = await db.getAll('habits');
     habitsCount = habits.length;
-  } catch {}
+  } catch { /* ignore */ }
   
   // عدد الوصفات
   let cookingCount = 0;
@@ -52,7 +52,7 @@ export async function getMetrics(): Promise<Record<AchievementMetric, number>> {
     const db = await getDB();
     const favs = await db.getAll('favorites');
     cookingCount = favs.length;
-  } catch {}
+  } catch { /* ignore */ }
   
   // المجموعة (تقريبي — من DB المحلي)
   let members = 0;
@@ -60,10 +60,10 @@ export async function getMetrics(): Promise<Record<AchievementMetric, number>> {
     const db = await getDB();
     const settings = await db.get('settings', 'app');
     if (settings?.groupId) members = 1;  // عضو واحد على الأقل
-  } catch {}
+  } catch { /* ignore */ }
   
   // الرسائل (تقريبي)
-  let messages = 0;
+  const messages = 0;
   // ما نقدر نجيبها بدون Supabase — نتجاهلها للآن
   
   return {

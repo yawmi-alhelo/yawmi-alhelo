@@ -133,7 +133,7 @@ export default function Group() {
 
   async function handleLeave() {
     if (!confirm('متأكدة تريدين تطلعين من المجموعة؟')) return;
-    try { await leaveRoom(settings.groupId, deviceId); } catch {}
+    try { await leaveRoom(settings.groupId, deviceId); } catch { /* ignore */ }
     await update({ groupId: '', groupCode: '', groupName: '' });
     setMembers([]);
   }

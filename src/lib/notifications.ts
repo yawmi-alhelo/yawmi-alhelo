@@ -44,7 +44,7 @@ export async function initNotifications(): Promise<void> {
           visibility: SILENT_CHANNEL.visibility as -1 | 0 | 1,
           vibration: SILENT_CHANNEL.vibration,
         });
-      } catch {}
+      } catch { /* ignore */ }
     }
   } catch (e) { console.warn('[Notif] init فشل', e); }
 }
@@ -102,7 +102,7 @@ export async function cancelTaskReminder(taskId: string): Promise<void> {
   if (!isNative) return;
   try {
     await LocalNotifications.cancel({ notifications: [{ id: hashId(taskId) }] });
-  } catch {}
+  } catch { /* ignore */ }
 }
 
 // ==================== جدولة المواعيد ====================
@@ -133,7 +133,7 @@ export async function cancelAppointmentReminder(apptId: string): Promise<void> {
   if (!isNative) return;
   try {
     await LocalNotifications.cancel({ notifications: [{ id: hashId(apptId) }] });
-  } catch {}
+  } catch { /* ignore */ }
 }
 
 // ==================== مؤقت التركيز ====================
@@ -163,7 +163,7 @@ export async function cancelFocusTimer(): Promise<void> {
   if (!isNative) return;
   try {
     await LocalNotifications.cancel({ notifications: [{ id: 88888 }] });
-  } catch {}
+  } catch { /* ignore */ }
 }
 
 // ==================== إشعار محادثة المجموعة ====================
@@ -180,7 +180,7 @@ export async function notifyGroupMessage(senderName: string, text: string): Prom
         largeIcon: 'ic_launcher',
       }],
     });
-  } catch {}
+  } catch { /* ignore */ }
 }
 
 // ==================== إشعارات عامة ====================

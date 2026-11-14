@@ -29,7 +29,7 @@ export async function fetchPrayerTimes(
       fetchedAt: new Date().toISOString(),
       latitude, longitude,
     };
-    try { localStorage.setItem(cacheKey(date, latitude, longitude), JSON.stringify(result)); } catch {}
+    try { localStorage.setItem(cacheKey(date, latitude, longitude), JSON.stringify(result)); } catch { /* ignore */ }
     return result;
   } catch {
     return null;

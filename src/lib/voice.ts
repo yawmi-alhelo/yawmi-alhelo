@@ -53,7 +53,7 @@ export async function startListening(cb: VoiceCallbacks, lang = 'ar-IQ'): Promis
   try {
     if (Capacitor.isNativePlatform()) {
       const SR = await getNativePlugin();
-      for (const l of nativeListeners) { try { await l.remove(); } catch {} }
+      for (const l of nativeListeners) { try { await l.remove(); } catch { /* ignore */ } }
       nativeListeners = [];
 
       const partial = await SR.addListener('partialResults', (data: any) => {
@@ -100,11 +100,11 @@ export async function stopListening(): Promise<void> {
     if (Capacitor.isNativePlatform()) {
       const SR = await getNativePlugin();
       await SR.stop();
-      for (const l of nativeListeners) { try { await l.remove(); } catch {} }
+      for (const l of nativeListeners) { try { await l.remove(); } catch { /* ignore */ } }
       nativeListeners = [];
     } else if (webRecognition) {
       webRecognition.stop();
       webRecognition = null;
     }
-  } catch {}
+  } catch { /* ignore */ }
 }

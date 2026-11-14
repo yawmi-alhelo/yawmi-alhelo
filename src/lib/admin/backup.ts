@@ -69,7 +69,7 @@ export async function restoreFromCloud(username: string, password: string): Prom
     for (const store of stores) await tx.objectStore(store).clear();
     for (const store of stores) {
       for (const item of (b[store] || [])) {
-        try { await tx.objectStore(store).put(item); } catch {}
+        try { await tx.objectStore(store).put(item); } catch { /* ignore */ }
       }
     }
     await tx.done;
