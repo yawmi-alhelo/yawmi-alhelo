@@ -20,7 +20,6 @@ export default function TimePicker({ initial, onSelect, onClose }: Props) {
   const init = parseTime(initial);
   const [h24, setH24] = useState(init.h24);
   const [minute, setMinute] = useState(init.m);
-  const [prevTime, setPrevTime] = useState('');
   const hoursRef = useRef<HTMLDivElement>(null);
   const minutesRef = useRef<HTMLDivElement>(null);
 
@@ -29,12 +28,6 @@ export default function TimePicker({ initial, onSelect, onClose }: Props) {
   const displayH = String(h12).padStart(2, '0');
   const displayM = String(minute).padStart(2, '0');
   const display = `${displayH}:${displayM} ${isPM ? 'م' : 'ص'}`;
-
-  // أنميشن عند تغيير الوقت
-  useEffect(() => {
-    if (prevTime && prevTime !== display) setPrevTime(display);
-    else if (!prevTime) setPrevTime(display);
-  }, [display, prevTime]);
 
   // تمرير للعنصر المختار
   useEffect(() => {

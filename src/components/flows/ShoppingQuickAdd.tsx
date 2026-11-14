@@ -27,7 +27,8 @@ export default function ShoppingQuickAdd({ onClose, onAdded }: Props) {
       await Shopping.addShoppingItem(name);
       setAdded(prev => new Set([...prev, name]));
       onAdded?.();
-    } catch (e) {
+    } catch (error) {
+      console.error('[ShoppingQuickAdd] تعذرت إضافة العنصر:', error);
       alert('فشل الإضافة، جربي مرة ثانية');
     } finally {
       setSaving(null);

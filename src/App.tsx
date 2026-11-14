@@ -11,6 +11,8 @@ import Sounds from './pages/Sounds';
 import Assistant from './pages/Assistant';
 import Group from './pages/Group';
 import Achievements from './pages/Achievements';
+import Prayers from './pages/Prayers';
+import Cycles from './pages/Cycles';
 import Profile from './pages/Profile';
 import AchievementPopup from './components/AchievementPopup';
 import { useRewards } from './stores/useRewards';
@@ -33,9 +35,20 @@ function AchievementNotifier() {
 }
 
 
+interface Announcement {
+  priority?: string;
+  title?: string;
+  message?: string;
+}
+
+interface DirectMessage {
+  title?: string;
+  message?: string;
+}
+
 function AnnouncementBanner() {
-  const [ann, setAnn] = useState<any>(null);
-  const [dm, setDm] = useState<any>(null);
+  const [ann, setAnn] = useState<Announcement | null>(null);
+  const [dm, setDm] = useState<DirectMessage | null>(null);
   const [maintenance, setMaintenance] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -153,6 +166,8 @@ export default function App() {
         <Route path="/backup" element={<Backup />} />
         <Route path="/sounds" element={<Sounds />} />
         <Route path="/achievements" element={<Achievements />} />
+        <Route path="/prayers" element={<Prayers />} />
+        <Route path="/cycles" element={<Cycles />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Placeholder title="صفحة غير موجودة" />} />
       </Routes>

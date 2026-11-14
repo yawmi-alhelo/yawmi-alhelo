@@ -90,8 +90,9 @@ export default function CookingModal({ apiKey, model, onClose, onSave, initialMe
       setShoppingAdded(false);
       if (forceNew) setExcluded([...excluded, r.dish]);
       else setExcluded([r.dish]);
-    } catch (e: any) {
-      setAlertMsg(e.message || 'حدث خطأ');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'حدث خطأ';
+      setAlertMsg(message);
     } finally {
       setLoading(false);
     }

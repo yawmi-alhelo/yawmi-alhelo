@@ -146,6 +146,13 @@ export interface AppSettings {
   groupName: string;
   deviceId: string;
   nickname: string;
+  prayerCity: string;
+  prayerLatitude: number;
+  prayerLongitude: number;
+  prayerNotifications: boolean;
+  cycleLength: number;
+  periodLength: number;
+  cycleNotifications: boolean;
   syncUsername: string;
   syncPassword: string;
   activeTitle: string;
@@ -211,6 +218,13 @@ export const DEFAULT_SETTINGS: AppSettings = {
   groupName: '',
   deviceId: '',
   nickname: '',
+  prayerCity: 'بغداد',
+  prayerLatitude: 33.3152,
+  prayerLongitude: 44.3661,
+  prayerNotifications: false,
+  cycleLength: 28,
+  periodLength: 5,
+  cycleNotifications: true,
   syncUsername: '',
   syncPassword: '',
   activeTitle: '',

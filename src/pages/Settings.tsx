@@ -99,6 +99,8 @@ export default function Settings() {
       </Section>
 
       <Section title="أدواتي">
+        <RowButton icon={<Sparkles size={18} className="text-rose-500" />} label="مواقيت الصلاة 🕌" sub="الفجر، الظهر، العصر، المغرب، العشاء" onClick={() => nav('/prayers')} />
+        <RowButton icon={<Sparkles size={18} className="text-lavender-300" />} label="تتبع دورتي 🌸" sub="خاص على جوالج فقط" onClick={() => nav('/cycles')} />
         <RowButton icon={<Sprout size={18} className="text-mint-300" />} label="عاداتي اليومية 🌱" sub="شرب الماي، القراءة، إلخ" onClick={() => nav('/habits')} />
         <RowButton icon={<ShoppingCart size={18} className="text-peach-300" />} label="قائمة المشتريات 🛒" sub="شنو نشتري اليوم؟" onClick={() => nav('/shopping')} />
       </Section>

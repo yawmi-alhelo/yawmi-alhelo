@@ -4,9 +4,10 @@ import type {
   Note, ShoppingItem, FocusSession, AppSettings
 } from '../types';
 import type { MemoryEntry } from './memory/types';
+import type { CycleRecord } from './cycles/types';
 
 const DB_NAME = 'yawmi-alhelo';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 interface YawmiDB extends DBSchema {
   tasks: { key: string; value: Task; indexes: { 'by-date': string; 'by-completed': number } };
@@ -22,6 +23,7 @@ interface YawmiDB extends DBSchema {
   rewards: { key: string; value: RewardState };
   favorites: { key: string; value: FavoriteRecipe; indexes: { 'by-dish': string } };
   achievements: { key: string; value: UnlockedAchievement };
+  cycles: { key: string; value: CycleRecord; indexes: { 'by-date': string } };
 }
 
 interface UnlockedAchievement {
@@ -86,6 +88,10 @@ export function getDB(): Promise<IDBPDatabase<YawmiDB>> {
       }
       if (oldVersion < 5) {
         db.createObjectStore('achievements', { keyPath: 'id' });
+      }
+      if (oldVersion < 6) {
+        const cyc = db.createObjectStore('cycles', { keyPath: 'id' });
+        cyc.createIndex('by-date', 'startDate');
       }
     },
     blocked() { console.warn('[DB] Blocked'); },

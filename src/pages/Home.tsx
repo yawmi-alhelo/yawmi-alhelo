@@ -1,20 +1,109 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Clock, CheckCircle2, Circle, Calendar as CalIcon } from 'lucide-react';
+import { Plus, CheckCircle2, Circle, Calendar as CalIcon } from 'lucide-react';
 import Layout from '../components/Layout';
 import CircleProgress from '../components/CircleProgress';
-import RewardBadge from '../components/RewardBadge';
-import RolloverBanner from '../components/RolloverBanner';
 import { useTasks } from '../stores/useTasks';
 import { useSettings } from '../stores/useSettings';
 import { formatDateAr, formatTimeAr, greetingAr, getPeriodNow, todayISO, addMinutesToTime } from '../lib/date';
 import { PERIOD_LABELS, PRIORITY_LABELS, type Task } from '../types';
+import { getRandomVerse, getRandomDua, type Verse, type Dua } from '../lib/quran/verses';
+import { fetchPrayerTimes, getCachedPrayerTimes, getNextPrayer } from '../lib/prayers/api';
+import { PRAYER_LABELS, PRAYER_EMOJIS, type PrayerName, type PrayerTimes } from '../lib/prayers/types';
+
+// 🕐 مكوّن الساعة بعقارب
+function AnalogClock({ time }: { time: Date }) {
+  const h = time.getHours() % 12;
+  const m = time.getMinutes();
+  const s = time.getSeconds();
+
+  const secondAngle = s * 6;
+  const minuteAngle = m * 6 + s * 0.1;
+  const hourAngle = h * 30 + m * 0.5;
+
+  return (
+    <svg viewBox="0 0 100 100" className="w-32 h-32 drop-shadow-lg">
+      <defs>
+        <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FF8FB1" />
+          <stop offset="100%" stopColor="#B8A4EC" />
+        </linearGradient>
+        <radialGradient id="faceGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="100%" stopColor="#FFF5F8" />
+        </radialGradient>
+      </defs>
+
+      {/* الإطار الخارجي */}
+      <circle cx="50" cy="50" r="48" fill="url(#rimGrad)" />
+      <circle cx="50" cy="50" r="43" fill="url(#faceGrad)" className="dark:fill-[#252532]" />
+
+      {/* علامات الساعات */}
+      {[...Array(12)].map((_, i) => {
+        const isMain = i % 3 === 0;
+        return (
+          <line
+            key={i}
+            x1="50"
+            y1={isMain ? 12 : 14}
+            x2="50"
+            y2={isMain ? 18 : 16}
+            stroke={isMain ? '#E56A8E' : '#FFC8D6'}
+            strokeWidth={isMain ? 2.2 : 1}
+            strokeLinecap="round"
+            transform={`rotate(${i * 30} 50 50)`}
+          />
+        );
+      })}
+
+      {/* عقرب الساعات */}
+      <line
+        x1="50" y1="50" x2="50" y2="30"
+        stroke="#E56A8E" strokeWidth="3.5" strokeLinecap="round"
+        transform={`rotate(${hourAngle} 50 50)`}
+      />
+
+      {/* عقرب الدقائق */}
+      <line
+        x1="50" y1="50" x2="50" y2="18"
+        stroke="#FF8FB1" strokeWidth="2.5" strokeLinecap="round"
+        transform={`rotate(${minuteAngle} 50 50)`}
+      />
+
+      {/* عقرب الثواني */}
+      <line
+        x1="50" y1="56" x2="50" y2="14"
+        stroke="#B8A4EC" strokeWidth="1.2" strokeLinecap="round"
+        transform={`rotate(${secondAngle} 50 50)`}
+      />
+
+      {/* المركز */}
+      <circle cx="50" cy="50" r="3.5" fill="#E56A8E" />
+      <circle cx="50" cy="50" r="1.5" fill="#FFFFFF" />
+    </svg>
+  );
+}
+
+// ⏱️ تحويل الفارق الزمني لنص مختصر
+function formatDiff(ms: number) {
+  const totalMinutes = Math.floor(ms / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+  if (hours > 0 && mins > 0) return `${hours} س و ${mins} د`;
+  if (hours > 0) return `${hours} ساعة`;
+  if (mins > 0) return `${mins} دقيقة`;
+  return 'أقل من دقيقة';
+}
 
 export default function Home() {
   const nav = useNavigate();
   const { tasks, load, toggle } = useTasks();
   const { settings } = useSettings();
   const [now, setNow] = useState(new Date());
+  const [verse, setVerse] = useState<Verse>(() => getRandomVerse());
+  const [dua, setDua] = useState<Dua>(() => getRandomDua());
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
 
   useEffect(() => {
     load(todayISO());
@@ -22,10 +111,26 @@ export default function Home() {
     return () => clearInterval(t);
   }, [load]);
 
+  useEffect(() => {
+    setVerse(getRandomVerse());
+    setDua(getRandomDua());
+  }, [refreshKey]);
+
+  useEffect(() => {
+    (async () => {
+      const d = todayISO();
+      const cached = getCachedPrayerTimes(d, settings.prayerLatitude, settings.prayerLongitude);
+      if (cached) setPrayerTimes(cached);
+      const fresh = await fetchPrayerTimes(d, settings.prayerLatitude, settings.prayerLongitude);
+      if (fresh) setPrayerTimes(fresh);
+    })();
+  }, [settings.prayerLatitude, settings.prayerLongitude]);
+
   const completed = tasks.filter(t => t.completed).length;
   const remaining = tasks.length - completed;
   const percent = tasks.length === 0 ? 0 : (completed / tasks.length) * 100;
   const currentPeriod = getPeriodNow(now.getHours());
+
   const nowMin = now.getHours() * 60 + now.getMinutes();
   const upcomingTasks = tasks
     .filter(t => !t.completed)
@@ -36,17 +141,36 @@ export default function Home() {
     })
     .sort((a, b) => (a.scheduledTime || '99:99').localeCompare(b.scheduledTime || '99:99'));
   const nextTask = upcomingTasks[0];
+
+  // العداد التنازلي
+  let countdownText = '';
+  if (nextTask && nextTask.scheduledTime) {
+    const [hh, mm] = nextTask.scheduledTime.split(':').map(Number);
+    const taskTime = new Date(now);
+    taskTime.setHours(hh, mm, 0, 0);
+    const diffMs = taskTime.getTime() - now.getTime();
+    if (diffMs > 0) {
+      countdownText = `يبدأ بعد ${formatDiff(diffMs)}`;
+    } else if (nextTask.durationMinutes) {
+      const endTime = new Date(taskTime.getTime() + nextTask.durationMinutes * 60000);
+      const endDiff = endTime.getTime() - now.getTime();
+      countdownText = endDiff > 0 ? `ينتهي بعد ${formatDiff(endDiff)}` : 'فات وقته';
+    }
+  }
+
   const overdueCount = tasks.filter(t => {
     if (t.completed || !t.scheduledTime) return false;
     const [h, m] = t.scheduledTime.split(':').map(Number);
     return h * 60 + m <= nowMin;
   }).length;
 
-  const timeStr = now.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const hours = now.getHours();
+  const ampm = hours >= 12 ? 'م' : 'ص';
+  const h12 = hours % 12 || 12;
+  const timeText = `${String(h12).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
   return (
     <Layout>
-      {/* التحية */}
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold text-ink-900 dark:text-rose-100">
           {greetingAr(now.getHours())}
@@ -55,21 +179,63 @@ export default function Home() {
         <p className="text-sm text-ink-500 dark:text-rose-300/80 mt-1">{formatDateAr(todayISO())}</p>
       </div>
 
-      {/* Rollover */}
-      <RolloverBanner />
+      {/* آية ودعاء اليوم — يتغيران كل فتح */}
+      <div className="card-soft mb-3 p-4"
+        style={{ background: 'linear-gradient(135deg, rgba(255,143,177,0.12) 0%, rgba(184,164,236,0.12) 100%)' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg">📖</span>
+          <p className="text-xs font-bold text-rose-500">آية ودعاء</p>
+          <button
+            onClick={() => setRefreshKey(k => k + 1)}
+            className="mr-auto text-xs text-rose-500 font-semibold flex items-center gap-1 active:scale-90"
+          >
+            🔄 جديد
+          </button>
+        </div>
+        <p className="text-base font-bold text-ink-900 dark:text-rose-100 leading-relaxed text-center mb-3">
+          ﴿ {verse.text} ﴾
+        </p>
+        <p className="text-[10px] text-ink-500 dark:text-rose-300/80 text-center mb-3">— {verse.ref}</p>
+        <div className="border-t border-rose-100 dark:border-[#34343f] pt-3">
+          <p className="text-xs font-bold text-lavender-300 mb-2 text-center">🤲 مناجاة</p>
+          <p className="text-sm text-ink-700 dark:text-rose-200 leading-relaxed text-center">
+            {dua.text}
+          </p>
+          <p className="text-[10px] text-ink-500 dark:text-rose-300/80 text-center mt-2">— {dua.source}</p>
+        </div>
+      </div>
 
-      {/* الساعة + الفترة */}
-      <div className="card-soft mb-4 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-ink-500 dark:text-rose-300/80 mb-1">
-            <Clock size={16} />
-            <span className="text-xs font-semibold">الوقت الآن</span>
+      {/* الصلاة القادمة */}
+      {prayerTimes && (() => {
+        const np = getNextPrayer(prayerTimes, now);
+        if (!np) return null;
+        return (
+          <div onClick={() => nav('/prayers')} className="card-soft mb-4 cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-3">
+            <div className="text-4xl">{PRAYER_EMOJIS[np.name as PrayerName]}</div>
+            <div className="flex-1">
+              <p className="text-xs text-ink-500 dark:text-rose-300/80">الصلاة القادمة</p>
+              <p className="font-extrabold text-ink-900 dark:text-rose-100">{PRAYER_LABELS[np.name as PrayerName]}</p>
+              <p className="text-xs text-rose-500 font-bold">
+                {formatTimeAr(np.time)} · بعد {Math.floor(np.diffMin / 60)} س {np.diffMin % 60} د
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-extrabold text-rose-500 tabular-nums">{timeStr}</p>
+        );
+      })()}
+
+      {/* الساعة بعقارب */}
+      <div className="card-soft mb-4 flex items-center justify-between p-5">
+        <div className="flex flex-col items-center gap-2">
+          <AnalogClock time={now} />
+          <div className="flex items-baseline gap-1" dir="ltr">
+            <span className="text-sm font-extrabold text-ink-700 dark:text-rose-100 tabular-nums">{timeText}</span>
+            <span className="text-xs font-bold text-rose-400">{ampm}</span>
+          </div>
         </div>
         <div className="text-left">
-          <p className="text-xs text-ink-500 dark:text-rose-300/80 mb-1">الفترة</p>
-          <p className="text-lg font-bold text-lavender-300">{PERIOD_LABELS[currentPeriod]}</p>
+          <p className="text-xs text-ink-500 dark:text-rose-300/80 mb-1">الفترة الحالية</p>
+          <p className="text-xl font-extrabold text-lavender-300">{PERIOD_LABELS[currentPeriod]}</p>
+          <p className="text-[10px] text-ink-500 dark:text-rose-300/60 mt-3">الوقت الآن</p>
         </div>
       </div>
 
@@ -99,7 +265,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* المهمة القادمة — بارزة ومتوهجة */}
+      {/* المهمة القادمة */}
       {nextTask && (
         <div
           onClick={() => nav('/tasks')}
@@ -116,9 +282,9 @@ export default function Home() {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
             </span>
             <p className="text-xs font-extrabold text-rose-500 tracking-wide">المهمة القادمة</p>
-            {nextTask.scheduledTime && (
-              <span className="mr-auto text-xs font-bold text-rose-500 tabular-nums bg-white/70 dark:bg-[#252532]/70 px-2 py-0.5 rounded-full">
-                {formatTimeAr(nextTask.scheduledTime)}
+            {countdownText && (
+              <span className="mr-auto text-[10px] font-bold text-rose-600 bg-white/80 dark:bg-[#34343f] px-2 py-0.5 rounded-full">
+                ⏳ {countdownText}
               </span>
             )}
           </div>
@@ -137,17 +303,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* المكافآت */}
-      <div className="mb-4">
-        <RewardBadge />
-      </div>
-
       {/* مهام اليوم */}
-      
-
-
-
-<div className="flex items-center justify-between mb-3 mt-6">
+      <div className="flex items-center justify-between mb-3 mt-6">
         <h2 className="text-lg font-bold text-ink-900 dark:text-rose-100">شغلات اليوم</h2>
         <button
           onClick={() => nav('/tasks')}
@@ -194,7 +351,12 @@ function TaskRow({ task, onToggle }: { task: Task; onToggle: () => void }) {
         </p>
         <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-ink-500 dark:text-rose-300/80">
           <span>{PERIOD_LABELS[task.period]}</span>
-          {task.scheduledTime && (<span className="flex items-center gap-1">· {formatTimeAr(task.scheduledTime)}{task.durationMinutes ? ` — ${formatTimeAr(addMinutesToTime(task.scheduledTime, task.durationMinutes))}` : ''}</span>)}
+          {task.scheduledTime && (
+            <span className="flex items-center gap-1">
+              · {formatTimeAr(task.scheduledTime)}
+              {task.durationMinutes ? ` — ${formatTimeAr(addMinutesToTime(task.scheduledTime, task.durationMinutes))}` : ''}
+            </span>
+          )}
           <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-[#34343f] text-rose-500 font-semibold">
             {PRIORITY_LABELS[task.priority]}
           </span>
