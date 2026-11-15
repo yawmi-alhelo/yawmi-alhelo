@@ -2,6 +2,10 @@ package com.yawmialhelo.app;
 
 import android.content.Intent;
 import android.provider.Settings;
+import android.app.WallpaperManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -19,6 +23,60 @@ public class YawmiLauncherPlugin extends Plugin {
             call.resolve();
         } catch (Exception e) {
             call.reject("تعذر فتح اللانشر: " + e.getMessage());
+        }
+    }
+
+
+    @PluginMethod
+    public void applyTheme(PluginCall call) {
+        try {
+            String id = call.getString("themeId", "pink-blossom");
+            int index = 0;
+            switch (id) {
+                case "lavender-dream": index = 1; break;
+                case "peach-cream": index = 2; break;
+                case "rose-gold": index = 3; break;
+                case "mint-garden": index = 4; break;
+                case "pure-white": index = 5; break;
+            }
+
+            getActivity().getSharedPreferences("launcher_prefs", 0)
+                .edit().putInt("theme", index).apply();
+
+            Intent intent = new Intent(getActivity(), YawmiLauncherActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            getActivity().startActivity(intent);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("تعذر تطبيق الثيم: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public void setWallpaper(PluginCall call) {
+        try {
+            String data = call.getString("dataUrl");
+            if (data == null || !data.contains(",")) {
+                call.reject("صورة الخلفية غير صالحة");
+                return;
+            }
+
+            byte[] bytes = Base64.decode(
+                data.substring(data.indexOf(",") + 1), Base64.DEFAULT
+            );
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+            if (bitmap == null) {
+                call.reject("تعذر قراءة الصورة");
+                return;
+            }
+
+            WallpaperManager.getInstance(getContext()).setBitmap(bitmap);
+            bitmap.recycle();
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("تعذر تعيين الخلفية: " + e.getMessage());
         }
     }
 
