@@ -323,7 +323,16 @@ public class YawmiLauncherActivity extends Activity {
         }
     }
 
-    private void addAppCell(ResolveInfo app, String label, String packageName) {
+    
+    private void applySavedIconShape(ImageView icon, String packageName) {
+        android.content.SharedPreferences prefs =
+            getSharedPreferences("launcher_prefs", MODE_PRIVATE);
+        String shape = prefs.getString("icon_shape_" + packageName, "rounded");
+        float radius = prefs.getFloat("icon_radius_" + packageName, 22f);
+        LauncherIconShape.apply(icon, shape, radius);
+    }
+
+private void addAppCell(ResolveInfo app, String label, String packageName) {
         LinearLayout cell = new LinearLayout(this);
         cell.setOrientation(LinearLayout.VERTICAL);
         cell.setGravity(Gravity.CENTER);
@@ -341,6 +350,7 @@ public class YawmiLauncherActivity extends Activity {
         if (savedUri != null) {
             try {
                 icon.setImageURI(Uri.parse(savedUri));
+        applySavedIconShape(icon, packageName);
             } catch (Exception ignored) {
                 icon.setImageDrawable(app.loadIcon(getPackageManager()));
             }
@@ -383,12 +393,37 @@ public class YawmiLauncherActivity extends Activity {
         });
 
         cell.setOnLongClickListener(v -> {
-            showIconEditor(label, packageName);
+            showIconShapePicker(label, packageName);
             return true;
         });
     }
 
-    private void showIconEditor(String label, String packageName) {
+    
+    private void showIconShapePicker(String label, String packageName) {
+        final String[] names = {
+            "مستدير", "دائري", "مربع", "سداسي", "نجمة"
+        };
+        final String[] values = {
+            "rounded", "circle", "square", "hexagon", "star"
+        };
+
+        android.content.SharedPreferences prefs =
+            getSharedPreferences("launcher_prefs", MODE_PRIVATE);
+
+        new AlertDialog.Builder(this)
+            .setTitle("شكل أيقونة " + label)
+            .setItems(names, (dialog, which) -> {
+                prefs.edit()
+                    .putString("icon_shape_" + packageName, values[which])
+                    .apply();
+
+                recreate();
+            })
+            .setNegativeButton("المزيد من التخصيص", (dialog, which) -> showIconEditor(label, packageName))
+            .show();
+    }
+
+private void showIconEditor(String label, String packageName) {
         String[] options = {
             "اختيار صورة من المعرض",
             "تغيير لون خلفية الأيقونة",
