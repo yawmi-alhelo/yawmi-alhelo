@@ -1,8 +1,10 @@
 package com.yawmialhelo.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.WallpaperManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -74,6 +76,8 @@ public class YawmiLauncherActivity extends Activity {
     };
 
     private SharedPreferences prefs;
+    private String pendingIconPackage;
+    private static final int PICK_ICON_REQUEST = 7412;
 
     private int dp(float value) {
         return (int) (value * getResources().getDisplayMetrics().density);
@@ -329,13 +333,27 @@ public class YawmiLauncherActivity extends Activity {
         int radius = iconStyle == 0 ? 100 : (iconStyle == 1 ? 20 : 7);
 
         ImageView icon = new ImageView(this);
-        icon.setImageDrawable(app.loadIcon(getPackageManager()));
+        String savedUri = prefs.getString("icon_uri_" + packageName, null);
+        int individualBg = prefs.getInt("icon_bg_" + packageName, iconBackground);
+        int individualRadius = prefs.getInt("icon_radius_" + packageName, radius);
+        int individualSize = prefs.getInt("icon_size_" + packageName, iconSize);
+
+        if (savedUri != null) {
+            try {
+                icon.setImageURI(Uri.parse(savedUri));
+            } catch (Exception ignored) {
+                icon.setImageDrawable(app.loadIcon(getPackageManager()));
+            }
+        } else {
+            icon.setImageDrawable(app.loadIcon(getPackageManager()));
+        }
+
         icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        icon.setPadding(dp(7), dp(7), dp(7), dp(7));
-        icon.setBackground(shape(iconBackground, radius));
+        icon.setPadding(dp(5), dp(5), dp(5), dp(5));
+        icon.setBackground(shape(individualBg, individualRadius));
         icon.setClipToOutline(true);
 
-        cell.addView(icon, new LinearLayout.LayoutParams(dp(iconSize), dp(iconSize)));
+        cell.addView(icon, new LinearLayout.LayoutParams(dp(individualSize), dp(individualSize)));
 
         TextView name = text(label, 11, 0xFF38323B, true);
         name.setMaxLines(2);
@@ -365,18 +383,104 @@ public class YawmiLauncherActivity extends Activity {
         });
 
         cell.setOnLongClickListener(v -> {
-            if (favorites.contains(packageName)) {
-                favorites.remove(packageName);
-                Toast.makeText(this, "تمت إزالة " + label + " من المفضلة", Toast.LENGTH_SHORT).show();
-            } else {
-                favorites.add(packageName);
-                Toast.makeText(this, "تمت إضافة " + label + " للمفضلة", Toast.LENGTH_SHORT).show();
-            }
-
-            prefs.edit().putStringSet("favorites", new HashSet<>(favorites)).apply();
-            updateGrid();
+            showIconEditor(label, packageName);
             return true;
         });
+    }
+
+    private void showIconEditor(String label, String packageName) {
+        String[] options = {
+            "اختيار صورة من المعرض",
+            "تغيير لون خلفية الأيقونة",
+            "تغيير شكل إطار الأيقونة",
+            "تغيير حجم الأيقونة",
+            favorites.contains(packageName) ? "إزالة من المفضلة" : "إضافة إلى المفضلة",
+            "استعادة الأيقونة الأصلية"
+        };
+
+        new AlertDialog.Builder(this)
+            .setTitle("تخصيص " + label)
+            .setItems(options, (dialog, which) -> {
+                if (which == 0) {
+                    pendingIconPackage = packageName;
+                    Intent pick = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    pick.addCategory(Intent.CATEGORY_OPENABLE);
+                    pick.setType("image/*");
+                    pick.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                                  Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                    startActivityForResult(pick, PICK_ICON_REQUEST);
+                } else if (which == 1) {
+                    String[] colors = {"أبيض", "وردي", "لافندر", "خوخي", "نعناعي", "أسود"};
+                    int[] values = {
+                        Color.WHITE, 0xFFFFD6E5, 0xFFE2D7FF,
+                        0xFFFFDFC9, 0xFFD8F2E2, Color.BLACK
+                    };
+                    new AlertDialog.Builder(this)
+                        .setTitle("لون خلفية " + label)
+                        .setItems(colors, (d, index) -> {
+                            prefs.edit().putInt("icon_bg_" + packageName, values[index]).apply();
+                            updateGrid();
+                        }).show();
+                } else if (which == 2) {
+                    String[] shapes = {"دائري", "مستدير", "مربع"};
+                    int[] radii = {100, 22, 6};
+                    new AlertDialog.Builder(this)
+                        .setTitle("شكل إطار " + label)
+                        .setItems(shapes, (d, index) -> {
+                            prefs.edit().putInt("icon_radius_" + packageName, radii[index]).apply();
+                            updateGrid();
+                        }).show();
+                } else if (which == 3) {
+                    String[] sizes = {"صغير", "متوسط", "كبير"};
+                    int[] values = {40, 48, 58};
+                    new AlertDialog.Builder(this)
+                        .setTitle("حجم " + label)
+                        .setItems(sizes, (d, index) -> {
+                            prefs.edit().putInt("icon_size_" + packageName, values[index]).apply();
+                            updateGrid();
+                        }).show();
+                } else if (which == 4) {
+                    if (favorites.contains(packageName)) {
+                        favorites.remove(packageName);
+                    } else {
+                        favorites.add(packageName);
+                    }
+                    prefs.edit().putStringSet("favorites", new HashSet<>(favorites)).apply();
+                    updateGrid();
+                } else if (which == 5) {
+                    prefs.edit()
+                        .remove("icon_uri_" + packageName)
+                        .remove("icon_bg_" + packageName)
+                        .remove("icon_radius_" + packageName)
+                        .remove("icon_size_" + packageName)
+                        .apply();
+                    updateGrid();
+                    Toast.makeText(this, "تمت استعادة الأيقونة الأصلية", Toast.LENGTH_SHORT).show();
+                }
+            }).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_ICON_REQUEST && resultCode == RESULT_OK &&
+            data != null && data.getData() != null && pendingIconPackage != null) {
+            Uri uri = data.getData();
+            try {
+                getContentResolver().takePersistableUriPermission(
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+                );
+                prefs.edit()
+                    .putString("icon_uri_" + pendingIconPackage, uri.toString())
+                    .apply();
+                updateGrid();
+                Toast.makeText(this, "تم حفظ صورة الأيقونة بشكل مستقل", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "تعذر حفظ الصورة، حاول اختيار صورة أخرى", Toast.LENGTH_LONG).show();
+            }
+            pendingIconPackage = null;
+        }
     }
 
     private void applyTheme(int index) {
