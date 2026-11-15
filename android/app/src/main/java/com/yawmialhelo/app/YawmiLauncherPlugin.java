@@ -32,16 +32,40 @@ public class YawmiLauncherPlugin extends Plugin {
         try {
             String id = call.getString("themeId", "pink-blossom");
             int index = 0;
+            String iconPack = "candy";
+
             switch (id) {
-                case "lavender-dream": index = 1; break;
-                case "peach-cream": index = 2; break;
-                case "rose-gold": index = 3; break;
-                case "mint-garden": index = 4; break;
-                case "pure-white": index = 5; break;
+                case "lavender-dream":
+                    index = 1;
+                    iconPack = "glass";
+                    break;
+                case "peach-cream":
+                    index = 2;
+                    iconPack = "pastel";
+                    break;
+                case "rose-gold":
+                    index = 3;
+                    iconPack = "candy";
+                    break;
+                case "mint-garden":
+                    index = 4;
+                    iconPack = "nature";
+                    break;
+                case "pure-white":
+                    index = 5;
+                    iconPack = "mono";
+                    break;
+                default:
+                    index = 0;
+                    iconPack = "candy";
+                    break;
             }
 
             getActivity().getSharedPreferences("launcher_prefs", 0)
-                .edit().putInt("theme", index).apply();
+                .edit()
+                .putInt("theme", index)
+                .putString("icon_pack", iconPack)
+                .apply();
 
             Intent intent = new Intent(getActivity(), YawmiLauncherActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
