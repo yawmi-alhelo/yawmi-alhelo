@@ -415,7 +415,7 @@ public class YawmiLauncherActivity extends Activity {
         icon.setBackground(iconPackBackground(packageName, individualBg, individualRadius));
         applySavedIconShape(icon, packageName);
         icon.setClipToOutline(true);
-        renderThemedIcon(icon, individualRadius);
+        // تم إلغاء رسم أيقونات الثيمات
 
         cell.addView(icon, new LinearLayout.LayoutParams(dp(individualSize), dp(individualSize)));
 
