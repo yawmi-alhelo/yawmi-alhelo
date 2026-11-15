@@ -90,6 +90,48 @@ public class YawmiLauncherActivity extends Activity {
         return d;
     }
 
+    private GradientDrawable iconPackBackground(String packageName, int fallbackColor, int fallbackRadius) {
+        String pack = prefs.getString("icon_pack", "pastel");
+        boolean customBackground = prefs.contains("icon_bg_" + packageName);
+        int radius = prefs.contains("icon_radius_" + packageName)
+            ? prefs.getInt("icon_radius_" + packageName, fallbackRadius)
+            : fallbackRadius;
+
+        int first;
+        int second;
+        int stroke;
+
+        switch (pack) {
+            case "glass":
+                first = 0xFFEAF5FF; second = 0xFFD4E8FA; stroke = 0xFFB4D4EE;
+                break;
+            case "midnight":
+                first = 0xFF34364F; second = 0xFF171A2C; stroke = 0xFF777BBA;
+                break;
+            case "nature":
+                first = 0xFFE2F1DF; second = 0xFFB9D9B5; stroke = 0xFF8DBB8C;
+                break;
+            case "mono":
+                first = 0xFFF1F1F1; second = 0xFFD5D5D5; stroke = 0xFFAAAAAA;
+                break;
+            case "candy":
+                first = 0xFFFFE2F0; second = 0xFFE8DFFF; stroke = 0xFFD9A9D5;
+                break;
+            default:
+                first = 0xFFFFF0F5; second = 0xFFE9DFFF; stroke = 0xFFE6BBD7;
+                break;
+        }
+
+        GradientDrawable drawable = new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            new int[]{customBackground ? fallbackColor : first,
+                      customBackground ? fallbackColor : second}
+        );
+        drawable.setCornerRadius(dp(radius));
+        drawable.setStroke(dp(1), stroke);
+        return drawable;
+    }
+
     private TextView text(String value, int size, int color, boolean bold) {
         TextView t = new TextView(this);
         t.setText(value);
@@ -103,7 +145,7 @@ public class YawmiLauncherActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        prefs = getPreferences(0);
+        prefs = getSharedPreferences("launcher_prefs", MODE_PRIVATE);
         selectedTheme = prefs.getInt("theme", 0);
         iconStyle = prefs.getInt("icon_style", 0);
         iconSize = prefs.getInt("icon_size", 48);
@@ -187,6 +229,15 @@ public class YawmiLauncherActivity extends Activity {
 
         themeScroll.addView(themeRow);
         root.addView(themeScroll);
+
+        sectionTitle("حزم الأيقونات");
+
+        Button packsButton = button(
+            "اختيار حزمة وتغيير شكل التطبيقات",
+            accents[selectedTheme]
+        );
+        root.addView(packsButton, new LinearLayout.LayoutParams(-1, dp(48)));
+        packsButton.setOnClickListener(v -> showIconPackPicker());
 
         sectionTitle("شكل الأيقونات");
 
@@ -360,7 +411,8 @@ private void addAppCell(ResolveInfo app, String label, String packageName) {
 
         icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
         icon.setPadding(dp(5), dp(5), dp(5), dp(5));
-        icon.setBackground(shape(individualBg, individualRadius));
+        icon.setBackground(iconPackBackground(packageName, individualBg, individualRadius));
+        applySavedIconShape(icon, packageName);
         icon.setClipToOutline(true);
 
         cell.addView(icon, new LinearLayout.LayoutParams(dp(individualSize), dp(individualSize)));
@@ -399,6 +451,35 @@ private void addAppCell(ResolveInfo app, String label, String packageName) {
     }
 
     
+    private void showIconPackPicker() {
+        final String[] names = {
+            "Pastel Dream - باستيل ناعم",
+            "Glass Style - زجاجي",
+            "Midnight - ليلي داكن",
+            "Nature - طبيعي",
+            "Mono - أبيض ورمادي",
+            "Candy - ألوان ناعمة"
+        };
+
+        final String[] ids = {
+            "pastel", "glass", "midnight", "nature", "mono", "candy"
+        };
+
+        new AlertDialog.Builder(this)
+            .setTitle("حزم أشكال التطبيقات")
+            .setItems(names, (dialog, which) -> {
+                prefs.edit().putString("icon_pack", ids[which]).apply();
+                buildScreen();
+                Toast.makeText(this, "تم تطبيق الحزمة على اللانشر", Toast.LENGTH_SHORT).show();
+            })
+            .setNeutralButton("استعادة الحزمة الافتراضية", (dialog, which) -> {
+                prefs.edit().remove("icon_pack").apply();
+                buildScreen();
+            })
+            .setNegativeButton("إغلاق", null)
+            .show();
+    }
+
     private void showIconShapePicker(String label, String packageName) {
         final String[] names = {
             "مستدير", "دائري", "مربع", "سداسي", "نجمة"
