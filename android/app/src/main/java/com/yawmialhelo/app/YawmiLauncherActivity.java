@@ -209,27 +209,6 @@ public class YawmiLauncherActivity extends Activity {
             startActivity(i);
         });
 
-        sectionTitle("ثيمات الشاشة");
-        HorizontalScrollView themeScroll = new HorizontalScrollView(this);
-        themeScroll.setHorizontalScrollBarEnabled(false);
-        LinearLayout themeRow = new LinearLayout(this);
-        themeRow.setOrientation(LinearLayout.HORIZONTAL);
-
-        for (int i = 0; i < themeNames.length; i++) {
-            final int index = i;
-            Button b = button(
-                (selectedTheme == i ? "✓ " : "") + themeNames[i],
-                accents[i]
-            );
-            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(dp(100), dp(44));
-            p.setMargins(dp(3), dp(5), dp(7), dp(9));
-            themeRow.addView(b, p);
-            b.setOnClickListener(v -> applyTheme(index));
-        }
-
-        themeScroll.addView(themeRow);
-        root.addView(themeScroll);
-
         sectionTitle("حزم الأيقونات");
 
         Button packsButton = button(
