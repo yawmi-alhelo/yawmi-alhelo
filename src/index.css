@@ -659,3 +659,186 @@ html.dark[data-theme] .text-primary {
   color: var(--app-primary) !important;
 }
 
+
+/* YAWMI - DARK MODE COMPONENT SURFACES */
+html.dark[data-theme] {
+  --surface-main: #191923;
+  --surface-card: #252532;
+  --surface-raised: #302d3b;
+  --surface-hover: #393445;
+  --surface-border: #484052;
+  --surface-text: #fff7fb;
+  --surface-muted: #c2b8ca;
+}
+
+/* All common light card backgrounds */
+html.dark[data-theme] .card,
+html.dark[data-theme] .card-soft,
+html.dark[data-theme] .theme-card,
+html.dark[data-theme] .theme-item,
+html.dark[data-theme] .pack-card,
+html.dark[data-theme] .option-card,
+html.dark[data-theme] .stat-card,
+html.dark[data-theme] .modal-content {
+  background: var(--surface-card) !important;
+  color: var(--surface-text) !important;
+  border-color: var(--surface-border) !important;
+}
+
+/* Tailwind light backgrounds */
+html.dark[data-theme] [class~="bg-white"],
+html.dark[data-theme] [class~="bg-gray-50"],
+html.dark[data-theme] [class~="bg-gray-100"],
+html.dark[data-theme] [class~="bg-slate-50"],
+html.dark[data-theme] [class~="bg-slate-100"],
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-pink-50"],
+html.dark[data-theme] [class~="bg-pink-100"],
+html.dark[data-theme] [class~="bg-purple-50"],
+html.dark[data-theme] [class~="bg-purple-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: var(--surface-card) !important;
+  color: var(--surface-text) !important;
+}
+
+/* Nested surfaces and selectable tiles */
+html.dark[data-theme] [class*="rounded-"][class*="bg-"] {
+  border-color: var(--surface-border);
+}
+
+html.dark[data-theme] [role="button"],
+html.dark[data-theme] button:not(.bg-rose-600):not(.bg-rose-500) {
+  color: var(--surface-text);
+}
+
+html.dark[data-theme] button[class~="bg-white"],
+html.dark[data-theme] button[class~="bg-gray-50"],
+html.dark[data-theme] button[class~="bg-rose-50"],
+html.dark[data-theme] button[class~="bg-pink-50"] {
+  background: var(--surface-raised) !important;
+  border-color: var(--surface-border) !important;
+}
+
+/* Text contrast */
+html.dark[data-theme] [class~="text-gray-900"],
+html.dark[data-theme] [class~="text-gray-800"],
+html.dark[data-theme] [class~="text-slate-900"],
+html.dark[data-theme] [class~="text-slate-800"],
+html.dark[data-theme] [class~="text-ink-900"],
+html.dark[data-theme] [class~="text-ink-700"] {
+  color: var(--surface-text) !important;
+}
+
+html.dark[data-theme] [class~="text-gray-600"],
+html.dark[data-theme] [class~="text-gray-500"],
+html.dark[data-theme] [class~="text-slate-600"],
+html.dark[data-theme] [class~="text-slate-500"],
+html.dark[data-theme] [class~="text-ink-500"] {
+  color: var(--surface-muted) !important;
+}
+
+/* Selected theme and active controls */
+html.dark[data-theme] [aria-selected="true"],
+html.dark[data-theme] [aria-pressed="true"],
+html.dark[data-theme] .selected {
+  border-color: var(--app-primary) !important;
+}
+
+/* Inputs and selectors */
+html.dark[data-theme] input,
+html.dark[data-theme] select,
+html.dark[data-theme] textarea {
+  background-color: var(--surface-raised) !important;
+  color: var(--surface-text) !important;
+  border-color: var(--surface-border) !important;
+}
+
+
+/* YAWMI - FIX TRANSPARENT LIGHT SURFACES IN DARK MODE */
+html.dark[data-theme] [class*="bg-white"],
+html.dark[data-theme] [class*="bg-gray-50"],
+html.dark[data-theme] [class*="bg-gray-100"],
+html.dark[data-theme] [class*="bg-slate-50"],
+html.dark[data-theme] [class*="bg-slate-100"],
+html.dark[data-theme] [class*="bg-rose-50"],
+html.dark[data-theme] [class*="bg-rose-100"],
+html.dark[data-theme] [class*="bg-pink-50"],
+html.dark[data-theme] [class*="bg-pink-100"],
+html.dark[data-theme] [class*="bg-purple-50"],
+html.dark[data-theme] [class*="bg-purple-100"],
+html.dark[data-theme] [class*="bg-lavender-100"],
+html.dark[data-theme] [class*="bg-peach-100"],
+html.dark[data-theme] [class*="bg-mint-100"] {
+  background-color: var(--surface-card, #252532) !important;
+  color: var(--surface-text, #fff7fb) !important;
+}
+
+/* Theme cards and option buttons */
+html.dark[data-theme] button:not([class*="bg-rose-500"]):not([class*="bg-rose-600"]):not([class*="bg-pink-500"]):not([class*="bg-purple-500"]),
+html.dark[data-theme] [role="button"]:not([class*="bg-rose-500"]) {
+  border-color: var(--surface-border, #484052);
+}
+
+html.dark[data-theme] [class*="border-white"],
+html.dark[data-theme] [class*="border-gray-100"],
+html.dark[data-theme] [class*="border-rose-100"],
+html.dark[data-theme] [class*="border-pink-100"] {
+  border-color: var(--surface-border, #484052) !important;
+}
+
+html.dark[data-theme] [class*="text-gray-"],
+html.dark[data-theme] [class*="text-slate-"],
+html.dark[data-theme] [class*="text-ink-"] {
+  color: var(--surface-muted, #c2b8ca);
+}
+
+html.dark[data-theme] img {
+  color-scheme: dark;
+}
+
+
+/* YAWMI - FIX TRANSPARENT LIGHT SURFACES IN DARK MODE */
+html.dark[data-theme] [class*="bg-white"],
+html.dark[data-theme] [class*="bg-gray-50"],
+html.dark[data-theme] [class*="bg-gray-100"],
+html.dark[data-theme] [class*="bg-slate-50"],
+html.dark[data-theme] [class*="bg-slate-100"],
+html.dark[data-theme] [class*="bg-rose-50"],
+html.dark[data-theme] [class*="bg-rose-100"],
+html.dark[data-theme] [class*="bg-pink-50"],
+html.dark[data-theme] [class*="bg-pink-100"],
+html.dark[data-theme] [class*="bg-purple-50"],
+html.dark[data-theme] [class*="bg-purple-100"],
+html.dark[data-theme] [class*="bg-lavender-100"],
+html.dark[data-theme] [class*="bg-peach-100"],
+html.dark[data-theme] [class*="bg-mint-100"] {
+  background-color: var(--surface-card, #252532) !important;
+  color: var(--surface-text, #fff7fb) !important;
+}
+
+/* Theme cards and option buttons */
+html.dark[data-theme] button:not([class*="bg-rose-500"]):not([class*="bg-rose-600"]):not([class*="bg-pink-500"]):not([class*="bg-purple-500"]),
+html.dark[data-theme] [role="button"]:not([class*="bg-rose-500"]) {
+  border-color: var(--surface-border, #484052);
+}
+
+html.dark[data-theme] [class*="border-white"],
+html.dark[data-theme] [class*="border-gray-100"],
+html.dark[data-theme] [class*="border-rose-100"],
+html.dark[data-theme] [class*="border-pink-100"] {
+  border-color: var(--surface-border, #484052) !important;
+}
+
+html.dark[data-theme] [class*="text-gray-"],
+html.dark[data-theme] [class*="text-slate-"],
+html.dark[data-theme] [class*="text-ink-"] {
+  color: var(--surface-muted, #c2b8ca);
+}
+
+html.dark[data-theme] img {
+  color-scheme: dark;
+}
+

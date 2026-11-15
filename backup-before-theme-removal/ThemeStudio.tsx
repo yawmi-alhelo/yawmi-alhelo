@@ -133,18 +133,98 @@ export default function ThemeStudio() {
 
   return (
     <Layout>
-      <main dir="rtl" style={{minHeight:'100vh',padding:'18px 14px 90px',background:'var(--background,#f7f7fa)'}}>
+      <main dir="rtl" className="ts-page" style={{minHeight:'100vh',padding:'18px 14px 90px',background:'var(--background,#f7f7fa)'}}>
         <style>{`
+          .ts-page {
+            color:var(--foreground,#292536);
+            background:var(--background,#f7f7fa);
+            transition:background .2s,color .2s;
+          }
           .ts-tabs{display:flex;gap:9px;overflow:auto;padding:5px 0 14px}
-          .ts-tab{border:1px solid var(--border,#ddd);background:var(--card,#fff);border-radius:30px;padding:10px 17px;white-space:nowrap;font-weight:700;color:var(--foreground,inherit)}
+          .ts-tab{
+            flex-shrink:0;border:1px solid #e7dfe8;
+            background:#fff;border-radius:30px;padding:10px 17px;
+            white-space:nowrap;font-weight:700;color:#51485a;
+          }
           .ts-tab.on{background:#242536;color:#fff;border-color:#242536}
           .ts-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-          .ts-card{background:var(--card,#fff);border:1px solid var(--border,#eee);border-radius:18px;overflow:hidden;min-width:0}
+          .ts-card{
+            background:#fff;border:1px solid #eee5ed;
+            border-radius:18px;overflow:hidden;min-width:0;color:#292536;
+          }
           .ts-photo{width:100%;height:190px;object-fit:cover;display:block}
-          .ts-btn{border:0;border-radius:12px;padding:10px 13px;background:#252536;color:white;font-weight:800;width:100%}
-          .ts-muted{color:var(--muted-foreground,#888);font-size:12px}
-          .ts-pack{padding:15px;border:1px solid var(--border,#eee);border-radius:17px;background:var(--card,#fff);text-align:center}
-          .ts-swatch{height:34px;width:34px;border-radius:11px;border:2px solid white;box-shadow:0 2px 8px #0002}
+          .ts-btn{
+            border:0;border-radius:12px;padding:10px 13px;
+            background:#252536;color:white;font-weight:800;width:100%;
+          }
+          .ts-muted{color:#827889;font-size:12px}
+          .ts-pack{
+            padding:15px;border:1px solid #eee5ed;border-radius:17px;
+            background:#fff;text-align:center;color:#292536;width:100%;
+          }
+          .ts-swatch{height:34px;width:34px;border-radius:11px;border:2px solid #fff;box-shadow:0 2px 8px #0002}
+          .ts-favorite{
+            position:absolute;top:10px;left:10px;width:36px;height:36px;
+            border:1px solid #ffffff55;border-radius:50%;
+            background:#ffffffed;color:#555;font-size:19px;
+          }
+
+          html.dark .ts-page, body.dark .ts-page,
+          html[data-mode="dark"] .ts-page {
+            background:#191923 !important;
+            color:#f8edf5 !important;
+            color-scheme:dark;
+          }
+          html.dark .ts-card, body.dark .ts-card,
+          html[data-mode="dark"] .ts-card,
+          html.dark .ts-pack, body.dark .ts-pack,
+          html[data-mode="dark"] .ts-pack {
+            background:#292633 !important;
+            color:#fff2f8 !important;
+            border-color:#484052 !important;
+          }
+          html.dark .ts-tab, body.dark .ts-tab,
+          html[data-mode="dark"] .ts-tab {
+            background:#292633 !important;
+            color:#e9dfea !important;
+            border-color:#494052 !important;
+          }
+          html.dark .ts-tab.on, body.dark .ts-tab.on,
+          html[data-mode="dark"] .ts-tab.on {
+            background:#bd789c !important;
+            color:#fff !important;
+            border-color:#bd789c !important;
+          }
+          html.dark .ts-btn, body.dark .ts-btn,
+          html[data-mode="dark"] .ts-btn {
+            background:linear-gradient(135deg,#a85f86,#765c9e) !important;
+            color:#fff !important;
+          }
+          html.dark .ts-muted, body.dark .ts-muted,
+          html[data-mode="dark"] .ts-muted {
+            color:#c5b5c8 !important;
+          }
+          html.dark .ts-favorite, body.dark .ts-favorite,
+          html[data-mode="dark"] .ts-favorite {
+            background:#302b3b !important;
+            color:#ffd5e7 !important;
+            border-color:#66516b !important;
+          }
+          html.dark .ts-swatch, body.dark .ts-swatch,
+          html[data-mode="dark"] .ts-swatch {
+            border-color:#51475b;
+          }
+          html.dark .ts-page h1, html.dark .ts-page h2,
+          html.dark .ts-page strong,
+          body.dark .ts-page h1, body.dark .ts-page h2,
+          body.dark .ts-page strong {
+            color:#fff2f8;
+          }
+          @media(max-width:360px){
+            .ts-grid{gap:9px}
+            .ts-photo{height:155px}
+            .ts-pack{padding:10px}
+          }
         `}</style>
 
         <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:19}}>
@@ -185,7 +265,7 @@ export default function ThemeStudio() {
               <article className="ts-card" key={theme.id}>
                 <div style={{position:'relative'}}>
                   <img className="ts-photo" src={imageUrl(theme.image)} alt={theme.name} loading="lazy"/>
-                  <button onClick={()=>favorite(theme.id)} aria-label="Favorite" style={{position:'absolute',top:10,left:10,width:36,height:36,border:0,borderRadius:50,background:'#ffffffed',fontSize:19,color:favorites.includes(theme.id)?'#e64b79':'#555'}}>
+                  <button onClick={()=>favorite(theme.id)} aria-label="Favorite" className="ts-favorite">
                     {favorites.includes(theme.id)?'♥':'♡'}
                   </button>
                 </div>

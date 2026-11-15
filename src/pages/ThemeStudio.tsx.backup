@@ -1,0 +1,305 @@
+import React, { useEffect, useState } from 'react';
+import Layout from '../components/Layout';
+
+type Theme = {
+  id: string;
+  name: string;
+  category: string;
+  colors: string[];
+  emoji: string;
+};
+
+const themes: Theme[] = [
+  { id: 'pink', name: 'Pink Blossom', category: 'ناعم', colors: ['#f8b8ce', '#fce5ed', '#fff5f8'], emoji: '🌸' },
+  { id: 'lavender', name: 'Lavender Dream', category: 'ناعم', colors: ['#b9a4ed', '#e8ddff', '#faf7ff'], emoji: '💜' },
+  { id: 'ocean', name: 'Ocean Blue', category: 'هادئ', colors: ['#4c9ed9', '#b8e1f5', '#f1faff'], emoji: '🌊' },
+  { id: 'mint', name: 'Mint Garden', category: 'طبيعة', colors: ['#83c9a5', '#d4f1df', '#f3fff7'], emoji: '🌿' },
+  { id: 'sunset', name: 'Sunset Glow', category: 'ملون', colors: ['#f39b75', '#ffd4a8', '#fff4e8'], emoji: '🌅' },
+  { id: 'dark', name: 'Midnight AMOLED', category: 'داكن', colors: ['#171827', '#292b43', '#090a12'], emoji: '🌙' },
+  { id: 'gold', name: 'Royal Gold', category: 'فاخر', colors: ['#c6a15b', '#f1dfb5', '#fffaf0'], emoji: '👑' },
+  { id: 'nature', name: 'Forest Nature', category: 'طبيعة', colors: ['#527b55', '#b5cda7', '#f1f5e9'], emoji: '🍃' },
+];
+
+const iconPacks = [
+  { id: 'soft', name: 'Soft Icons', emoji: '🌸' },
+  { id: 'minimal', name: 'Minimal', emoji: '◻️' },
+  { id: 'neon', name: 'Neon Glow', emoji: '💠' },
+  { id: 'nature', name: 'Nature', emoji: '🌿' },
+  { id: 'cartoon', name: 'Cartoon', emoji: '🎨' },
+  { id: 'glass', name: 'Glass Style', emoji: '🫧' },
+];
+
+
+function ThemeArtwork({ theme, compact = false }: { theme: Theme; compact?: boolean }) {
+  return (
+    <div style={{
+      width: compact ? 94 : 66,
+      height: compact ? 94 : 91,
+      borderRadius: compact ? 22 : 17,
+      background: `linear-gradient(145deg,${theme.colors[0]},${theme.colors[1]})`,
+      position: 'relative',
+      overflow: 'hidden',
+      boxShadow: '0 8px 22px #0002',
+      border: '3px solid #ffffffaa',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <div style={{ position: 'absolute', width: '75%', height: '75%', borderRadius: '50%', background: '#ffffff55', top: '-25%', right: '-20%' }} />
+      <div style={{ position: 'absolute', width: '55%', height: '55%', borderRadius: '50%', background: theme.colors[2], bottom: '-18%', left: '-15%' }} />
+      <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 5 }}>
+        {[0,1,2,3].map((n) => (
+          <div key={n} style={{
+            width: compact ? 25 : 19,
+            height: compact ? 25 : 19,
+            borderRadius: n === 1 ? '50%' : 7,
+            background: ['#ffffffdd', '#ffffff99', '#ffffffbb', '#ffffff77'][n],
+            border: '1px solid #ffffff88',
+            boxShadow: '0 2px 5px #0001'
+          }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function IconPackArtwork({ id }: { id: string }) {
+  const palettes: Record<string, string[]> = {
+    soft: ['#f3a9c5','#bca8ef','#f5d58c','#9dcbb5'],
+    minimal: ['#252525','#777777','#b5b5b5','#dedede'],
+    neon: ['#00e5ff','#bd55ff','#ff4da6','#a6ff4d'],
+    nature: ['#6caa75','#b3cf87','#d5a96b','#83b7a5'],
+    cartoon: ['#ff8d77','#ffd166','#70c1ff','#b69cff'],
+    glass: ['#b4d9f5','#c7b9ef','#a9e4d1','#e8c6e4']
+  };
+  const colors = palettes[id] || palettes.soft;
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, margin: '4px auto 12px' }}>
+      {colors.map((color, index) => (
+        <div key={color} style={{
+          width: 39, height: 39,
+          borderRadius: index % 2 ? '50%' : 12,
+          background: color,
+          border: '3px solid #ffffff',
+          boxShadow: '0 3px 9px #0002',
+          transform: `translateY(${index % 2 ? 5 : 0}px)`
+        }} />
+      ))}
+    </div>
+  );
+}
+
+export default function ThemeStudio() {
+  const [active, setActive] = useState('pink');
+  const [category, setCategory] = useState('الكل');
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [pack, setPack] = useState('soft');
+  const [wallpaper, setWallpaper] = useState('');
+  const [tab, setTab] = useState('themes');
+
+  useEffect(() => {
+    try {
+      setActive(localStorage.getItem('yawmi-color-theme') || 'pink');
+      setPack(localStorage.getItem('yawmi-icon-pack') || 'soft');
+      setFavorites(JSON.parse(localStorage.getItem('yawmi-theme-favorites') || '[]'));
+      setWallpaper(localStorage.getItem('yawmi-wallpaper-preview') || '');
+    } catch {
+      // Ignore unavailable local storage.
+    }
+  }, []);
+
+  const selectedTheme = themes.find((theme) => theme.id === active) || themes[0];
+
+  const applyTheme = (id: string) => {
+    setActive(id);
+    localStorage.setItem('yawmi-color-theme', id);
+    document.documentElement.dataset.colorTheme = id;
+  };
+
+  const toggleFavorite = (id: string) => {
+    const next = favorites.includes(id)
+      ? favorites.filter((item) => item !== id)
+      : [...favorites, id];
+    setFavorites(next);
+    localStorage.setItem('yawmi-theme-favorites', JSON.stringify(next));
+  };
+
+  const choosePack = (id: string) => {
+    setPack(id);
+    localStorage.setItem('yawmi-icon-pack', id);
+  };
+
+  const uploadWallpaper = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('اختار صورة صالحة');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('حجم الصورة يجب أن يكون أقل من 5 ميغابايت');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      setWallpaper(result);
+      try {
+        localStorage.setItem('yawmi-wallpaper-preview', result);
+      } catch {
+        alert('مساحة التخزين غير كافية للصورة');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const categories = ['الكل', 'ناعم', 'هادئ', 'طبيعة', 'ملون', 'داكن', 'فاخر'];
+  const visibleThemes = themes.filter((theme) =>
+    category === 'الكل' || theme.category === category
+  );
+
+  return (
+    <Layout>
+      <main dir="rtl" style={{ minHeight: '100vh', padding: '18px 14px 90px', background: 'var(--background, #f7f7fb)' }}>
+        <style>{`
+          .ys-card{border:1px solid var(--border, #e7e7ef);border-radius:20px;background:var(--card, #fff);overflow:hidden}
+          .ys-button{border:0;border-radius:13px;padding:11px 16px;font-weight:700;cursor:pointer}
+          .ys-muted{color:var(--muted-foreground, #777)}
+          .ys-theme-preview{height:118px;display:flex;align-items:center;justify-content:center;position:relative}
+          .ys-theme-phone{width:66px;height:91px;border:4px solid rgba(255,255,255,.8);border-radius:16px;background:rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:27px;box-shadow:0 5px 18px #0002}
+          .ys-chip{white-space:nowrap;border:1px solid var(--border,#ddd);background:var(--card,#fff);padding:8px 13px;border-radius:30px;cursor:pointer}
+          .ys-chip.active{background:var(--primary,#7454c8);color:white;border-color:transparent}
+        `}</style>
+
+        <header style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <div>
+              <div className="ys-muted" style={{ fontSize: 13 }}>YAWMI ALHELO</div>
+              <h1 style={{ fontSize: 25, fontWeight: 900, margin: '5px 0' }}>استوديو الثيمات ✨</h1>
+              <div className="ys-muted" style={{ fontSize: 13 }}>خلّي هاتفك يعكس ذوقك</div>
+            </div>
+            <div style={{ width: 43, height: 43, borderRadius: 14, background: 'linear-gradient(135deg,#f3a9c5,#bca8ef,#83c9a5)', boxShadow: '0 5px 15px #0002' }} />
+          </div>
+        </header>
+
+        <section className="ys-card" style={{ padding: 14, marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+            <strong>معاينة ثيمك الحالي</strong>
+            <span className="ys-muted" style={{ fontSize: 12 }}>المحدد الآن</span>
+          </div>
+          <div style={{
+            borderRadius: 17, padding: 18, minHeight: 145,
+            background: `linear-gradient(135deg, ${selectedTheme.colors[0]}, ${selectedTheme.colors[1]}, ${selectedTheme.colors[2]})`,
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#292333'
+          }}>
+            <div>
+              <div style={{ fontSize: 12, opacity: .75 }}>يومي الحلو</div>
+              <div style={{ fontSize: 23, fontWeight: 900, marginTop: 5 }}>{selectedTheme.name}</div>
+              <div style={{ fontSize: 12, marginTop: 8 }}>يومك أجمل بتفاصيلك</div>
+            </div>
+            <ThemeArtwork theme={selectedTheme} compact />
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+            {selectedTheme.colors.map((color) => (
+              <span key={color} style={{ width: 27, height: 27, borderRadius: 50, background: color, border: '1px solid #0001' }} />
+            ))}
+            <span className="ys-muted" style={{ fontSize: 12, alignSelf: 'center', marginRight: 5 }}>ألوان الثيم</span>
+          </div>
+        </section>
+
+        <nav style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 20 }}>
+          {[
+            ['themes', '🎨 الثيمات'],
+            ['icons', '📱 الأيقونات'],
+            ['wallpaper', '🖼️ الخلفيات'],
+          ].map(([id, label]) => (
+            <button key={id} className={`ys-chip ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)}>
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        {tab === 'themes' && (
+          <section>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <h2 style={{ fontSize: 19, fontWeight: 900 }}>اكتشف الثيمات</h2>
+              <span className="ys-muted" style={{ fontSize: 12 }}>{themes.length} ثيمات</span>
+            </div>
+            <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 12 }}>
+              {categories.map((item) => (
+                <button key={item} className={`ys-chip ${category === item ? 'active' : ''}`} onClick={() => setCategory(item)}>
+                  {item}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 12 }}>
+              {visibleThemes.map((theme) => (
+                <article key={theme.id} className="ys-card">
+                  <div className="ys-theme-preview" style={{ background: `linear-gradient(140deg,${theme.colors[0]},${theme.colors[1]},${theme.colors[2]})` }}>
+                    <div className="ys-theme-phone"><ThemeArtwork theme={theme} /></div>
+                    <button aria-label="المفضلة" onClick={() => toggleFavorite(theme.id)} style={{ position: 'absolute', top: 9, left: 9, border: 0, borderRadius: 30, width: 31, height: 31, background: '#ffffffdd', cursor: 'pointer' }}>
+                      {favorites.includes(theme.id) ? '❤️' : '♡'}
+                    </button>
+                  </div>
+                  <div style={{ padding: 11 }}>
+                    <strong style={{ display: 'block', fontSize: 14 }}>{theme.name}</strong>
+                    <span className="ys-muted" style={{ fontSize: 11 }}>{theme.category}</span>
+                    <button className="ys-button" onClick={() => applyTheme(theme.id)} style={{ width: '100%', marginTop: 10, background: active === theme.id ? '#27845d' : 'var(--primary,#7454c8)', color: 'white', fontSize: 12 }}>
+                      {active === theme.id ? '✓ محدد' : 'معاينة واختيار'}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {tab === 'icons' && (
+          <section>
+            <h2 style={{ fontSize: 19, fontWeight: 900, marginBottom: 6 }}>حزم الأيقونات</h2>
+            <p className="ys-muted" style={{ fontSize: 13, marginBottom: 15 }}>اختار النمط اللي يعجبك</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 12 }}>
+              {iconPacks.map((item) => (
+                <button key={item.id} onClick={() => choosePack(item.id)} className="ys-card" style={{ padding: 18, textAlign: 'center', cursor: 'pointer', border: pack === item.id ? '2px solid var(--primary,#7454c8)' : undefined }}>
+                  <IconPackArtwork id={item.id} />
+                  <strong style={{ display: 'block', marginTop: 8 }}>{item.name}</strong>
+                  <span className="ys-muted" style={{ fontSize: 12 }}>{pack === item.id ? '✓ محدد' : 'اختيار الحزمة'}</span>
+                </button>
+              ))}
+            </div>
+            <p className="ys-muted" style={{ fontSize: 12, marginTop: 14 }}>
+              اختيار الحزمة يُحفظ داخل التطبيق. تطبيق الأيقونات فعلياً على شاشة Android يحتاج ربط الحزمة بمحرك اللانشر.
+            </p>
+          </section>
+        )}
+
+        {tab === 'wallpaper' && (
+          <section>
+            <h2 style={{ fontSize: 19, fontWeight: 900, marginBottom: 6 }}>خلفياتك الخاصة</h2>
+            <p className="ys-muted" style={{ fontSize: 13, marginBottom: 15 }}>ارفع صورة من جهازك وشاهد معاينتها</p>
+            <label className="ys-card" style={{ display: 'block', padding: 24, textAlign: 'center', cursor: 'pointer' }}>
+              <div style={{ fontSize: 40 }}>🖼️</div>
+              <strong style={{ display: 'block', marginTop: 8 }}>اختيار صورة من الجهاز</strong>
+              <span className="ys-muted" style={{ fontSize: 12 }}>PNG أو JPG — حتى 5MB</span>
+              <input type="file" accept="image/*" onChange={uploadWallpaper} style={{ display: 'none' }} />
+            </label>
+            {wallpaper && (
+              <div className="ys-card" style={{ marginTop: 16, padding: 12 }}>
+                <img src={wallpaper} alt="معاينة الخلفية المختارة" style={{ width: '100%', height: 260, objectFit: 'cover', borderRadius: 14 }} />
+                <button className="ys-button" onClick={() => {
+                  setWallpaper('');
+                  localStorage.removeItem('yawmi-wallpaper-preview');
+                }} style={{ marginTop: 10, background: '#b83e50', color: 'white' }}>
+                  إزالة المعاينة
+                </button>
+              </div>
+            )}
+            <p className="ys-muted" style={{ fontSize: 12, marginTop: 14 }}>
+              هذه معاينة محفوظة داخل التطبيق؛ تعيينها كخلفية فعلية للهاتف يحتاج صلاحية وربط Android الأصلي.
+            </p>
+          </section>
+        )}
+      </main>
+    </Layout>
+  );
+}

@@ -22,7 +22,6 @@ const Backup = lazy(() => import('./pages/Backup'));
 const Favorites = lazy(() => import('./pages/Favorites'));
 const AppointmentsPage = lazy(() => import('./pages/Appointments'));
 const Launcher = lazy(() => import('./pages/Launcher'));
-const ThemeStudio = lazy(() => import('./pages/ThemeStudio'));
 
 
 
@@ -212,7 +211,6 @@ export default function App() {
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/appointments" element={<AppointmentsPage />} />
         <Route path="/launcher" element={<Launcher />} />
-        <Route path="/themes" element={<ThemeStudio />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/backup" element={<Backup />} />
         <Route path="/sounds" element={<Sounds />} />
