@@ -47,7 +47,7 @@ export function getNextPrayer(times: PrayerTimes, now = new Date()): { name: Pra
   const order: PrayerName[] = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
   const nowMin = now.getHours() * 60 + now.getMinutes();
   for (const p of order) {
-    const time = (times as any)[p] as string;
+    const time = (times as unknown as Record<string, string>)[p];
     if (!time) continue;
     const [h, m] = time.split(':').map(Number);
     const tmin = h * 60 + m;

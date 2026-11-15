@@ -84,6 +84,19 @@ function AnalogClock({ time }: { time: Date }) {
   );
 }
 
+// 🌤️ وصف حالة الطقس
+function getWeatherInfo(code: number) {
+  if (code === 0) return { icon: '☀️', label: 'سماء صافية' };
+  if ([1, 2].includes(code)) return { icon: '🌤️', label: 'غائم جزئياً' };
+  if (code === 3) return { icon: '☁️', label: 'غائم' };
+  if ([45, 48].includes(code)) return { icon: '🌫️', label: 'ضباب' };
+  if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌦️', label: 'رذاذ' };
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { icon: '🌧️', label: 'أمطار' };
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return { icon: '❄️', label: 'ثلوج' };
+  if ([95, 96, 99].includes(code)) return { icon: '⛈️', label: 'عواصف رعدية' };
+  return { icon: '🌤️', label: 'حالة الطقس' };
+}
+
 // ⏱️ تحويل الفارق الزمني لنص مختصر
 function formatDiff(ms: number) {
   const totalMinutes = Math.floor(ms / 60000);
@@ -102,8 +115,14 @@ export default function Home() {
   const [now, setNow] = useState(new Date());
   const [verse, setVerse] = useState<Verse>(() => getRandomVerse());
   const [dua, setDua] = useState<Dua>(() => getRandomDua());
-  const [refreshKey, setRefreshKey] = useState(0);
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
+  const [weather, setWeather] = useState<{
+    temperature: number;
+    apparent: number;
+    code: number;
+    min: number | null;
+    max: number | null;
+  } | null>(null);
 
   useEffect(() => {
     load(todayISO());
@@ -111,10 +130,6 @@ export default function Home() {
     return () => clearInterval(t);
   }, [load]);
 
-  useEffect(() => {
-    setVerse(getRandomVerse());
-    setDua(getRandomDua());
-  }, [refreshKey]);
 
   useEffect(() => {
     (async () => {
@@ -124,6 +139,51 @@ export default function Home() {
       const fresh = await fetchPrayerTimes(d, settings.prayerLatitude, settings.prayerLongitude);
       if (fresh) setPrayerTimes(fresh);
     })();
+  }, [settings.prayerLatitude, settings.prayerLongitude]);
+
+  // جلب الطقس وتحديثه كل 30 دقيقة
+  useEffect(() => {
+    let active = true;
+
+    const loadWeather = async () => {
+      try {
+        const latitude = settings.prayerLatitude != null &&
+          Number.isFinite(Number(settings.prayerLatitude))
+          ? Number(settings.prayerLatitude) : 33.3152;
+
+        const longitude = settings.prayerLongitude != null &&
+          Number.isFinite(Number(settings.prayerLongitude))
+          ? Number(settings.prayerLongitude) : 44.3661;
+
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FBaghdad`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Weather request failed');
+
+        const data = await response.json();
+        if (!active || !data.current) return;
+
+        setWeather({
+          temperature: Math.round(data.current.temperature_2m),
+          apparent: Math.round(data.current.apparent_temperature),
+          code: data.current.weather_code,
+          min: data.daily?.temperature_2m_min?.[0] != null
+            ? Math.round(data.daily.temperature_2m_min[0]) : null,
+          max: data.daily?.temperature_2m_max?.[0] != null
+            ? Math.round(data.daily.temperature_2m_max[0]) : null,
+        });
+      } catch (error) {
+        console.error('تعذر جلب الطقس:', error);
+      }
+    };
+
+    loadWeather();
+    const timer = window.setInterval(loadWeather, 30 * 60 * 1000);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, [settings.prayerLatitude, settings.prayerLongitude]);
 
   const completed = tasks.filter(t => t.completed).length;
@@ -186,7 +246,7 @@ export default function Home() {
           <span className="text-lg">📖</span>
           <p className="text-xs font-bold text-rose-500">آية ودعاء</p>
           <button
-            onClick={() => setRefreshKey(k => k + 1)}
+            onClick={() => { setVerse(getRandomVerse()); setDua(getRandomDua()); }}
             className="mr-auto text-xs text-rose-500 font-semibold flex items-center gap-1 active:scale-90"
           >
             🔄 جديد
@@ -223,19 +283,45 @@ export default function Home() {
         );
       })()}
 
-      {/* الساعة بعقارب */}
-      <div className="card-soft mb-4 flex items-center justify-between p-5">
-        <div className="flex flex-col items-center gap-2">
+      {/* الساعة والطقس في بطاقة واحدة */}
+      <div className="card-soft mb-4 grid grid-cols-2 items-center gap-3 p-4">
+        <div className="flex min-w-0 flex-col items-center justify-center gap-1">
           <AnalogClock time={now} />
           <div className="flex items-baseline gap-1" dir="ltr">
             <span className="text-sm font-extrabold text-ink-700 dark:text-rose-100 tabular-nums">{timeText}</span>
             <span className="text-xs font-bold text-rose-400">{ampm}</span>
           </div>
+          <p className="mt-1 text-base font-extrabold text-lavender-300">
+            {PERIOD_LABELS[currentPeriod]}
+          </p>
         </div>
-        <div className="text-left">
-          <p className="text-xs text-ink-500 dark:text-rose-300/80 mb-1">الفترة الحالية</p>
-          <p className="text-xl font-extrabold text-lavender-300">{PERIOD_LABELS[currentPeriod]}</p>
-          <p className="text-[10px] text-ink-500 dark:text-rose-300/60 mt-3">الوقت الآن</p>
+
+        <div className="flex min-w-0 flex-col items-center justify-center text-center border-r border-rose-100 dark:border-[#34343f] pr-3">
+          <p className="mb-2 text-xs font-bold text-ink-500 dark:text-rose-300/80">الطقس الآن</p>
+          {weather ? (
+            <>
+              <span className="text-4xl leading-none">{getWeatherInfo(weather.code).icon}</span>
+              <p className="mt-2 text-3xl font-extrabold text-ink-900 dark:text-rose-100 tabular-nums">
+                {weather.temperature}°
+              </p>
+              <p className="mt-1 text-xs font-bold text-lavender-300">
+                {getWeatherInfo(weather.code).label}
+              </p>
+              <p className="mt-2 text-[10px] text-ink-500 dark:text-rose-300/70">
+                محسوسة {weather.apparent}°
+              </p>
+              <p className="mt-1 text-[10px] text-ink-500 dark:text-rose-300/70">
+                {weather.min != null ? `الصغرى ${weather.min}°` : ''}
+                {weather.min != null && weather.max != null ? ' · ' : ''}
+                {weather.max != null ? `العظمى ${weather.max}°` : ''}
+              </p>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-2 py-3">
+              <span className="text-4xl">🌤️</span>
+              <p className="text-xs text-ink-500 dark:text-rose-300/80">جارٍ تحميل الطقس...</p>
+            </div>
+          )}
         </div>
       </div>
 

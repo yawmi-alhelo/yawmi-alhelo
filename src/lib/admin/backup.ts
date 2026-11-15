@@ -1,3 +1,11 @@
+export interface CloudBackupInfo {
+  backupAt: string;
+  taskCount: number;
+  habitCount: number;
+  noteCount: number;
+}
+
+import { errMsg } from '../errors';
 import { supabase } from '../group/supabase';
 import { getDB } from '../db';
 
@@ -27,13 +35,13 @@ export async function saveBackupToCloud(username: string, password?: string): Pr
     }, { onConflict: 'username' });
 
     return !error;
-  } catch (e: any) {
-    console.warn('[backup] فشل:', e?.message);
+  } catch (e) {
+    console.warn('[backup] فشل:', errMsg(e));
     return false;
   }
 }
 
-export async function getCloudBackupInfo(username: string, password: string): Promise<any | null> {
+export async function getCloudBackupInfo(username: string, password: string): Promise<CloudBackupInfo | null> {
   if (!username || !password) return null;
   try {
     const { data } = await supabase.from('user_sync_accounts')
@@ -80,7 +88,7 @@ export async function restoreFromCloud(username: string, password: string): Prom
   }
 }
 
-let backupTimer: any = null;
+let backupTimer: ReturnType<typeof setTimeout> | null = null;
 export function scheduleAutoBackup(username: string, password: string) {
   if (!username || !password) return;
   if (backupTimer) clearTimeout(backupTimer);

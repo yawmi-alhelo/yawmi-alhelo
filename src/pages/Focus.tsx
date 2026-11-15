@@ -20,18 +20,6 @@ export default function Focus() {
   const [stats, setStats] = useState({ sessions: 0, minutes: 0 });
   const [confirmStop, setConfirmStop] = useState<{ type: FocusType; minutes: number } | null>(null);
 
-  useEffect(() => { loadStats(); }, [t.status]);
-
-  // جدولة إشعار عند بدء المؤقت
-  useEffect(() => {
-    if (!settings.notificationsEnabled) return;
-    if (t.status === 'running' && t.remainingSeconds > 0) {
-      scheduleFocusTimer(t.remainingSeconds, t.type);
-    } else if (t.status === 'paused' || t.status === 'done' || t.status === 'idle') {
-      cancelFocusTimer();
-    }
-  }, [t.status, t.type, settings.notificationsEnabled]);
-
   async function loadStats() {
     const today = await getTodayFocusSessions();
     const done = today.filter(s => s.completed && s.type === 'focus');
@@ -40,6 +28,23 @@ export default function Focus() {
       minutes: done.reduce((sum, x) => sum + x.durationMinutes, 0),
     });
   }
+
+  useEffect(() => {
+    const tid = setTimeout(() => { void loadStats(); }, 0);
+    return () => clearTimeout(tid);
+  }, [t.status]);
+
+  // جدولة إشعار عند بدء المؤقت
+  useEffect(() => {
+    if (!settings.notificationsEnabled) return;
+    if (t.status === 'running') {
+      const rem = useFocusTimer.getState().remainingSeconds;
+      if (rem > 0) scheduleFocusTimer(rem, t.type);
+    } else if (t.status === 'paused' || t.status === 'done' || t.status === 'idle') {
+      cancelFocusTimer();
+    }
+  }, [t.status, t.type, settings.notificationsEnabled]);
+
 
   function minutesFor(type: FocusType): number {
     if (type === 'focus') return settings.focusDuration;

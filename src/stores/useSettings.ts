@@ -21,13 +21,17 @@ export const useSettings = create<SettingsState>((set) => ({
       model: s.aiModel,
     });
     set({ settings: s, loaded: true });
-    if (s.darkMode) document.documentElement.classList.add('dark');
+    document.documentElement.classList.toggle('dark', !!s.darkMode);
+    document.documentElement.dataset.theme = s.appTheme || 'pink-blossom';
   },
   update: async (patch) => {
     const next = await SettingsRepo.saveSettings(patch);
     set({ settings: next });
     if ('darkMode' in patch) {
       document.documentElement.classList.toggle('dark', !!next.darkMode);
+    }
+    if ('appTheme' in patch) {
+      document.documentElement.dataset.theme = next.appTheme || 'pink-blossom';
     }
   },
 }));

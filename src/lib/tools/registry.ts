@@ -11,13 +11,13 @@ export interface ToolArg {
 export interface ToolResult {
   ok: boolean;
   message: string;
-  data?: any;
+  data?: unknown;
   needsConfirm?: boolean;
   preview?: string;
 }
 
 export interface ToolContext {
-  settings?: any;
+  settings?: Record<string, unknown>;
 }
 
 export interface Tool {
@@ -26,7 +26,7 @@ export interface Tool {
   args: ToolArg[];
   permission: ToolPermission;
   requiresConfirm: boolean;
-  execute: (args: Record<string, any>, ctx: ToolContext) => Promise<ToolResult>;
+  execute: (args: Record<string, string>, ctx: ToolContext) => Promise<ToolResult>;
 }
 
 const registry = new Map<string, Tool>();
@@ -54,7 +54,7 @@ export function buildToolCatalog(): string {
 // تنفيذ آمن مع تحقق من المدخلات
 export async function executeTool(
   name: string,
-  rawArgs: any,
+  rawArgs: Record<string, unknown>,
   ctx: ToolContext = {}
 ): Promise<ToolResult> {
   const tool = getTool(name);
@@ -62,9 +62,9 @@ export async function executeTool(
     return { ok: false, message: `الأداة "${name}" غير موجودة` };
   }
   // تحقق من المدخلات
-  const args: Record<string, any> = {};
+  const args: Record<string, string> = {};
   for (const def of tool.args) {
-    const val = rawArgs?.[def.name];
+    const val = rawArgs?.[def.name] as unknown;
     if (def.required && (val === undefined || val === null || val === '')) {
       return { ok: false, message: `ناقص حقل: ${def.name}` };
     }
@@ -72,16 +72,16 @@ export async function executeTool(
     if (def.type === 'number') {
       const n = Number(val);
       if (isNaN(n)) return { ok: false, message: `${def.name} لازم يكون رقم` };
-      args[def.name] = n;
+      args[def.name] = String(n);
     } else if (def.type === 'boolean') {
-      args[def.name] = Boolean(val);
+      args[def.name] = String(Boolean(val));
     } else {
       args[def.name] = String(val).trim();
     }
   }
   try {
     return await tool.execute(args, ctx);
-  } catch (e: any) {
-    return { ok: false, message: `فشل التنفيذ: ${e?.message || 'خطأ غير معروف'}` };
+  } catch (e) {
+    return { ok: false, message: `فشل التنفيذ: ${e instanceof Error ? e.message : 'خطأ غير معروف'}` };
   }
 }

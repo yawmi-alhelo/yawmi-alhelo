@@ -96,7 +96,7 @@ export default function Prayers() {
       ) : times ? (
         <div className="space-y-2 mb-4">
           {prayerOrder.map(name => {
-            const time = (times as any)[name] as string;
+            const time = (times as unknown as Record<string, string>)[name];
             const isNext = next?.name === name;
             return (
               <div key={name} className={`card-soft flex items-center gap-3 ${isNext ? 'border-2 border-rose-300' : ''}`}>

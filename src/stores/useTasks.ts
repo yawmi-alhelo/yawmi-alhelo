@@ -25,7 +25,9 @@ interface TasksState {
 async function triggerCloudSave() {
   const s = useSettings.getState().settings;
   if (s.syncUsername && s.syncPassword) {
-    await saveBackupToCloud(s.syncUsername, s.syncPassword).catch(() => {});
+    await saveBackupToCloud(s.syncUsername, s.syncPassword).catch(error => {
+      console.error('[CloudSync] فشل حفظ النسخة السحابية:', error);
+    });
   }
 }
 
@@ -56,43 +58,56 @@ export const useTasks = create<TasksState>((set, get) => ({
     triggerCloudSave();
   },
   update: async (id, patch) => {
-    await cancelTaskReminder(id);
     const prevTask = get().tasks.find(t => t.id === id);
     const wasCompleted = prevTask?.completed;
-    
+
     const patchWithDate = { ...patch };
     if (patch.completed && !wasCompleted) {
       patchWithDate.completedAt = new Date().toISOString();
     }
-    
+
     const updated = await TasksRepo.updateTask(id, patchWithDate);
-    const soundId = useSettings.getState().settings.notificationSound;
-    if (updated && !updated.completed && useSettings.getState().settings.soundsEnabled) {
-      await scheduleTaskReminder(updated, soundId);
+    if (!updated) {
+      await get().load();
+      return;
     }
-    // 🔑 مكافأة عند التحويل من غير مكتمل إلى مكتمل
-    if (updated?.completed && !wasCompleted) {
+
+    await cancelTaskReminder(id);
+
+    const settings = useSettings.getState().settings;
+    if (!updated.completed && settings.soundsEnabled) {
+      await scheduleTaskReminder(updated, settings.notificationSound);
+    }
+
+    if (updated.completed && !wasCompleted) {
       try {
         await useRewards.getState().complete();
       } catch (e) {
         console.error('[Rewards] فشل:', e);
       }
     }
+
     await get().load();
-    triggerCloudSave();
+    void triggerCloudSave();
   },
   remove: async (id) => {
-    await cancelTaskReminder(id);
     await TasksRepo.deleteTask(id);
+    await cancelTaskReminder(id);
     await get().load();
-    triggerCloudSave();
+    void triggerCloudSave();
   },
   toggle: async (id) => {
     const prevTask = get().tasks.find(t => t.id === id);
     const updated = await TasksRepo.toggleTask(id);
-    if (updated?.completed) {
+
+    if (!updated) {
+      await get().load();
+      return;
+    }
+
+    if (updated.completed) {
       await cancelTaskReminder(id);
-      // 🔑 مكافأة عند الإكمال
+
       if (!prevTask?.completed) {
         try {
           await useRewards.getState().complete();
@@ -100,7 +115,7 @@ export const useTasks = create<TasksState>((set, get) => ({
         } catch (e) {
           console.error('[Rewards] فشل:', e);
         }
-        // تسجيل النشاط للستريك الجماعي
+
         const settings = useSettings.getState().settings;
         if (settings.groupId && settings.deviceId) {
           try {
@@ -110,23 +125,40 @@ export const useTasks = create<TasksState>((set, get) => ({
           }
         }
       }
-    } else if (updated) {
-      const soundId = useSettings.getState().settings.notificationSound;
-      await scheduleTaskReminder(updated, soundId);
+    } else {
+      const settings = useSettings.getState().settings;
+      if (settings.soundsEnabled) {
+        await scheduleTaskReminder(updated, settings.notificationSound);
+      }
     }
+
     await get().load();
-    triggerCloudSave();
+    void triggerCloudSave();
   },
   defer: async (id, newDate) => {
     const t = get().tasks.find(x => x.id === id);
     if (!t) return;
-    await cancelTaskReminder(id);
-    const updated = await TasksRepo.updateTask(id, { date: newDate, deferred: true, deferredFrom: t.date });
-    if (updated) {
-      const soundId = useSettings.getState().settings.notificationSound;
-      await scheduleTaskReminder(updated, soundId);
+
+    const updated = await TasksRepo.updateTask(id, {
+      date: newDate,
+      deferred: true,
+      deferredFrom: t.deferredFrom ?? t.date
+    });
+
+    if (!updated) {
+      await get().load();
+      return;
     }
+
+    await cancelTaskReminder(id);
+
+    const settings = useSettings.getState().settings;
+    if (settings.soundsEnabled) {
+      await scheduleTaskReminder(updated, settings.notificationSound);
+    }
+
     await get().load();
-    triggerCloudSave();
+    void triggerCloudSave();
   },
+
 }));

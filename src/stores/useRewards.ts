@@ -9,7 +9,7 @@ interface RewardsStore {
   loaded: boolean;
   lastUnlock: { flowerUnlocked: boolean; pointsEarned: number; newPoints: number } | null;
   lastTierUnlock: { name: string; emoji: string } | null;
-  lastAchievement: any | null;
+  lastAchievement: { emoji: string; name: string; description: string; rewardPoints: number; title?: string; tier: string } | null;
   load: () => Promise<void>;
   complete: () => Promise<void>;
   clearUnlock: () => void;

@@ -10,7 +10,14 @@ export default function Favorites() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   async function load() { setItems(await getAllFavorites()); }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const data = await getAllFavorites();
+      if (!cancelled) setItems(data);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   async function handleDelete(id: string) {
     if (!confirm('تحذفين هذي الوصفة من المفضلة؟')) return;

@@ -1,3 +1,4 @@
+import { errMsg } from '../errors';
 import { supabase } from '../group/supabase';
 import { Settings as SettingsRepo } from '../repositories';
 
@@ -14,7 +15,7 @@ export interface SyncResult {
   overrideApplied: boolean;
 }
 
-async function applyAdminOverride(deviceId: string, userData: any): Promise<boolean> {
+async function applyAdminOverride(deviceId: string, userData: { total_points?: number; streak?: number; achievements?: Record<string, boolean>; nickname?: string }): Promise<boolean> {
   try {
     const { getDB } = await import('../db');
     const db = await getDB();
@@ -51,8 +52,8 @@ async function applyAdminOverride(deviceId: string, userData: any): Promise<bool
     
     await supabase.from('app_users').update({ override_pending: false }).eq('device_id', deviceId);
     return true;
-  } catch (e: any) {
-    console.warn('[override] فشل:', e?.message);
+  } catch (e) {
+    console.warn('[override] فشل:', errMsg(e));
     return false;
   }
 }
@@ -79,7 +80,7 @@ export async function registerAndSync(appVersion = '1.2.0'): Promise<SyncResult>
 
     const deviceInfo = {
       ua: navigator.userAgent,
-      platform: (navigator as any).platform || '',
+      platform: (navigator as Navigator & { platform?: string }).platform || '',
       lang: navigator.language,
       screen: `${screen.width}x${screen.height}`,
     };
@@ -138,8 +139,8 @@ export async function registerAndSync(appVersion = '1.2.0'): Promise<SyncResult>
       if (row.key === 'ai_key') r.aiKey = String(row.value).replace(/"/g, '');
       if (row.key === 'ai_model') r.aiModel = String(row.value).replace(/"/g, '');
     }
-  } catch (e: any) {
-    console.warn('[sync] فشل:', e?.message);
+  } catch (e) {
+    console.warn('[sync] فشل:', errMsg(e));
   }
   return r;
 }

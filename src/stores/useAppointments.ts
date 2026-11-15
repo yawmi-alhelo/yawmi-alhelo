@@ -16,31 +16,67 @@ interface State {
 export const useAppointments = create<State>((set, get) => ({
   items: [],
   loading: false,
+
   load: async () => {
     set({ loading: true });
-    const items = await Repo.getAllAppointments();
-    set({ items, loading: false });
-  },
-  add: async (input) => { 
-    const appt = await Repo.addAppointment(input); 
-    const soundId = useSettings.getState().settings.notificationSound;
-    if (useSettings.getState().settings.notificationsEnabled) {
-      await scheduleAppointmentReminder(appt, soundId);
+    try {
+      const items = await Repo.getAllAppointments();
+      set({ items });
+    } finally {
+      set({ loading: false });
     }
-    await get().load(); 
   },
-  update: async (id, patch) => { 
-    await cancelAppointmentReminder(id);
+
+  add: async (input) => {
+    const appt = await Repo.addAppointment(input);
+    const settings = useSettings.getState().settings;
+
+    if (settings.notificationsEnabled && (appt.reminderMinutes ?? 0) > 0) {
+      try {
+        await scheduleAppointmentReminder(appt, settings.notificationSound);
+      } catch (error) {
+        console.error('Appointment reminder scheduling failed:', error);
+      }
+    }
+
+    await get().load();
+  },
+
+  update: async (id, patch) => {
     const updated = await Repo.updateAppointment(id, patch);
-    const soundId = useSettings.getState().settings.notificationSound;
-    if (updated && useSettings.getState().settings.notificationsEnabled) {
-      await scheduleAppointmentReminder(updated, soundId);
+
+    if (!updated) {
+      await get().load();
+      return;
     }
-    await get().load(); 
+
+    try {
+      await cancelAppointmentReminder(id);
+    } catch (error) {
+      console.error('Appointment reminder cancellation failed:', error);
+    }
+
+    const settings = useSettings.getState().settings;
+    if (settings.notificationsEnabled && (updated.reminderMinutes ?? 0) > 0) {
+      try {
+        await scheduleAppointmentReminder(updated, settings.notificationSound);
+      } catch (error) {
+        console.error('Appointment reminder rescheduling failed:', error);
+      }
+    }
+
+    await get().load();
   },
-  remove: async (id) => { 
-    await cancelAppointmentReminder(id);
-    await Repo.deleteAppointment(id); 
-    await get().load(); 
+
+  remove: async (id) => {
+    await Repo.deleteAppointment(id);
+
+    try {
+      await cancelAppointmentReminder(id);
+    } catch (error) {
+      console.error('Appointment reminder cancellation failed:', error);
+    }
+
+    await get().load();
   },
 }));

@@ -1,3 +1,4 @@
+import { errMsg } from '../errors';
 import type { Task } from '../../types';
 import { buildToolCatalog, executeTool, getTool, getAllTools, type ToolResult } from '../tools';
 import { buildMemoryContext, extractMemoryFromText, saveMemory } from '../memory';
@@ -10,7 +11,7 @@ export function getLastLocalReason() { return lastLocalReason; }
 export interface AgentAction {
   type: 'text' | 'tool';
   toolName?: string;
-  toolArgs?: Record<string, any>;
+  toolArgs?: Record<string, unknown>;
   result?: ToolResult;
   text: string;
 }
@@ -21,7 +22,7 @@ export interface AgentReply {
   actions: AgentAction[];
   pendingConfirm?: {
     toolName: string;
-    args: Record<string, any>;
+    args: Record<string, unknown>;
     preview: string;
   };
 }
@@ -64,7 +65,7 @@ function detectDuration(text: string): number | null {
   return null;
 }
 
-interface QuickMatch { toolName: string; args: Record<string, any>; preview: string; }
+interface QuickMatch { toolName: string; args: Record<string, string | number>; preview: string; }
 
 export function detectQuickAction(message: string): QuickMatch | null {
   const t = message.trim();
@@ -76,7 +77,7 @@ export function detectQuickAction(message: string): QuickMatch | null {
       .replace(/\s+(?:باجر|اليوم|الصبح|الظهر|العصر|الليل|قبل النوم|الساعة\s+\d+.*)$/i, '')
       .trim();
     if (title && title.length >= 2) {
-      const args: Record<string, any> = { title };
+      const args: Record<string, string | number> = { title };
       const period = detectPeriod(t); if (period) args.period = period;
       const time = detectTime(t); if (time) args.time = time;
       const duration = detectDuration(t); if (duration) args.duration = duration;
@@ -232,7 +233,7 @@ export async function runAgent(opts: AgentOptions): Promise<AgentReply> {
         const actions: AgentAction[] = [];
         for (const call of msg.tool_calls) {
           const toolName = call.function?.name;
-          let args: any = {};
+          let args: Record<string, unknown> = {};
           try { args = JSON.parse(call.function?.arguments || '{}'); }
           catch { continue; }
           const toolDef = getTool(toolName);
@@ -252,8 +253,8 @@ export async function runAgent(opts: AgentOptions): Promise<AgentReply> {
       lastLocalReason = `AI-1 ${res.status}: ${errTxt.slice(0, 100)}`;
       console.warn('[AI-1] فشل:', res.status, errTxt.slice(0, 200));
     }
-  } catch (e: any) {
-    console.warn('[AI-1] threw:', e?.message);
+  } catch (e) {
+    console.warn('[AI-1] threw:', errMsg(e));
   }
 
   // محاولة 2: AI بدون أدوات (أبسط وأكثر موثوقية)
@@ -288,8 +289,8 @@ ${memoryCtx ? `معلومات عن المستخدم:\n${memoryCtx}\n` : ''}${tas
       lastLocalReason = `AI-2 ${res2.status}: ${errTxt2.slice(0, 100)}`;
       console.warn('[AI-2] فشل:', res2.status, errTxt2.slice(0, 200));
     }
-  } catch (e: any) {
-    console.warn('[AI-2] threw:', e?.message);
+  } catch (e) {
+    console.warn('[AI-2] threw:', errMsg(e));
   }
 
   // محاولة 3: محلي
@@ -301,6 +302,6 @@ ${memoryCtx ? `معلومات عن المستخدم:\n${memoryCtx}\n` : ''}${tas
   }
 }
 
-export async function executePending(toolName: string, args: Record<string, any>): Promise<ToolResult> {
+export async function executePending(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
   return executeTool(toolName, args);
 }

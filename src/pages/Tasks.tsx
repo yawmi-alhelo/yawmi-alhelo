@@ -18,7 +18,7 @@ export default function Tasks() {
   const [showForm, setShowForm] = useState(isNew);
 
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { if (isNew) setShowForm(true); }, [location.pathname, location.search]);
+  const formOpen = showForm || isNew;
 
   const filtered = filter === 'all' ? tasks : tasks.filter(t => t.period === filter);
 
@@ -159,7 +159,7 @@ export default function Tasks() {
         </div>
       )}
 
-      {showForm && (
+      {formOpen && (
         <TaskForm
           initial={editing || { date: todayISO() }}
           onSave={handleSave}

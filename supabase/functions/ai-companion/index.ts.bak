@@ -1,0 +1,116 @@
+// Supabase Edge Function — Deno runtime
+// المفتاح يُقرأ من Supabase Secret، لا يظهر أبداً في الواجهة.
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const MAX_BODY_BYTES = 32 * 1024;
+const MAX_INPUT_CHARS = 8000;
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 30;
+
+type RateRec = { count: number; reset: number };
+const rate = new Map<string, RateRec>();
+
+function rateOk(key: string): boolean {
+  const now = Date.now();
+  const rec = rate.get(key);
+  if (!rec || now > rec.reset) {
+    rate.set(key, { count: 1, reset: now + RATE_WINDOW_MS });
+    return true;
+  }
+  if (rec.count >= RATE_MAX) return false;
+  rec.count += 1;
+  return true;
+}
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      "access-control-allow-origin": "*",
+      "access-control-allow-headers": "authorization, content-type",
+      "access-control-allow-methods": "POST, OPTIONS",
+    },
+  });
+}
+
+type ChatMsg = { role: "system" | "user" | "assistant"; content: string };
+
+function sanitizeMessages(input: unknown): ChatMsg[] {
+  if (!Array.isArray(input)) return [];
+  const out: ChatMsg[] = [];
+  for (const m of input) {
+    if (typeof m !== "object" || m === null) continue;
+    const obj = m as Record<string, unknown>;
+    const role = obj.role;
+    const content = obj.content;
+    if (role !== "system" && role !== "user" && role !== "assistant") continue;
+    if (typeof content !== "string") continue;
+    if (content.length > MAX_INPUT_CHARS) continue;
+    out.push({ role, content });
+  }
+  return out;
+}
+
+serve(async (req) => {
+  try {
+    if (req.method === "OPTIONS") return json({}, 204);
+    if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+
+    const auth = req.headers.get("authorization") ?? "";
+    if (!auth.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      req.headers.get("cf-connecting-ip") ??
+      "unknown";
+    if (!rateOk(ip)) return json({ error: "rate_limited" }, 429);
+
+    const raw = await req.text();
+    if (raw.length > MAX_BODY_BYTES) return json({ error: "payload_too_large" }, 413);
+
+    let body: unknown;
+    try { body = JSON.parse(raw); } catch { return json({ error: "bad_json" }, 400); }
+    if (typeof body !== "object" || body === null) return json({ error: "bad_body" }, 400);
+
+    const obj = body as Record<string, unknown>;
+    const messages = sanitizeMessages(obj.messages);
+    if (messages.length === 0) return json({ error: "messages_required" }, 400);
+
+    const apiKey = Deno.env.get("GROQ_API_KEY");
+    if (!apiKey) return json({ error: "server_misconfigured" }, 500);
+
+    const model = typeof obj.model === "string" ? obj.model : "llama-3.3-70b-versatile";
+    const temperature =
+      typeof obj.temperature === "number" && obj.temperature >= 0 && obj.temperature <= 2
+        ? obj.temperature
+        : 0.7;
+
+    const upstream = await fetch(GROQ_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ model, messages, temperature, stream: false }),
+    });
+
+    if (!upstream.ok) {
+      // لا نُعيد نص الخطأ الكامل — قد يحتوي تفاصيل داخلية
+      return json({ error: "upstream_error", status: upstream.status }, 502);
+    }
+
+    const data: unknown = await upstream.json();
+    // نتحقق من البنية قبل تمريرها
+    if (
+      typeof data !== "object" || data === null ||
+      !Array.isArray((data as Record<string, unknown>).choices)
+    ) {
+      return json({ error: "upstream_bad_shape" }, 502);
+    }
+    return json(data, 200);
+  } catch (_err) {
+    return json({ error: "internal_error" }, 500);
+  }
+});

@@ -1,0 +1,178 @@
+========== PACKAGE.JSON ==========
+{
+  "name": "yawmi-alhelo",
+  "private": true,
+  "version": "1.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor-community/sqlite": "^7.0.3",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/app": "^7.1.2",
+    "@capacitor/cli": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/filesystem": "^7.1.9",
+    "@capacitor/haptics": "^7.0.5",
+    "@capacitor/ios": "^7.6.10",
+    "@capacitor/local-notifications": "^7.0.7",
+    "@capacitor/preferences": "^7.0.4",
+    "@capacitor/share": "^7.0.4",
+    "@capacitor/status-bar": "^7.0.6",
+    "@fontsource/cairo": "^5.3.0",
+    "@supabase/supabase-js": "^2.119.0",
+    "date-fns": "^4.4.0",
+    "idb": "^8.0.4",
+    "lucide-react": "^1.73.0",
+    "nanoid": "^6.0.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5",
+    "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "autoprefixer": "^10.6.2",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "postcss": "^8.5.32",
+    "supabase": "^3.1.0",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.6"
+  }
+}
+========== VITE CONFIG ==========
+===== vite.config.ts =====
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  base: './',
+  plugins: [react()],
+})
+========== APP ROUTING ==========
+src/App.tsx:1:import { HashRouter, Routes, Route } from 'react-router-dom';
+src/App.tsx:149:    <HashRouter>
+src/App.tsx:151:      <Routes>
+src/App.tsx:152:        <Route path="/" element={<Home />} />
+src/App.tsx:153:        <Route path="/tasks" element={<Tasks />} />
+src/App.tsx:154:        <Route path="/tasks/new" element={<Tasks />} />
+src/App.tsx:155:        <Route path="/calendar" element={<Calendar />} />
+src/App.tsx:156:        <Route path="/habits" element={<Habits />} />
+src/App.tsx:157:        <Route path="/goals" element={<Goals />} />
+src/App.tsx:158:        <Route path="/focus" element={<Focus />} />
+src/App.tsx:159:        <Route path="/assistant" element={<Assistant />} />
+src/App.tsx:160:        <Route path="/group" element={<Group />} />
+src/App.tsx:161:        <Route path="/stats" element={<Stats />} />
+src/App.tsx:162:        <Route path="/notes" element={<Notes />} />
+src/App.tsx:163:        <Route path="/shopping" element={<Shopping />} />
+src/App.tsx:164:        <Route path="/appointments" element={<Placeholder title="المواعيد" />} />
+src/App.tsx:165:        <Route path="/settings" element={<Settings />} />
+src/App.tsx:166:        <Route path="/backup" element={<Backup />} />
+src/App.tsx:167:        <Route path="/sounds" element={<Sounds />} />
+src/App.tsx:168:        <Route path="/achievements" element={<Achievements />} />
+src/App.tsx:169:        <Route path="/prayers" element={<Prayers />} />
+src/App.tsx:170:        <Route path="/cycles" element={<Cycles />} />
+src/App.tsx:171:        <Route path="/profile" element={<Profile />} />
+src/App.tsx:172:        <Route path="*" element={<Placeholder title="صفحة غير موجودة" />} />
+src/App.tsx:173:      </Routes>
+src/App.tsx:175:    </HashRouter>
+src/App.tsx:1:import { HashRouter, Routes, Route } from 'react-router-dom';
+src/App.tsx:149:    <HashRouter>
+src/App.tsx:151:      <Routes>
+src/App.tsx:152:        <Route path="/" element={<Home />} />
+src/App.tsx:153:        <Route path="/tasks" element={<Tasks />} />
+src/App.tsx:154:        <Route path="/tasks/new" element={<Tasks />} />
+src/App.tsx:155:        <Route path="/calendar" element={<Calendar />} />
+src/App.tsx:156:        <Route path="/habits" element={<Habits />} />
+src/App.tsx:157:        <Route path="/goals" element={<Goals />} />
+src/App.tsx:158:        <Route path="/focus" element={<Focus />} />
+src/App.tsx:159:        <Route path="/assistant" element={<Assistant />} />
+src/App.tsx:160:        <Route path="/group" element={<Group />} />
+src/App.tsx:161:        <Route path="/stats" element={<Stats />} />
+src/App.tsx:162:        <Route path="/notes" element={<Notes />} />
+src/App.tsx:163:        <Route path="/shopping" element={<Shopping />} />
+src/App.tsx:164:        <Route path="/appointments" element={<Placeholder title="المواعيد" />} />
+src/App.tsx:165:        <Route path="/settings" element={<Settings />} />
+src/App.tsx:166:        <Route path="/backup" element={<Backup />} />
+src/App.tsx:167:        <Route path="/sounds" element={<Sounds />} />
+src/App.tsx:168:        <Route path="/achievements" element={<Achievements />} />
+src/App.tsx:169:        <Route path="/prayers" element={<Prayers />} />
+src/App.tsx:170:        <Route path="/cycles" element={<Cycles />} />
+src/App.tsx:171:        <Route path="/profile" element={<Profile />} />
+src/App.tsx:172:        <Route path="*" element={<Placeholder title="صفحة غير موجودة" />} />
+src/App.tsx:173:      </Routes>
+src/App.tsx:175:    </HashRouter>
+src/App.tsx.bak:1:import { HashRouter, Routes, Route } from 'react-router-dom';
+src/App.tsx.bak:138:    <HashRouter>
+src/App.tsx.bak:140:      <Routes>
+src/App.tsx.bak:141:        <Route path="/" element={<Home />} />
+src/App.tsx.bak:142:        <Route path="/tasks" element={<Tasks />} />
+src/App.tsx.bak:143:        <Route path="/tasks/new" element={<Tasks />} />
+src/App.tsx.bak:144:        <Route path="/calendar" element={<Calendar />} />
+src/App.tsx.bak:145:        <Route path="/habits" element={<Habits />} />
+src/App.tsx.bak:146:        <Route path="/goals" element={<Goals />} />
+src/App.tsx.bak:147:        <Route path="/focus" element={<Focus />} />
+src/App.tsx.bak:148:        <Route path="/assistant" element={<Assistant />} />
+src/App.tsx.bak:149:        <Route path="/group" element={<Group />} />
+src/App.tsx.bak:150:        <Route path="/stats" element={<Stats />} />
+src/App.tsx.bak:151:        <Route path="/notes" element={<Notes />} />
+src/App.tsx.bak:152:        <Route path="/shopping" element={<Shopping />} />
+src/App.tsx.bak:153:        <Route path="/appointments" element={<Placeholder title="المواعيد" />} />
+src/App.tsx.bak:154:        <Route path="/settings" element={<Settings />} />
+src/App.tsx.bak:155:        <Route path="/backup" element={<Backup />} />
+src/App.tsx.bak:156:        <Route path="/sounds" element={<Sounds />} />
+src/App.tsx.bak:157:        <Route path="/achievements" element={<Achievements />} />
+src/App.tsx.bak:158:        <Route path="/prayers" element={<Prayers />} />
+src/App.tsx.bak:159:        <Route path="/cycles" element={<Cycles />} />
+src/App.tsx.bak:160:        <Route path="/profile" element={<Profile />} />
+src/App.tsx.bak:161:        <Route path="*" element={<Placeholder title="صفحة غير موجودة" />} />
+src/App.tsx.bak:162:      </Routes>
+src/App.tsx.bak:164:    </HashRouter>
+========== DYNAMIC IMPORTS ==========
+src/lib/voice.ts:17:  const mod = await import('@capacitor-community/speech-recognition');
+src/lib/admin/sync.ts:20:    const { getDB } = await import('../db');
+src/lib/admin/sync.ts:70:      const { nanoid } = await import('nanoid');
+src/stores/useRewards.ts:30:    const prevTier = get().state ? (await import('../lib/rewards/levels')).getLevelTier(prev.points) : null;
+src/stores/useRewards.ts:33:    const { getLevelTier } = await import('../lib/rewards/levels');
+src/components/flows/CookingModal.tsx:65:    const { addFavorite } = await import('../../lib/favorites');
+src/components/flows/CookingModal.tsx:72:    const { Shopping } = await import('../../lib/repositories');
+src/pages/Settings.tsx:117:              const { requestNotificationPermission } = await import('../lib/notifications');
+========== PAGE FILES ==========
+src/pages/Achievements.tsx
+src/pages/Assistant.tsx
+src/pages/Backup.tsx
+src/pages/Calendar.tsx
+src/pages/Cycles.tsx
+src/pages/Favorites.tsx
+src/pages/Focus.tsx
+src/pages/Goals.tsx
+src/pages/Group.tsx
+src/pages/Habits.tsx
+src/pages/Home.tsx
+src/pages/Notes.tsx
+src/pages/Placeholder.tsx
+src/pages/Prayers.tsx
+src/pages/Profile.tsx
+src/pages/Settings.tsx
+src/pages/Shopping.tsx
+src/pages/Sounds.tsx
+src/pages/Stats.tsx
+src/pages/Tasks.tsx
+========== SUPABASE FILES ==========
+supabase/functions/ai-companion/index.ts
+supabase/functions/ai-companion/index.ts.bak

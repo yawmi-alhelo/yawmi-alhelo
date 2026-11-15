@@ -1,28 +1,50 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import {useEffect , useState} from 'react';
-import Home from './pages/Home';
-import Tasks from './pages/Tasks';
-import Calendar from './pages/Calendar';
-import Habits from './pages/Habits';
-import Goals from './pages/Goals';
-import Focus from './pages/Focus';
-import Settings from './pages/Settings';
-import Sounds from './pages/Sounds';
-import Assistant from './pages/Assistant';
-import Group from './pages/Group';
-import Achievements from './pages/Achievements';
-import Prayers from './pages/Prayers';
-import Cycles from './pages/Cycles';
-import Profile from './pages/Profile';
+import { lazy, Suspense, useEffect, useState } from 'react';
+
+const Home = lazy(() => import('./pages/Home'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const Habits = lazy(() => import('./pages/Habits'));
+const Goals = lazy(() => import('./pages/Goals'));
+const Focus = lazy(() => import('./pages/Focus'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Sounds = lazy(() => import('./pages/Sounds'));
+const Assistant = lazy(() => import('./pages/Assistant'));
+const Group = lazy(() => import('./pages/Group'));
+const Achievements = lazy(() => import('./pages/Achievements'));
+const Prayers = lazy(() => import('./pages/Prayers'));
+const Cycles = lazy(() => import('./pages/Cycles'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Stats = lazy(() => import('./pages/Stats'));
+const Notes = lazy(() => import('./pages/Notes'));
+const Shopping = lazy(() => import('./pages/Shopping'));
+const Backup = lazy(() => import('./pages/Backup'));
+const Favorites = lazy(() => import('./pages/Favorites'));
+const AppointmentsPage = lazy(() => import('./pages/Appointments'));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import AchievementPopup from './components/AchievementPopup';
 import { useRewards } from './stores/useRewards';
 import { registerAndSync } from './lib/admin/sync';
 import { saveBackupToCloud } from './lib/admin/backup';
 import { useSettings } from './stores/useSettings';
-import Stats from './pages/Stats';
-import Notes from './pages/Notes';
-import Shopping from './pages/Shopping';
-import Backup from './pages/Backup';
+
+
+
+
+
 import Placeholder from './pages/Placeholder';
 import ErrorBoundary from './components/ErrorBoundary';
 import { initNotifications } from './lib/notifications';
@@ -54,27 +76,50 @@ function AnnouncementBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    registerAndSync().then(async r => {
+    let cancelled = false;
+    let syncInterval: number | undefined;
+
+    void registerAndSync().then(async r => {
+      if (cancelled) return;
+
       if (r.overrideApplied) {
         await useRewards.getState().load();
       }
+
+      if (cancelled) return;
+
       const settings = useSettings.getState().settings;
+
       if (settings.syncUsername && settings.syncPassword) {
-        saveBackupToCloud(settings.syncUsername, settings.syncPassword);
-        setInterval(() => {
+        void saveBackupToCloud(settings.syncUsername, settings.syncPassword);
+
+        syncInterval = window.setInterval(() => {
           const s = useSettings.getState().settings;
-          if (s.syncUsername && s.syncPassword) saveBackupToCloud(s.syncUsername, s.syncPassword);
+          if (s.syncUsername && s.syncPassword) {
+            void saveBackupToCloud(s.syncUsername, s.syncPassword);
+          }
         }, 5 * 60 * 1000);
       }
+
       if (r.blocked) {
         alert('🚫 تم إيقاف حسابك: ' + r.reason);
         return;
       }
+
       if (r.maintenance) setMaintenance(true);
       if (r.forceUpdate) setForceUpdate(true);
       if (r.announcement) setAnn(r.announcement);
       if (r.directMessage) setDm(r.directMessage);
+    }).catch(error => {
+      console.error('Announcement initialization failed:', error);
     });
+
+    return () => {
+      cancelled = true;
+      if (syncInterval !== undefined) {
+        window.clearInterval(syncInterval);
+      }
+    };
   }, []);
 
   if (maintenance) {
@@ -148,7 +193,8 @@ export default function App() {
     <ErrorBoundary>
     <HashRouter>
       <AnnouncementBanner />
-      <Routes>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-rose-500 font-bold">جاري تحميل الصفحة...</div>}>
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/tasks/new" element={<Tasks />} />
@@ -161,7 +207,8 @@ export default function App() {
         <Route path="/stats" element={<Stats />} />
         <Route path="/notes" element={<Notes />} />
         <Route path="/shopping" element={<Shopping />} />
-        <Route path="/appointments" element={<Placeholder title="المواعيد" />} />
+        <Route path="/favorites" element={<Favorites />} />
+        <Route path="/appointments" element={<AppointmentsPage />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/backup" element={<Backup />} />
         <Route path="/sounds" element={<Sounds />} />
@@ -170,7 +217,8 @@ export default function App() {
         <Route path="/cycles" element={<Cycles />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Placeholder title="صفحة غير موجودة" />} />
-      </Routes>
+        </Routes>
+      </Suspense>
       <AchievementNotifier />
     </HashRouter>
     </ErrorBoundary>

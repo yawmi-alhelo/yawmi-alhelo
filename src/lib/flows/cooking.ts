@@ -1,3 +1,4 @@
+import { errMsg } from '../errors';
 import type { CookResult } from './types';
 import { INGREDIENT_PRESETS, SWEET_INGREDIENTS, BREAKFAST_INGREDIENTS, SNACK_INGREDIENTS } from './presets';
 
@@ -62,8 +63,8 @@ ${allIngredients.join('، ')}
       prepTime: Number(parsed.prepTime) || 10, cookTime: Number(parsed.cookTime) || 30,
       source: 'ai',
     };
-  } catch (e: any) {
-    throw new Error(e?.message || 'فشل الاتصال');
+  } catch (e) {
+    throw new Error(e instanceof Error ? errMsg(e) : 'فشل الاتصال', { cause: e });
   }
 }
 

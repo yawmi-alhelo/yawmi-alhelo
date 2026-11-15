@@ -122,7 +122,10 @@ export interface FocusSession {
 
 // ==================== الإعدادات ====================
 
+export type AppTheme = 'pink-blossom' | 'lavender-dream' | 'peach-cream' | 'rose-gold' | 'mint-garden' | 'pure-white';
+
 export interface AppSettings {
+  appTheme: AppTheme;
   userName: string;
   onboarded: boolean;
   darkMode: boolean;
@@ -197,6 +200,7 @@ export const ARABIC_MONTHS = [
 // ==================== الإعدادات الافتراضية ====================
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  appTheme: 'pink-blossom',
   userName: '',
   onboarded: false,
   darkMode: false,

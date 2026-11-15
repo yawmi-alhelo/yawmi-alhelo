@@ -118,3 +118,454 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-neon-glow, .text-glow, .text-glow-soft { animation: none; }
 }
+
+
+/* ==================== نظام ثيمات يومي حلو ==================== */
+html[data-theme] {
+  --app-bg: #fff5f8;
+  --app-card: #ffffff;
+  --app-primary: #ff8fb1;
+  --app-primary-dark: #f06a94;
+  --app-soft: #ffe4ec;
+  --app-text: #2d2d3a;
+  --app-muted: #6b6b7b;
+  --app-border: #ffe4ec;
+}
+html[data-theme="pink-blossom"] {
+  --app-bg:#fff5f8; --app-card:#fff; --app-primary:#ff8fb1;
+  --app-primary-dark:#f06a94; --app-soft:#ffe4ec;
+  --app-text:#2d2d3a; --app-muted:#6b6b7b; --app-border:#ffe4ec;
+}
+html[data-theme="lavender-dream"] {
+  --app-bg:#f7f3ff; --app-card:#fff; --app-primary:#a990df;
+  --app-primary-dark:#8065c5; --app-soft:#ede6fa;
+  --app-text:#302943; --app-muted:#766b89; --app-border:#e3d8f7;
+}
+html[data-theme="peach-cream"] {
+  --app-bg:#fff6ef; --app-card:#fff; --app-primary:#ffa878;
+  --app-primary-dark:#e88758; --app-soft:#ffe9d6;
+  --app-text:#3b302b; --app-muted:#806d62; --app-border:#ffe2ce;
+}
+html[data-theme="rose-gold"] {
+  --app-bg:#fff4f2; --app-card:#fff; --app-primary:#d98b91;
+  --app-primary-dark:#b96c78; --app-soft:#f8e2df;
+  --app-text:#3b2c30; --app-muted:#80666a; --app-border:#f0d5d2;
+}
+html[data-theme="mint-garden"] {
+  --app-bg:#f0faf4; --app-card:#fff; --app-primary:#65bd91;
+  --app-primary-dark:#399b70; --app-soft:#ddf3e6;
+  --app-text:#263a30; --app-muted:#637c6d; --app-border:#d5eddf;
+}
+html[data-theme="pure-white"] {
+  --app-bg:#f7f7fa; --app-card:#fff; --app-primary:#9292a5;
+  --app-primary-dark:#656575; --app-soft:#ededf2;
+  --app-text:#292936; --app-muted:#737383; --app-border:#e7e7ed;
+}
+html[data-theme] body {
+  background:var(--app-bg) !important;
+  color:var(--app-text);
+}
+html[data-theme] .card-soft {
+  background:var(--app-card) !important;
+  border-color:var(--app-border);
+}
+html[data-theme] .bg-rose-50 { background-color:var(--app-bg) !important; }
+html[data-theme] .bg-rose-100 { background-color:var(--app-soft) !important; }
+html[data-theme] .bg-rose-200 { background-color:var(--app-border) !important; }
+html[data-theme] .bg-rose-400 { background-color:var(--app-primary) !important; }
+html[data-theme] .bg-rose-500,
+html[data-theme] .bg-rose-600 { background-color:var(--app-primary-dark) !important; }
+html[data-theme] .text-rose-400,
+html[data-theme] .text-rose-500,
+html[data-theme] .text-rose-600 { color:var(--app-primary-dark) !important; }
+html[data-theme] .border-rose-100,
+html[data-theme] .border-rose-200 { border-color:var(--app-border) !important; }
+html[data-theme] .btn-primary { background:var(--app-primary) !important; }
+html[data-theme] .btn-secondary {
+  color:var(--app-primary-dark) !important;
+  border-color:var(--app-border) !important;
+}
+html.dark[data-theme] body {
+  background:#1a1a24 !important;
+  color:#fce7f3;
+}
+html.dark[data-theme] .card-soft { background:#252532 !important; }
+html.dark[data-theme] .bg-rose-50,
+html.dark[data-theme] .bg-rose-100 { background-color:#252532 !important; }
+html.dark[data-theme] .bg-rose-400,
+html.dark[data-theme] .bg-rose-500,
+html.dark[data-theme] .bg-rose-600 {
+  background-color:var(--app-primary-dark) !important;
+}
+html.dark[data-theme] .border-rose-100,
+html.dark[data-theme] .border-rose-200 { border-color:#34343f !important; }
+
+
+/* GLOBAL THEME ENGINE V2 */
+
+/* التطبيق بالكامل */
+html[data-theme],
+html[data-theme] body,
+html[data-theme] #root {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+}
+
+html[data-theme] body {
+  background: var(--app-bg) !important;
+  color: var(--app-text) !important;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+/* البطاقات والخلفيات */
+html[data-theme] [class~="bg-white"],
+html[data-theme] .card-soft {
+  background-color: var(--app-card) !important;
+}
+
+html[data-theme] [class~="bg-rose-50"] {
+  background-color: var(--app-bg) !important;
+}
+html[data-theme] [class~="bg-rose-100"],
+html[data-theme] [class~="bg-lavender-100"],
+html[data-theme] [class~="bg-peach-100"],
+html[data-theme] [class~="bg-mint-100"] {
+  background-color: var(--app-soft) !important;
+}
+html[data-theme] [class~="bg-rose-200"],
+html[data-theme] [class~="bg-lavender-200"],
+html[data-theme] [class~="bg-peach-200"],
+html[data-theme] [class~="bg-mint-200"] {
+  background-color: var(--app-border) !important;
+}
+html[data-theme] [class~="bg-rose-300"],
+html[data-theme] [class~="bg-rose-400"],
+html[data-theme] [class~="bg-lavender-300"],
+html[data-theme] [class~="bg-peach-300"],
+html[data-theme] [class~="bg-mint-300"] {
+  background-color: var(--app-primary) !important;
+}
+html[data-theme] [class~="bg-rose-500"],
+html[data-theme] [class~="bg-rose-600"] {
+  background-color: var(--app-primary-dark) !important;
+}
+
+/* النصوص */
+html[data-theme] [class~="text-rose-400"],
+html[data-theme] [class~="text-rose-500"],
+html[data-theme] [class~="text-rose-600"],
+html[data-theme] [class~="text-lavender-300"],
+html[data-theme] [class~="text-peach-300"],
+html[data-theme] [class~="text-mint-300"] {
+  color: var(--app-primary-dark) !important;
+}
+html[data-theme] [class~="text-ink-900"] {
+  color: var(--app-text) !important;
+}
+html[data-theme] [class~="text-ink-700"],
+html[data-theme] [class~="text-ink-500"],
+html[data-theme] [class~="text-ink-300"] {
+  color: var(--app-muted) !important;
+}
+
+/* الحدود */
+html[data-theme] [class~="border-rose-100"],
+html[data-theme] [class~="border-rose-200"],
+html[data-theme] [class~="border-lavender-100"],
+html[data-theme] [class~="border-lavender-200"],
+html[data-theme] [class~="border-peach-100"],
+html[data-theme] [class~="border-mint-100"] {
+  border-color: var(--app-border) !important;
+}
+
+/* الأزرار والعناصر التفاعلية */
+html[data-theme] .btn-primary,
+html[data-theme] [class~="bg-rose-400"] {
+  background-color: var(--app-primary) !important;
+}
+html[data-theme] .btn-secondary {
+  background-color: var(--app-card) !important;
+  color: var(--app-primary-dark) !important;
+  border-color: var(--app-border) !important;
+}
+
+/* التدرجات اللونية */
+html[data-theme] [class*="from-rose-"],
+html[data-theme] [class*="from-lavender-"],
+html[data-theme] [class*="from-peach-"],
+html[data-theme] [class*="from-mint-"] {
+  --tw-gradient-from: var(--app-primary) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: var(--app-primary) var(--tw-gradient-to-position) !important;
+}
+html[data-theme] [class*="via-rose-"],
+html[data-theme] [class*="via-lavender-"],
+html[data-theme] [class*="via-peach-"],
+html[data-theme] [class*="via-mint-"] {
+  --tw-gradient-via: var(--app-soft) var(--tw-gradient-via-position) !important;
+}
+html[data-theme] [class*="to-rose-"],
+html[data-theme] [class*="to-lavender-"],
+html[data-theme] [class*="to-peach-"],
+html[data-theme] [class*="to-mint-"] {
+  --tw-gradient-to: var(--app-soft) var(--tw-gradient-to-position) !important;
+}
+
+/* الوضع الداكن مستقل عن اختيار الثيم */
+html.dark[data-theme],
+html.dark[data-theme] body,
+html.dark[data-theme] #root {
+  background-color: #1a1a24 !important;
+  color: #f5f0fa !important;
+}
+html.dark[data-theme] [class~="bg-white"],
+html.dark[data-theme] .card-soft {
+  background-color: #252532 !important;
+}
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: #252532 !important;
+}
+html.dark[data-theme] [class~="text-ink-900"],
+html.dark[data-theme] [class~="text-ink-700"] {
+  color: #f5f0fa !important;
+}
+html.dark[data-theme] [class~="text-ink-500"],
+html.dark[data-theme] [class~="text-ink-300"] {
+  color: #b9b3c8 !important;
+}
+html.dark[data-theme] [class~="border-rose-100"],
+html.dark[data-theme] [class~="border-rose-200"] {
+  border-color: #3a3547 !important;
+}
+
+
+/* YAWMI GLOBAL THEME V3 */
+
+/* توحيد أسطح التطبيق */
+html[data-theme] {
+  color-scheme: light;
+  background: var(--app-bg);
+}
+
+html[data-theme] body,
+html[data-theme] #root,
+html[data-theme] main {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+}
+
+/* البطاقات والحاويات */
+html[data-theme] .card,
+html[data-theme] .card-soft,
+html[data-theme] [class~="bg-white"],
+html[data-theme] [class~="bg-gray-50"],
+html[data-theme] [class~="bg-slate-50"] {
+  background-color: var(--app-card) !important;
+  border-color: var(--app-border);
+}
+
+/* الحقول */
+html[data-theme] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme] textarea,
+html[data-theme] select {
+  background-color: var(--app-card);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+html[data-theme] input::placeholder,
+html[data-theme] textarea::placeholder {
+  color: var(--app-muted);
+}
+
+/* القوائم والنوافذ */
+html[data-theme] [role="dialog"],
+html[data-theme] [role="menu"],
+html[data-theme] [role="listbox"],
+html[data-theme] .dropdown-menu,
+html[data-theme] .modal-content {
+  background-color: var(--app-card);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+/* التحديد والتركيز */
+html[data-theme] button:focus-visible,
+html[data-theme] input:focus-visible,
+html[data-theme] textarea:focus-visible,
+html[data-theme] select:focus-visible {
+  outline-color: var(--app-primary);
+}
+
+/* الظلال */
+html[data-theme] .shadow,
+html[data-theme] .shadow-sm,
+html[data-theme] .shadow-md,
+html[data-theme] .shadow-lg {
+  --tw-shadow-color: var(--app-border);
+}
+
+/* الوضع الداكن */
+html.dark[data-theme] {
+  color-scheme: dark;
+}
+
+html.dark[data-theme] input,
+html.dark[data-theme] textarea,
+html.dark[data-theme] select {
+  background-color: #252532;
+  color: #f5f0fa;
+  border-color: #3a3547;
+}
+
+html.dark[data-theme] [role="dialog"],
+html.dark[data-theme] [role="menu"],
+html.dark[data-theme] [role="listbox"],
+html.dark[data-theme] .dropdown-menu,
+html.dark[data-theme] .modal-content {
+  background-color: #252532;
+  color: #f5f0fa;
+  border-color: #3a3547;
+}
+
+/* =========================================
+   YAWMI - DARK MODE FINAL FIX
+   ========================================= */
+
+html.dark[data-theme] {
+  color-scheme: dark !important;
+  --app-bg: #191923;
+  --app-card: #252532;
+  --app-primary: #d98baf;
+  --app-primary-dark: #c8759b;
+  --app-soft: #353044;
+  --app-text: #f5f0fa;
+  --app-muted: #b9b3c8;
+  --app-border: #3a3547;
+  background-color: var(--app-bg) !important;
+  color: var(--app-text) !important;
+}
+
+html.dark[data-theme] body,
+html.dark[data-theme] #root,
+html.dark[data-theme] main {
+  background-color: var(--app-bg) !important;
+  color: var(--app-text) !important;
+}
+
+html.dark[data-theme] .card,
+html.dark[data-theme] .card-soft,
+html.dark[data-theme] [class~="bg-white"],
+html.dark[data-theme] [class~="bg-gray-50"],
+html.dark[data-theme] [class~="bg-slate-50"] {
+  background-color: var(--app-card) !important;
+  color: var(--app-text) !important;
+  border-color: var(--app-border) !important;
+}
+
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: #302b3b !important;
+}
+
+html.dark[data-theme] [class~="text-ink-900"],
+html.dark[data-theme] [class~="text-ink-700"],
+html.dark[data-theme] [class~="text-gray-900"],
+html.dark[data-theme] [class~="text-gray-800"],
+html.dark[data-theme] [class~="text-slate-900"],
+html.dark[data-theme] [class~="text-slate-800"] {
+  color: #f5f0fa !important;
+}
+
+html.dark[data-theme] [class~="text-ink-500"],
+html.dark[data-theme] [class~="text-ink-300"],
+html.dark[data-theme] [class~="text-gray-600"],
+html.dark[data-theme] [class~="text-gray-500"],
+html.dark[data-theme] [class~="text-slate-600"],
+html.dark[data-theme] [class~="text-slate-500"] {
+  color: #b9b3c8 !important;
+}
+
+html.dark[data-theme] input:not([type="checkbox"]):not([type="radio"]),
+html.dark[data-theme] textarea,
+html.dark[data-theme] select {
+  background-color: #252532 !important;
+  color: #f5f0fa !important;
+  border-color: #3a3547 !important;
+}
+
+html.dark[data-theme] input::placeholder,
+html.dark[data-theme] textarea::placeholder {
+  color: #a9a1b8 !important;
+}
+
+html.dark[data-theme] [role="dialog"],
+html.dark[data-theme] [role="menu"],
+html.dark[data-theme] [role="listbox"],
+html.dark[data-theme] .dropdown-menu,
+html.dark[data-theme] .modal-content {
+  background-color: #252532 !important;
+  color: #f5f0fa !important;
+  border-color: #3a3547 !important;
+}
+
+html.dark[data-theme] [class*="border-rose-"],
+html.dark[data-theme] [class*="border-lavender-"],
+html.dark[data-theme] [class*="border-peach-"],
+html.dark[data-theme] [class*="border-mint-"] {
+  border-color: #3a3547 !important;
+}
+
+html.dark[data-theme] .shadow,
+html.dark[data-theme] .shadow-sm,
+html.dark[data-theme] .shadow-md,
+html.dark[data-theme] .shadow-lg,
+html.dark[data-theme] .shadow-card,
+html.dark[data-theme] .shadow-soft {
+  --tw-shadow-color: rgb(0 0 0 / 20%);
+}
+
+
+/* RESTORE DISTINCT THEME COLORS IN DARK MODE */
+html.dark[data-theme="pink-blossom"] {
+  --app-primary: #ff8fb1;
+  --app-primary-dark: #f06a94;
+  --app-soft: #402b38;
+  --app-border: #593448;
+}
+html.dark[data-theme="lavender-dream"] {
+  --app-primary: #b99bea;
+  --app-primary-dark: #a990df;
+  --app-soft: #362e49;
+  --app-border: #493b61;
+}
+html.dark[data-theme="peach-cream"] {
+  --app-primary: #ffa878;
+  --app-primary-dark: #e88758;
+  --app-soft: #423126;
+  --app-border: #5a4030;
+}
+html.dark[data-theme="rose-gold"] {
+  --app-primary: #e5a0a5;
+  --app-primary-dark: #d98b91;
+  --app-soft: #412d34;
+  --app-border: #5a3b43;
+}
+html.dark[data-theme="mint-garden"] {
+  --app-primary: #75d6a3;
+  --app-primary-dark: #65bd91;
+  --app-soft: #293d35;
+  --app-border: #385448;
+}
+html.dark[data-theme="pure-white"] {
+  --app-primary: #b0b0c5;
+  --app-primary-dark: #9292a5;
+  --app-soft: #343440;
+  --app-border: #484856;
+}

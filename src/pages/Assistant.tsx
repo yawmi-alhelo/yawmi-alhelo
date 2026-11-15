@@ -51,7 +51,7 @@ export default function Assistant() {
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [showPlanner, setShowPlanner] = useState(false);
   const [showCooking, setShowCooking] = useState(false);
-  const [pending, setPending] = useState<{ toolName: string; args: Record<string, any>; preview: string } | null>(null);
+  const [pending, setPending] = useState<{ toolName: string; args: Record<string, unknown>; preview: string } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { load(todayISO()); }, [load]);

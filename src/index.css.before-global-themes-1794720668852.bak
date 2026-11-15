@@ -1,0 +1,201 @@
+@import '@fontsource/cairo/400.css';
+@import '@fontsource/cairo/600.css';
+@import '@fontsource/cairo/700.css';
+@import '@fontsource/cairo/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Cairo', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none !important;
+  }
+
+  body {
+    @apply bg-rose-50 text-ink-900 antialiased;
+    margin: 0;
+    min-height: 100vh;
+    overscroll-behavior-y: none; /* منع المط فقط بدون تخريب السكرول */
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  html.dark body {
+    @apply bg-[#1a1a24] text-rose-100;
+  }
+
+  /* منع تحديد النص بدون تخريب السكرول */
+  *:not(input):not(textarea) {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-rose-400 text-white font-semibold rounded-xl2 px-6 py-3 shadow-soft active:scale-95 transition-transform;
+  }
+  .btn-secondary {
+    @apply bg-white text-rose-600 font-semibold rounded-xl2 px-6 py-3 shadow-soft border border-rose-100 active:scale-95 transition-transform;
+  }
+  .card-soft {
+    @apply bg-white rounded-xl2 p-4 shadow-card;
+  }
+  .dark .card-soft {
+    @apply bg-[#252532] shadow-none;
+  }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes fadeInScale {
+  0% { transform: scale(0.9); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+
+/* توهج نيون للمهمة القادمة */
+@keyframes neon-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 8px rgba(255, 143, 177, 0.6),
+      0 0 20px rgba(184, 164, 236, 0.4),
+      inset 0 0 10px rgba(255, 143, 177, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(255, 143, 177, 0.95),
+      0 0 40px rgba(184, 164, 236, 0.7),
+      inset 0 0 16px rgba(255, 143, 177, 0.35);
+  }
+}
+
+.animate-neon-glow {
+  animation: neon-glow 2.4s ease-in-out infinite;
+}
+
+/* توهج النصوص الإرشادية */
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(255, 143, 177, 0.4);
+    opacity: 0.85;
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(255, 143, 177, 0.9), 0 0 20px rgba(184, 164, 236, 0.5);
+    opacity: 1;
+  }
+}
+
+.text-glow {
+  animation: text-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes text-glow-soft {
+  0%, 100% {
+    text-shadow: 0 0 3px rgba(255, 143, 177, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 143, 177, 0.8), 0 0 16px rgba(184, 164, 236, 0.4);
+  }
+}
+
+.text-glow-soft {
+  animation: text-glow-soft 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-neon-glow, .text-glow, .text-glow-soft { animation: none; }
+}
+
+
+/* ==================== نظام ثيمات يومي حلو ==================== */
+html[data-theme] {
+  --app-bg: #fff5f8;
+  --app-card: #ffffff;
+  --app-primary: #ff8fb1;
+  --app-primary-dark: #f06a94;
+  --app-soft: #ffe4ec;
+  --app-text: #2d2d3a;
+  --app-muted: #6b6b7b;
+  --app-border: #ffe4ec;
+}
+html[data-theme="pink-blossom"] {
+  --app-bg:#fff5f8; --app-card:#fff; --app-primary:#ff8fb1;
+  --app-primary-dark:#f06a94; --app-soft:#ffe4ec;
+  --app-text:#2d2d3a; --app-muted:#6b6b7b; --app-border:#ffe4ec;
+}
+html[data-theme="lavender-dream"] {
+  --app-bg:#f7f3ff; --app-card:#fff; --app-primary:#a990df;
+  --app-primary-dark:#8065c5; --app-soft:#ede6fa;
+  --app-text:#302943; --app-muted:#766b89; --app-border:#e3d8f7;
+}
+html[data-theme="peach-cream"] {
+  --app-bg:#fff6ef; --app-card:#fff; --app-primary:#ffa878;
+  --app-primary-dark:#e88758; --app-soft:#ffe9d6;
+  --app-text:#3b302b; --app-muted:#806d62; --app-border:#ffe2ce;
+}
+html[data-theme="rose-gold"] {
+  --app-bg:#fff4f2; --app-card:#fff; --app-primary:#d98b91;
+  --app-primary-dark:#b96c78; --app-soft:#f8e2df;
+  --app-text:#3b2c30; --app-muted:#80666a; --app-border:#f0d5d2;
+}
+html[data-theme="mint-garden"] {
+  --app-bg:#f0faf4; --app-card:#fff; --app-primary:#65bd91;
+  --app-primary-dark:#399b70; --app-soft:#ddf3e6;
+  --app-text:#263a30; --app-muted:#637c6d; --app-border:#d5eddf;
+}
+html[data-theme="pure-white"] {
+  --app-bg:#f7f7fa; --app-card:#fff; --app-primary:#9292a5;
+  --app-primary-dark:#656575; --app-soft:#ededf2;
+  --app-text:#292936; --app-muted:#737383; --app-border:#e7e7ed;
+}
+html[data-theme] body {
+  background:var(--app-bg) !important;
+  color:var(--app-text);
+}
+html[data-theme] .card-soft {
+  background:var(--app-card) !important;
+  border-color:var(--app-border);
+}
+html[data-theme] .bg-rose-50 { background-color:var(--app-bg) !important; }
+html[data-theme] .bg-rose-100 { background-color:var(--app-soft) !important; }
+html[data-theme] .bg-rose-200 { background-color:var(--app-border) !important; }
+html[data-theme] .bg-rose-400 { background-color:var(--app-primary) !important; }
+html[data-theme] .bg-rose-500,
+html[data-theme] .bg-rose-600 { background-color:var(--app-primary-dark) !important; }
+html[data-theme] .text-rose-400,
+html[data-theme] .text-rose-500,
+html[data-theme] .text-rose-600 { color:var(--app-primary-dark) !important; }
+html[data-theme] .border-rose-100,
+html[data-theme] .border-rose-200 { border-color:var(--app-border) !important; }
+html[data-theme] .btn-primary { background:var(--app-primary) !important; }
+html[data-theme] .btn-secondary {
+  color:var(--app-primary-dark) !important;
+  border-color:var(--app-border) !important;
+}
+html.dark[data-theme] body {
+  background:#1a1a24 !important;
+  color:#fce7f3;
+}
+html.dark[data-theme] .card-soft { background:#252532 !important; }
+html.dark[data-theme] .bg-rose-50,
+html.dark[data-theme] .bg-rose-100 { background-color:#252532 !important; }
+html.dark[data-theme] .bg-rose-400,
+html.dark[data-theme] .bg-rose-500,
+html.dark[data-theme] .bg-rose-600 {
+  background-color:var(--app-primary-dark) !important;
+}
+html.dark[data-theme] .border-rose-100,
+html.dark[data-theme] .border-rose-200 { border-color:#34343f !important; }

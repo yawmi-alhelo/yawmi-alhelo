@@ -1,3 +1,4 @@
+import { errMsg } from '../lib/errors';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -81,18 +82,18 @@ export default function Group() {
 
   useEffect(() => {
     if (!settings.groupId) return;
-    loadMembers();
+    const t1 = setTimeout(() => loadMembers(), 0);
     const unsub = subscribeToRoom(settings.groupId, loadMembers);
     const interval = setInterval(loadMembers, 30000);
-    return () => { unsub(); clearInterval(interval); };
+    return () => { clearTimeout(t1); unsub(); clearInterval(interval); };
   }, [settings.groupId, loadMembers]);
 
   useEffect(() => {
     if (!settings.groupId || tab !== 'chat') return;
-    loadChat();
+    const t2 = setTimeout(() => loadChat(), 0);
     const unsub = subscribeToMessages(settings.groupId, loadChat);
     const interval = setInterval(loadChat, 5000);
-    return () => { unsub(); clearInterval(interval); };
+    return () => { clearTimeout(t2); unsub(); clearInterval(interval); };
   }, [settings.groupId, tab, loadChat]);
 
   useEffect(() => {
@@ -111,8 +112,8 @@ export default function Group() {
       const room = await createRoom(nickname.trim(), deviceId, myStats);
       await update({ groupId: room.roomId, groupCode: room.code, groupName: room.name, nickname: room.finalNickname, deviceId });
       setMode('view');
-    } catch (e: any) {
-      setError(e?.message || 'فشل الإنشاء');
+    } catch (e) {
+      setError(errMsg(e) || 'فشل الإنشاء');
     } finally { setLoading(false); }
   }
 
@@ -126,8 +127,8 @@ export default function Group() {
       if (finalName !== nickname.trim()) setError(`⚠️ "${nickname.trim()}" موجود — انضميتي باسم "${finalName}"`);
       await update({ groupId: room.roomId, groupCode: room.code, groupName: room.name, nickname: finalName, deviceId });
       setMode('view');
-    } catch (e: any) {
-      setError(e?.message || 'فشل الانضمام');
+    } catch (e) {
+      setError(errMsg(e) || 'فشل الانضمام');
     } finally { setLoading(false); }
   }
 

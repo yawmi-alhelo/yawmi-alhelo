@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User, Moon, Bell, Volume2, Timer, Database, Info, ChevronLeft,
+  User, Palette, Moon, Bell, Volume2, Timer, Database, Info, ChevronLeft,
   Sparkles, Brain, Loader2, CheckCircle2, XCircle,
   Users, Sprout, ShoppingCart, Cloud, Download
 } from 'lucide-react';
@@ -21,7 +21,7 @@ export default function Settings() {
   const [syncPass, setSyncPass] = useState(settings.syncPassword || '');
   const [syncLoading, setSyncLoading] = useState(false);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
-  const [restoreConfirm, setRestoreConfirm] = useState<any>(null);
+  const [restoreConfirm, setRestoreConfirm] = useState<{ backupAt: string; taskCount: number; habitCount?: number; noteCount?: number } | null>(null);
   const [testState, setTestState] = useState<{ status: 'idle' | 'testing' | 'ok' | 'err'; msg: string }>({ status: 'idle', msg: '' });
 
   useEffect(() => {
@@ -106,6 +106,51 @@ export default function Settings() {
       </Section>
 
       <Section title="المظهر">
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Palette size={19} className="text-rose-500" />
+            <div>
+              <p className="font-bold text-sm text-ink-900 dark:text-rose-100">اختاري ثيم تطبيقج</p>
+              <p className="text-xs text-ink-500 dark:text-rose-300/80">غيّري ألوان وشكل التطبيق بالكامل 🌸</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { id: 'pink-blossom', name: 'Pink Blossom', ar: 'الوردي الزهري', colors: ['#FFF0F5','#FF8FB1','#F06A94'] },
+              { id: 'lavender-dream', name: 'Lavender Dream', ar: 'حلم اللافندر', colors: ['#F3EEFF','#B8A4EC','#8065C5'] },
+              { id: 'peach-cream', name: 'Peach Cream', ar: 'الخوخي الكريمي', colors: ['#FFF3E9','#FFA878','#E88758'] },
+              { id: 'rose-gold', name: 'Rose Gold', ar: 'الوردي الذهبي', colors: ['#FFF0EF','#D98B91','#B77A62'] },
+              { id: 'mint-garden', name: 'Mint Garden', ar: 'الحديقة النعناعية', colors: ['#EDFAF3','#7DD3A8','#399B70'] },
+              { id: 'pure-white', name: 'Pure White', ar: 'الأبيض الأنيق', colors: ['#FFFFFF','#A7A7B5','#656575'] },
+            ].map(theme => {
+              const selected = (settings.appTheme || 'pink-blossom') === theme.id;
+              return (
+                <button
+                  key={theme.id}
+                  type="button"
+                  onClick={() => update({ appTheme: theme.id as import('../types').AppTheme })}
+                  className={`text-right rounded-2xl border-2 p-3 transition-all active:scale-95 ${selected ? 'border-rose-400 shadow-md' : 'border-rose-100 dark:border-[#34343f]'}`}
+                  style={{ background: theme.colors[0] }}
+                >
+                  <div className="flex gap-1.5 mb-3">
+                    {theme.colors.map((color, index) => (
+                      <span key={index} className="h-7 flex-1 rounded-lg" style={{ background: color, border: '1px solid rgba(0,0,0,.05)' }} />
+                    ))}
+                  </div>
+                  <p className="font-extrabold text-xs" style={{ color: theme.colors[2] }}>{theme.name}</p>
+                  <p className="text-[11px] mt-1" style={{ color: theme.colors[2] }}>{theme.ar}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-[10px] font-bold" style={{ color: theme.colors[2] }}>
+                      {selected ? 'مُطبّق حالياً' : 'اضغطي للتطبيق'}
+                    </span>
+                    {selected && <CheckCircle2 size={17} style={{ color: theme.colors[2] }} />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <ToggleRow icon={<Moon size={18} className="text-lavender-300" />} label="الوضع الداكن" sub="مريح للعين بالليل"
           checked={settings.darkMode} onChange={v => update({ darkMode: v })} />
       </Section>

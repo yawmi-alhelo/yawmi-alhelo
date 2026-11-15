@@ -28,7 +28,7 @@ registerTool({
       title: args.title,
       period,
       scheduledTime: args.time || undefined,
-      durationMinutes: args.duration || undefined,
+      durationMinutes: args.duration ? parseInt(args.duration) : undefined,
       priority,
       completed: false,
       repeat: 'none',
@@ -123,7 +123,7 @@ registerTool({
     const patch: Partial<Task> = {};
     if (args.newTitle) patch.title = args.newTitle;
     if (args.newTime) patch.scheduledTime = args.newTime;
-    if (args.newDuration) patch.durationMinutes = args.newDuration;
+    if (args.newDuration) patch.durationMinutes = parseInt(args.newDuration);
     if (Object.keys(patch).length === 0) {
       return { ok: false, message: 'ما في شي يتعدل' };
     }

@@ -35,7 +35,7 @@ export async function getMetrics(): Promise<Record<AchievementMetric, number>> {
   try {
     const db = await getDB();
     const sessions = await db.getAll('focusSessions');
-    focusSessions = sessions.filter((s: any) => s.completed && s.type === 'focus').length;
+    focusSessions = sessions.filter((s: { completed?: boolean; type?: string }) => s.completed && s.type === 'focus').length;
   } catch { /* ignore */ }
   
   // عدد العادات

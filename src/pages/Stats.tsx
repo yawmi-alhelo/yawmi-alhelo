@@ -26,8 +26,6 @@ export default function Stats() {
   const [topPeriods, setTopPeriods] = useState<Array<{ period: PeriodType; count: number }>>([]);
   const [comparison, setComparison] = useState<{ thisWeek: number; lastWeek: number; change: number } | null>(null);
 
-  useEffect(() => { loadAll(); }, []);
-
   async function loadAll() {
     setLoading(true);
     const today = todayISO();
@@ -86,6 +84,12 @@ export default function Stats() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    const tid = setTimeout(() => { void loadAll(); }, 0);
+    return () => clearTimeout(tid);
+  }, []);
+
 
   const maxBar = Math.max(1, ...week.map(d => d.total));
   const maxHourly = Math.max(1, ...hourly.map(h => h.count));

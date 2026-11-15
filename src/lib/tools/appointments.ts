@@ -20,7 +20,7 @@ registerTool({
       date: args.date || todayISO(),
       time: args.time,
       location: args.location || undefined,
-      reminderMinutes: args.reminderMinutes ?? 15,
+      reminderMinutes: args.reminderMinutes !== undefined && args.reminderMinutes !== null ? Number(args.reminderMinutes) : 15,
       repeat: 'none',
     });
     return { ok: true, message: `📅 ضفت موعد "${appt.title}" الساعة ${appt.time}`, data: { apptId: appt.id } };

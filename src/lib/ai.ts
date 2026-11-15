@@ -1,3 +1,4 @@
+import { errMsg } from './errors';
 import type { PeriodType } from '../types';
 
 const PERIOD_AR_TO_ID: Record<string, PeriodType> = {
@@ -37,7 +38,7 @@ function parseAIResponse(raw: string): AIResult {
 
 const GROQ_KEY = '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';
 
-export async function callGroq(messages: any[]): Promise<AIResult> {
+export async function callGroq(messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>): Promise<AIResult> {
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -54,12 +55,13 @@ export async function callGroq(messages: any[]): Promise<AIResult> {
     });
 
     if (!res.ok) throw new Error(`Groq ${res.status}`);
-    const data = await res.json();
-    const content: string = data?.choices?.[0]?.message?.content || '';
+    const data: unknown = await res.json();
+    const typed = data as { choices?: Array<{ message?: { content?: string } }> };
+    const content: string = typed.choices?.[0]?.message?.content || '';
     if (!content) throw new Error('رد فارغ');
     return parseAIResponse(content);
-  } catch (e: any) {
-    throw new Error(e.message || 'فشل الاتصال');
+  } catch (e) {
+    throw new Error(e instanceof Error ? errMsg(e) : 'فشل الاتصال', { cause: e });
   }
 }
 
@@ -79,8 +81,8 @@ export async function testGroqKey(): Promise<{ ok: boolean; message: string }> {
     });
     if (!res.ok) return { ok: false, message: `فشل (${res.status})` };
     return { ok: true, message: 'شغّال ✅' };
-  } catch (e: any) {
-    return { ok: false, message: e.message };
+  } catch (e) {
+    return { ok: false, message: errMsg(e) };
   }
 }
 
