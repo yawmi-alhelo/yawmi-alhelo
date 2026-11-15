@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, Sparkles, BarChart3, Settings } from 'lucide-react';
+import { Home, Calendar, Sparkles, BarChart3, Settings, Smartphone } from 'lucide-react';
 
 const items = [
   { to: '/', label: 'الرئيسية', Icon: Home },
@@ -7,6 +7,7 @@ const items = [
   { to: '/assistant', label: 'رفيق', Icon: Sparkles },
   { to: '/stats', label: 'الإحصائيات', Icon: BarChart3 },
   { to: '/settings', label: 'الإعدادات', Icon: Settings },
+  { to: '/launcher', label: 'اللانشر', Icon: Smartphone },
 ];
 
 export default function BottomNav() {

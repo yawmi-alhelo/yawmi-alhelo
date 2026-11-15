@@ -21,6 +21,7 @@ const Shopping = lazy(() => import('./pages/Shopping'));
 const Backup = lazy(() => import('./pages/Backup'));
 const Favorites = lazy(() => import('./pages/Favorites'));
 const AppointmentsPage = lazy(() => import('./pages/Appointments'));
+const Launcher = lazy(() => import('./pages/Launcher'));
 
 
 
@@ -209,6 +210,7 @@ export default function App() {
         <Route path="/shopping" element={<Shopping />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/appointments" element={<AppointmentsPage />} />
+        <Route path="/launcher" element={<Launcher />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/backup" element={<Backup />} />
         <Route path="/sounds" element={<Sounds />} />

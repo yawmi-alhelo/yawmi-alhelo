@@ -4,44 +4,79 @@ import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class YawmiLauncherActivity extends Activity {
-    private final String[] names = {
-        "Pink Blossom", "Lavender Dream", "Peach Cream",
-        "Rose Gold", "Mint Garden", "Pure White"
+
+    private final String[] themeNames = {
+        "وردي", "لافندر", "خوخي", "روز", "نعناعي", "أبيض"
     };
+
     private final int[] backgrounds = {
         0xFFFFE8F0, 0xFFEDE7FF, 0xFFFFEEE2,
         0xFFF7E8E8, 0xFFE5F5EC, 0xFFF7F7F7
     };
+
     private final int[] accents = {
         0xFFD85C91, 0xFF8664C7, 0xFFE99569,
         0xFFAD777D, 0xFF579B78, 0xFF777777
     };
 
     private LinearLayout root;
-    private int selected = 0;
+    private GridLayout grid;
+    private EditText search;
+    private TextView clockView;
+    private TextView filterLabel;
+    private int selectedTheme;
+    private int iconStyle;
+    private int iconSize;
+    private boolean favoritesOnly = false;
+
+    private final ArrayList<ResolveInfo> allApps = new ArrayList<>();
+    private final Set<String> favorites = new HashSet<>();
+
+    private final Handler handler = new Handler();
+    private final Runnable clockTick = new Runnable() {
+        @Override
+        public void run() {
+            if (clockView != null) {
+                clockView.setText(android.text.format.DateFormat.format("hh:mm", new Date()));
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
+
+    private SharedPreferences prefs;
 
     private int dp(float value) {
-        return (int)(value * getResources().getDisplayMetrics().density);
+        return (int) (value * getResources().getDisplayMetrics().density);
     }
 
     private GradientDrawable shape(int color, int radius) {
@@ -64,120 +99,289 @@ public class YawmiLauncherActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        selected = getPreferences(0).getInt("theme", 0);
+        prefs = getPreferences(0);
+        selectedTheme = prefs.getInt("theme", 0);
+        iconStyle = prefs.getInt("icon_style", 0);
+        iconSize = prefs.getInt("icon_size", 48);
+        favorites.addAll(prefs.getStringSet("favorites", new HashSet<>()));
+        loadApps();
         buildScreen();
     }
 
+    private void loadApps() {
+        allApps.clear();
+        Intent query = new Intent(Intent.ACTION_MAIN);
+        query.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        allApps.addAll(getPackageManager().queryIntentActivities(query, 0));
+
+        Collections.sort(allApps, new Comparator<ResolveInfo>() {
+            @Override
+            public int compare(ResolveInfo a, ResolveInfo b) {
+                return a.loadLabel(getPackageManager()).toString()
+                    .compareToIgnoreCase(
+                        b.loadLabel(getPackageManager()).toString()
+                    );
+            }
+        });
+    }
+
     private void buildScreen() {
-        selected = Math.max(0, Math.min(selected, names.length - 1));
-        getWindow().setStatusBarColor(backgrounds[selected]);
-        getWindow().setNavigationBarColor(backgrounds[selected]);
+        handler.removeCallbacks(clockTick);
+
+        selectedTheme = Math.max(0, Math.min(selectedTheme, backgrounds.length - 1));
+
+        getWindow().setStatusBarColor(backgrounds[selectedTheme]);
+        getWindow().setNavigationBarColor(backgrounds[selectedTheme]);
         getWindow().getDecorView().setSystemUiVisibility(
             View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR |
             View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
         );
 
         ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(true);
+
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(18), dp(24), dp(18), dp(24));
-        root.setBackgroundColor(backgrounds[selected]);
-        scroll.setBackgroundColor(backgrounds[selected]);
+        root.setPadding(dp(18), dp(22), dp(18), dp(28));
+        root.setBackgroundColor(backgrounds[selectedTheme]);
         scroll.addView(root);
 
-        TextView clock = text(
-            android.text.format.DateFormat.format("hh:mm", new Date()).toString(),
-            42, accents[selected], true
-        );
-        root.addView(clock, new LinearLayout.LayoutParams(-1, dp(65)));
-        root.addView(text("يومي حلو", 25, Color.DKGRAY, true));
-        root.addView(text("شاشة جهازك، بطريقتك", 14, 0xFF777777, false));
+        clockView = text("", 48, accents[selectedTheme], true);
+        root.addView(clockView, new LinearLayout.LayoutParams(-1, dp(72)));
+        clockTick.run();
 
-        Button openApp = new Button(this);
-        openApp.setText("فتح تطبيق يومي حلو");
-        openApp.setTextColor(Color.WHITE);
-        openApp.setBackground(shape(accents[selected], 24));
-        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, dp(52));
-        bp.setMargins(0, dp(18), 0, dp(18));
-        root.addView(openApp, bp);
+        root.addView(text("يومي حلو", 27, 0xFF33313A, true));
+        root.addView(text("مساحتك الخاصة، على ذوقك", 13, 0xFF77717B, false));
+
+        Button openApp = button("فتح تطبيق يومي حلو", accents[selectedTheme]);
+        LinearLayout.LayoutParams openParams = new LinearLayout.LayoutParams(-1, dp(50));
+        openParams.setMargins(0, dp(16), 0, dp(18));
+        root.addView(openApp, openParams);
         openApp.setOnClickListener(v -> {
             Intent i = new Intent(this, MainActivity.class);
             startActivity(i);
         });
 
-        root.addView(text("اختار ثيم جهازك", 19, Color.DKGRAY, true));
-        LinearLayout themes = new LinearLayout(this);
-        themes.setOrientation(LinearLayout.VERTICAL);
-        for (int i = 0; i < names.length; i++) {
+        sectionTitle("ثيمات الشاشة");
+        HorizontalScrollView themeScroll = new HorizontalScrollView(this);
+        themeScroll.setHorizontalScrollBarEnabled(false);
+        LinearLayout themeRow = new LinearLayout(this);
+        themeRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        for (int i = 0; i < themeNames.length; i++) {
             final int index = i;
-            Button b = new Button(this);
-            b.setText((i == selected ? "✓  " : "") + names[i]);
-            b.setTextColor(accents[i]);
-            b.setBackground(shape(0xFFFFFFFF, 18));
-            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, dp(48));
-            p.setMargins(0, dp(5), 0, dp(5));
-            themes.addView(b, p);
+            Button b = button(
+                (selectedTheme == i ? "✓ " : "") + themeNames[i],
+                accents[i]
+            );
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(dp(100), dp(44));
+            p.setMargins(dp(3), dp(5), dp(7), dp(9));
+            themeRow.addView(b, p);
             b.setOnClickListener(v -> applyTheme(index));
         }
-        root.addView(themes);
 
-        root.addView(text("تطبيقاتك", 20, Color.DKGRAY, true));
-        GridLayout grid = new GridLayout(this);
+        themeScroll.addView(themeRow);
+        root.addView(themeScroll);
+
+        sectionTitle("شكل الأيقونات");
+
+        LinearLayout styleRow = new LinearLayout(this);
+        styleRow.setOrientation(LinearLayout.HORIZONTAL);
+        String[] styles = {"دائري", "مستدير", "مربع"};
+
+        for (int i = 0; i < styles.length; i++) {
+            final int index = i;
+            Button b = button(
+                (iconStyle == i ? "✓ " : "") + styles[i],
+                accents[selectedTheme]
+            );
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, dp(44), 1);
+            p.setMargins(dp(3), dp(4), dp(3), dp(4));
+            styleRow.addView(b, p);
+            b.setOnClickListener(v -> {
+                iconStyle = index;
+                prefs.edit().putInt("icon_style", iconStyle).apply();
+                buildScreen();
+            });
+        }
+        root.addView(styleRow);
+
+        LinearLayout sizeRow = new LinearLayout(this);
+        sizeRow.setOrientation(LinearLayout.HORIZONTAL);
+        String[] sizes = {"صغير", "متوسط", "كبير"};
+        int[] values = {40, 48, 56};
+
+        for (int i = 0; i < sizes.length; i++) {
+            final int value = values[i];
+            Button b = button(
+                (iconSize == value ? "✓ " : "") + sizes[i],
+                accents[selectedTheme]
+            );
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, dp(42), 1);
+            p.setMargins(dp(3), dp(4), dp(3), dp(12));
+            sizeRow.addView(b, p);
+            b.setOnClickListener(v -> {
+                iconSize = value;
+                prefs.edit().putInt("icon_size", iconSize).apply();
+                buildScreen();
+            });
+        }
+        root.addView(sizeRow);
+
+        sectionTitle("تطبيقاتك");
+
+        search = new EditText(this);
+        search.setSingleLine(true);
+        search.setTextSize(14);
+        search.setHint("ابحث عن تطبيق...");
+        search.setPadding(dp(16), dp(5), dp(16), dp(5));
+        search.setTextColor(0xFF33313A);
+        search.setHintTextColor(0xFF99919A);
+        search.setBackground(shape(Color.WHITE, 18));
+        LinearLayout.LayoutParams searchParams = new LinearLayout.LayoutParams(-1, dp(48));
+        searchParams.setMargins(0, dp(5), 0, dp(10));
+        root.addView(search, searchParams);
+
+        Button filter = button(
+            favoritesOnly ? "★ عرض كل التطبيقات" : "☆ عرض المفضلة فقط",
+            accents[selectedTheme]
+        );
+        root.addView(filter, new LinearLayout.LayoutParams(-1, dp(43)));
+        filter.setOnClickListener(v -> {
+            favoritesOnly = !favoritesOnly;
+            filter.setText(favoritesOnly ? "★ عرض كل التطبيقات" : "☆ عرض المفضلة فقط");
+            updateGrid();
+        });
+
+        grid = new GridLayout(this);
         grid.setColumnCount(4);
         LinearLayout.LayoutParams gp = new LinearLayout.LayoutParams(-1, -2);
         gp.setMargins(0, dp(12), 0, dp(20));
         root.addView(grid, gp);
 
-        Intent query = new Intent(Intent.ACTION_MAIN);
-        query.addCategory(Intent.CATEGORY_LAUNCHER);
-        ArrayList<ResolveInfo> apps =
-            new ArrayList<>(getPackageManager().queryIntentActivities(query, 0));
-
-        Collections.sort(apps, new Comparator<ResolveInfo>() {
-            public int compare(ResolveInfo a, ResolveInfo b) {
-                return a.loadLabel(getPackageManager()).toString()
-                    .compareToIgnoreCase(b.loadLabel(getPackageManager()).toString());
+        search.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int before, int count) {
+                updateGrid();
             }
+            @Override public void afterTextChanged(Editable e) {}
         });
 
-        for (ResolveInfo app : apps) {
-            String packageName = app.activityInfo.packageName;
-            if (packageName.equals(getPackageName())) continue;
-
-            LinearLayout cell = new LinearLayout(this);
-            cell.setOrientation(LinearLayout.VERTICAL);
-            cell.setGravity(Gravity.CENTER);
-            cell.setPadding(dp(3), dp(8), dp(3), dp(8));
-
-            ImageView icon = new ImageView(this);
-            icon.setImageDrawable(app.loadIcon(getPackageManager()));
-            cell.addView(icon, new LinearLayout.LayoutParams(dp(48), dp(48)));
-
-            TextView label = text(
-                app.loadLabel(getPackageManager()).toString(),
-                11, 0xFF333333, false
-            );
-            label.setMaxLines(2);
-            cell.addView(label, new LinearLayout.LayoutParams(-1, dp(38)));
-
-            GridLayout.LayoutParams cp = new GridLayout.LayoutParams();
-            cp.width = 0;
-            cp.height = -2;
-            cp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            grid.addView(cell, cp);
-
-            cell.setOnClickListener(v -> {
-                Intent launch = getPackageManager().getLaunchIntentForPackage(packageName);
-                if (launch != null) startActivity(launch);
-            });
-        }
-
+        updateGrid();
         setContentView(scroll);
     }
 
+    private Button button(String label, int color) {
+        Button b = new Button(this);
+        b.setText(label);
+        b.setTextSize(12);
+        b.setAllCaps(false);
+        b.setTextColor(Color.WHITE);
+        b.setBackground(shape(color, 18));
+        return b;
+    }
+
+    private void sectionTitle(String title) {
+        TextView t = text(title, 18, 0xFF37313B, true);
+        t.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, dp(42));
+        p.setMargins(0, dp(9), 0, dp(3));
+        root.addView(t, p);
+    }
+
+    private void updateGrid() {
+        if (grid == null) return;
+        grid.removeAllViews();
+
+        String term = search == null ? "" : search.getText().toString().trim().toLowerCase();
+
+        int count = 0;
+        for (ResolveInfo app : allApps) {
+            String packageName = app.activityInfo.packageName;
+            if (packageName.equals(getPackageName())) continue;
+
+            String label = app.loadLabel(getPackageManager()).toString();
+
+            if (!label.toLowerCase().contains(term)) continue;
+            if (favoritesOnly && !favorites.contains(packageName)) continue;
+
+            addAppCell(app, label, packageName);
+            count++;
+        }
+
+        if (count == 0) {
+            TextView empty = text("ماكو تطبيقات مطابقة", 14, 0xFF77717B, false);
+            GridLayout.LayoutParams p = new GridLayout.LayoutParams();
+            p.width = -1;
+            p.height = dp(90);
+            grid.addView(empty, p);
+        }
+    }
+
+    private void addAppCell(ResolveInfo app, String label, String packageName) {
+        LinearLayout cell = new LinearLayout(this);
+        cell.setOrientation(LinearLayout.VERTICAL);
+        cell.setGravity(Gravity.CENTER);
+        cell.setPadding(dp(3), dp(9), dp(3), dp(8));
+
+        int iconBackground = backgrounds[selectedTheme];
+        int radius = iconStyle == 0 ? 100 : (iconStyle == 1 ? 20 : 7);
+
+        ImageView icon = new ImageView(this);
+        icon.setImageDrawable(app.loadIcon(getPackageManager()));
+        icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        icon.setPadding(dp(7), dp(7), dp(7), dp(7));
+        icon.setBackground(shape(iconBackground, radius));
+        icon.setClipToOutline(true);
+
+        cell.addView(icon, new LinearLayout.LayoutParams(dp(iconSize), dp(iconSize)));
+
+        TextView name = text(label, 11, 0xFF38323B, true);
+        name.setMaxLines(2);
+        name.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        cell.addView(name, new LinearLayout.LayoutParams(-1, dp(36)));
+
+        if (favorites.contains(packageName)) {
+            TextView star = text("★", 12, accents[selectedTheme], true);
+            cell.addView(star, new LinearLayout.LayoutParams(-1, dp(17)));
+        }
+
+        GridLayout.LayoutParams cp = new GridLayout.LayoutParams();
+        cp.width = 0;
+        cp.height = -2;
+        cp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+        grid.addView(cell, cp);
+
+        cell.setOnClickListener(v -> {
+            Intent launch = getPackageManager().getLaunchIntentForPackage(packageName);
+            if (launch != null) {
+                try {
+                    startActivity(launch);
+                } catch (Exception e) {
+                    Toast.makeText(this, "تعذر فتح التطبيق", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        cell.setOnLongClickListener(v -> {
+            if (favorites.contains(packageName)) {
+                favorites.remove(packageName);
+                Toast.makeText(this, "تمت إزالة " + label + " من المفضلة", Toast.LENGTH_SHORT).show();
+            } else {
+                favorites.add(packageName);
+                Toast.makeText(this, "تمت إضافة " + label + " للمفضلة", Toast.LENGTH_SHORT).show();
+            }
+
+            prefs.edit().putStringSet("favorites", new HashSet<>(favorites)).apply();
+            updateGrid();
+            return true;
+        });
+    }
+
     private void applyTheme(int index) {
-        selected = index;
-        getPreferences(0).edit().putInt("theme", index).apply();
+        selectedTheme = index;
+        prefs.edit().putInt("theme", index).apply();
 
         try {
             Bitmap wallpaper = Bitmap.createBitmap(720, 1600, Bitmap.Config.ARGB_8888);
@@ -185,16 +389,25 @@ public class YawmiLauncherActivity extends Activity {
             WallpaperManager.getInstance(this).setBitmap(wallpaper);
             wallpaper.recycle();
         } catch (Exception e) {
-            android.widget.Toast.makeText(
-                this, "تم حفظ الثيم، تعذر تغيير الخلفية: " + e.getMessage(),
-                android.widget.Toast.LENGTH_LONG
-            ).show();
+            Toast.makeText(this, "تم حفظ الثيم، لكن تعذر تغيير الخلفية", Toast.LENGTH_SHORT).show();
         }
 
         buildScreen();
-        android.widget.Toast.makeText(
-            this, "تم تطبيق " + names[index],
-            android.widget.Toast.LENGTH_SHORT
-        ).show();
+        Toast.makeText(this, "تم تطبيق ثيم " + themeNames[index], Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (clockView != null) {
+            handler.removeCallbacks(clockTick);
+            clockTick.run();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        handler.removeCallbacks(clockTick);
+        super.onDestroy();
     }
 }
