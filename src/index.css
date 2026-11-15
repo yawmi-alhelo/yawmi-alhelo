@@ -569,3 +569,93 @@ html.dark[data-theme="pure-white"] {
   --app-soft: #343440;
   --app-border: #484856;
 }
+
+/* YAWMI - DISTINCT FEMININE DARK THEMES */
+html.dark[data-theme] {
+  --app-card: #252532;
+  --app-text: #fff7fb;
+  --app-muted: #c8bdcc;
+}
+
+html.dark[data-theme="pink-blossom"] {
+  --app-primary: #ff91b8;
+  --app-primary-dark: #ff6f9f;
+  --app-soft: #48283a;
+  --app-border: #704057;
+}
+
+html.dark[data-theme="lavender-dream"] {
+  --app-primary: #c4a5ff;
+  --app-primary-dark: #aa87f0;
+  --app-soft: #392d50;
+  --app-border: #594573;
+}
+
+html.dark[data-theme="peach-cream"] {
+  --app-primary: #ffb080;
+  --app-primary-dark: #ff9462;
+  --app-soft: #493126;
+  --app-border: #704936;
+}
+
+html.dark[data-theme="rose-gold"] {
+  --app-primary: #f2a6b2;
+  --app-primary-dark: #e98298;
+  --app-soft: #492d38;
+  --app-border: #704653;
+}
+
+html.dark[data-theme="mint-garden"] {
+  --app-primary: #80e0b0;
+  --app-primary-dark: #59c993;
+  --app-soft: #294638;
+  --app-border: #426b55;
+}
+
+html.dark[data-theme="pure-white"] {
+  --app-primary: #d0c5e8;
+  --app-primary-dark: #b5a6d4;
+  --app-soft: #393744;
+  --app-border: #555064;
+}
+
+/* Preserve each theme's identity */
+html.dark[data-theme] .card-soft,
+html.dark[data-theme] .theme-soft {
+  background: var(--app-soft) !important;
+  border-color: var(--app-border) !important;
+}
+
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: var(--app-soft) !important;
+}
+
+html.dark[data-theme] [class~="text-rose-600"],
+html.dark[data-theme] [class~="text-pink-600"],
+html.dark[data-theme] [class~="text-purple-600"] {
+  color: var(--app-primary) !important;
+}
+
+html.dark[data-theme] [class~="border-rose-100"],
+html.dark[data-theme] [class~="border-rose-200"],
+html.dark[data-theme] [class~="border-purple-100"],
+html.dark[data-theme] [class~="border-pink-100"] {
+  border-color: var(--app-border) !important;
+}
+
+html.dark[data-theme] button.bg-rose-500,
+html.dark[data-theme] button.bg-rose-600,
+html.dark[data-theme] .bg-rose-600 {
+  background-color: var(--app-primary-dark) !important;
+  color: #ffffff !important;
+}
+
+html.dark[data-theme] .text-theme,
+html.dark[data-theme] .text-primary {
+  color: var(--app-primary) !important;
+}
+
