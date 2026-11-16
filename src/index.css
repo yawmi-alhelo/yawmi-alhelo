@@ -1,0 +1,1001 @@
+@import '@fontsource/cairo/400.css';
+@import '@fontsource/cairo/600.css';
+@import '@fontsource/cairo/700.css';
+@import '@fontsource/cairo/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Cairo', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none !important;
+  }
+
+  body {
+    @apply bg-rose-50 text-ink-900 antialiased;
+    margin: 0;
+    min-height: 100vh;
+    overscroll-behavior-y: none; /* منع المط فقط بدون تخريب السكرول */
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  html.dark body {
+    @apply bg-[#1a1a24] text-rose-100;
+  }
+
+  /* منع تحديد النص بدون تخريب السكرول */
+  *:not(input):not(textarea) {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-rose-400 text-white font-semibold rounded-xl2 px-6 py-3 shadow-soft active:scale-95 transition-transform;
+  }
+  .btn-secondary {
+    @apply bg-white text-rose-600 font-semibold rounded-xl2 px-6 py-3 shadow-soft border border-rose-100 active:scale-95 transition-transform;
+  }
+  .card-soft {
+    @apply bg-white rounded-xl2 p-4 shadow-card;
+  }
+  .dark .card-soft {
+    @apply bg-[#252532] shadow-none;
+  }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes fadeInScale {
+  0% { transform: scale(0.9); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+
+/* توهج نيون للمهمة القادمة */
+@keyframes neon-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 8px rgba(255, 143, 177, 0.6),
+      0 0 20px rgba(184, 164, 236, 0.4),
+      inset 0 0 10px rgba(255, 143, 177, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(255, 143, 177, 0.95),
+      0 0 40px rgba(184, 164, 236, 0.7),
+      inset 0 0 16px rgba(255, 143, 177, 0.35);
+  }
+}
+
+.animate-neon-glow {
+  animation: neon-glow 2.4s ease-in-out infinite;
+}
+
+/* توهج النصوص الإرشادية */
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(255, 143, 177, 0.4);
+    opacity: 0.85;
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(255, 143, 177, 0.9), 0 0 20px rgba(184, 164, 236, 0.5);
+    opacity: 1;
+  }
+}
+
+.text-glow {
+  animation: text-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes text-glow-soft {
+  0%, 100% {
+    text-shadow: 0 0 3px rgba(255, 143, 177, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 143, 177, 0.8), 0 0 16px rgba(184, 164, 236, 0.4);
+  }
+}
+
+.text-glow-soft {
+  animation: text-glow-soft 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-neon-glow, .text-glow, .text-glow-soft { animation: none; }
+}
+
+
+/* ==================== نظام ثيمات يومي حلو ==================== */
+html[data-theme] {
+  --app-bg: #fff5f8;
+  --app-card: #ffffff;
+  --app-primary: #ff8fb1;
+  --app-primary-dark: #f06a94;
+  --app-soft: #ffe4ec;
+  --app-text: #2d2d3a;
+  --app-muted: #6b6b7b;
+  --app-border: #ffe4ec;
+}
+html[data-theme="pink-blossom"] {
+  --app-bg:#fff5f8; --app-card:#fff; --app-primary:#ff8fb1;
+  --app-primary-dark:#f06a94; --app-soft:#ffe4ec;
+  --app-text:#2d2d3a; --app-muted:#6b6b7b; --app-border:#ffe4ec;
+}
+html[data-theme="lavender-dream"] {
+  --app-bg:#f7f3ff; --app-card:#fff; --app-primary:#a990df;
+  --app-primary-dark:#8065c5; --app-soft:#ede6fa;
+  --app-text:#302943; --app-muted:#766b89; --app-border:#e3d8f7;
+}
+html[data-theme="peach-cream"] {
+  --app-bg:#fff6ef; --app-card:#fff; --app-primary:#ffa878;
+  --app-primary-dark:#e88758; --app-soft:#ffe9d6;
+  --app-text:#3b302b; --app-muted:#806d62; --app-border:#ffe2ce;
+}
+html[data-theme="rose-gold"] {
+  --app-bg:#fff4f2; --app-card:#fff; --app-primary:#d98b91;
+  --app-primary-dark:#b96c78; --app-soft:#f8e2df;
+  --app-text:#3b2c30; --app-muted:#80666a; --app-border:#f0d5d2;
+}
+html[data-theme="mint-garden"] {
+  --app-bg:#f0faf4; --app-card:#fff; --app-primary:#65bd91;
+  --app-primary-dark:#399b70; --app-soft:#ddf3e6;
+  --app-text:#263a30; --app-muted:#637c6d; --app-border:#d5eddf;
+}
+html[data-theme="pure-white"] {
+  --app-bg:#f7f7fa; --app-card:#fff; --app-primary:#9292a5;
+  --app-primary-dark:#656575; --app-soft:#ededf2;
+  --app-text:#292936; --app-muted:#737383; --app-border:#e7e7ed;
+}
+html[data-theme] body {
+  background:var(--app-bg) !important;
+  color:var(--app-text);
+}
+html[data-theme] .card-soft {
+  background:var(--app-card) !important;
+  border-color:var(--app-border);
+}
+html[data-theme] .bg-rose-50 { background-color:var(--app-bg) !important; }
+html[data-theme] .bg-rose-100 { background-color:var(--app-soft) !important; }
+html[data-theme] .bg-rose-200 { background-color:var(--app-border) !important; }
+html[data-theme] .bg-rose-400 { background-color:var(--app-primary) !important; }
+html[data-theme] .bg-rose-500,
+html[data-theme] .bg-rose-600 { background-color:var(--app-primary-dark) !important; }
+html[data-theme] .text-rose-400,
+html[data-theme] .text-rose-500,
+html[data-theme] .text-rose-600 { color:var(--app-primary-dark) !important; }
+html[data-theme] .border-rose-100,
+html[data-theme] .border-rose-200 { border-color:var(--app-border) !important; }
+html[data-theme] .btn-primary { background:var(--app-primary) !important; }
+html[data-theme] .btn-secondary {
+  color:var(--app-primary-dark) !important;
+  border-color:var(--app-border) !important;
+}
+html.dark[data-theme] body {
+  background:#1a1a24 !important;
+  color:#fce7f3;
+}
+html.dark[data-theme] .card-soft { background:#252532 !important; }
+html.dark[data-theme] .bg-rose-50,
+html.dark[data-theme] .bg-rose-100 { background-color:#252532 !important; }
+html.dark[data-theme] .bg-rose-400,
+html.dark[data-theme] .bg-rose-500,
+html.dark[data-theme] .bg-rose-600 {
+  background-color:var(--app-primary-dark) !important;
+}
+html.dark[data-theme] .border-rose-100,
+html.dark[data-theme] .border-rose-200 { border-color:#34343f !important; }
+
+
+/* GLOBAL THEME ENGINE V2 */
+
+/* التطبيق بالكامل */
+html[data-theme],
+html[data-theme] body,
+html[data-theme] #root {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+}
+
+html[data-theme] body {
+  background: var(--app-bg) !important;
+  color: var(--app-text) !important;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+/* البطاقات والخلفيات */
+html[data-theme] [class~="bg-white"],
+html[data-theme] .card-soft {
+  background-color: var(--app-card) !important;
+}
+
+html[data-theme] [class~="bg-rose-50"] {
+  background-color: var(--app-bg) !important;
+}
+html[data-theme] [class~="bg-rose-100"],
+html[data-theme] [class~="bg-lavender-100"],
+html[data-theme] [class~="bg-peach-100"],
+html[data-theme] [class~="bg-mint-100"] {
+  background-color: var(--app-soft) !important;
+}
+html[data-theme] [class~="bg-rose-200"],
+html[data-theme] [class~="bg-lavender-200"],
+html[data-theme] [class~="bg-peach-200"],
+html[data-theme] [class~="bg-mint-200"] {
+  background-color: var(--app-border) !important;
+}
+html[data-theme] [class~="bg-rose-300"],
+html[data-theme] [class~="bg-rose-400"],
+html[data-theme] [class~="bg-lavender-300"],
+html[data-theme] [class~="bg-peach-300"],
+html[data-theme] [class~="bg-mint-300"] {
+  background-color: var(--app-primary) !important;
+}
+html[data-theme] [class~="bg-rose-500"],
+html[data-theme] [class~="bg-rose-600"] {
+  background-color: var(--app-primary-dark) !important;
+}
+
+/* النصوص */
+html[data-theme] [class~="text-rose-400"],
+html[data-theme] [class~="text-rose-500"],
+html[data-theme] [class~="text-rose-600"],
+html[data-theme] [class~="text-lavender-300"],
+html[data-theme] [class~="text-peach-300"],
+html[data-theme] [class~="text-mint-300"] {
+  color: var(--app-primary-dark) !important;
+}
+html[data-theme] [class~="text-ink-900"] {
+  color: var(--app-text) !important;
+}
+html[data-theme] [class~="text-ink-700"],
+html[data-theme] [class~="text-ink-500"],
+html[data-theme] [class~="text-ink-300"] {
+  color: var(--app-muted) !important;
+}
+
+/* الحدود */
+html[data-theme] [class~="border-rose-100"],
+html[data-theme] [class~="border-rose-200"],
+html[data-theme] [class~="border-lavender-100"],
+html[data-theme] [class~="border-lavender-200"],
+html[data-theme] [class~="border-peach-100"],
+html[data-theme] [class~="border-mint-100"] {
+  border-color: var(--app-border) !important;
+}
+
+/* الأزرار والعناصر التفاعلية */
+html[data-theme] .btn-primary,
+html[data-theme] [class~="bg-rose-400"] {
+  background-color: var(--app-primary) !important;
+}
+html[data-theme] .btn-secondary {
+  background-color: var(--app-card) !important;
+  color: var(--app-primary-dark) !important;
+  border-color: var(--app-border) !important;
+}
+
+/* التدرجات اللونية */
+html[data-theme] [class*="from-rose-"],
+html[data-theme] [class*="from-lavender-"],
+html[data-theme] [class*="from-peach-"],
+html[data-theme] [class*="from-mint-"] {
+  --tw-gradient-from: var(--app-primary) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: var(--app-primary) var(--tw-gradient-to-position) !important;
+}
+html[data-theme] [class*="via-rose-"],
+html[data-theme] [class*="via-lavender-"],
+html[data-theme] [class*="via-peach-"],
+html[data-theme] [class*="via-mint-"] {
+  --tw-gradient-via: var(--app-soft) var(--tw-gradient-via-position) !important;
+}
+html[data-theme] [class*="to-rose-"],
+html[data-theme] [class*="to-lavender-"],
+html[data-theme] [class*="to-peach-"],
+html[data-theme] [class*="to-mint-"] {
+  --tw-gradient-to: var(--app-soft) var(--tw-gradient-to-position) !important;
+}
+
+/* الوضع الداكن مستقل عن اختيار الثيم */
+html.dark[data-theme],
+html.dark[data-theme] body,
+html.dark[data-theme] #root {
+  background-color: #1a1a24 !important;
+  color: #f5f0fa !important;
+}
+html.dark[data-theme] [class~="bg-white"],
+html.dark[data-theme] .card-soft {
+  background-color: #252532 !important;
+}
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: #252532 !important;
+}
+html.dark[data-theme] [class~="text-ink-900"],
+html.dark[data-theme] [class~="text-ink-700"] {
+  color: #f5f0fa !important;
+}
+html.dark[data-theme] [class~="text-ink-500"],
+html.dark[data-theme] [class~="text-ink-300"] {
+  color: #b9b3c8 !important;
+}
+html.dark[data-theme] [class~="border-rose-100"],
+html.dark[data-theme] [class~="border-rose-200"] {
+  border-color: #3a3547 !important;
+}
+
+
+/* YAWMI GLOBAL THEME V3 */
+
+/* توحيد أسطح التطبيق */
+html[data-theme] {
+  color-scheme: light;
+  background: var(--app-bg);
+}
+
+html[data-theme] body,
+html[data-theme] #root,
+html[data-theme] main {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+}
+
+/* البطاقات والحاويات */
+html[data-theme] .card,
+html[data-theme] .card-soft,
+html[data-theme] [class~="bg-white"],
+html[data-theme] [class~="bg-gray-50"],
+html[data-theme] [class~="bg-slate-50"] {
+  background-color: var(--app-card) !important;
+  border-color: var(--app-border);
+}
+
+/* الحقول */
+html[data-theme] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme] textarea,
+html[data-theme] select {
+  background-color: var(--app-card);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+html[data-theme] input::placeholder,
+html[data-theme] textarea::placeholder {
+  color: var(--app-muted);
+}
+
+/* القوائم والنوافذ */
+html[data-theme] [role="dialog"],
+html[data-theme] [role="menu"],
+html[data-theme] [role="listbox"],
+html[data-theme] .dropdown-menu,
+html[data-theme] .modal-content {
+  background-color: var(--app-card);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+/* التحديد والتركيز */
+html[data-theme] button:focus-visible,
+html[data-theme] input:focus-visible,
+html[data-theme] textarea:focus-visible,
+html[data-theme] select:focus-visible {
+  outline-color: var(--app-primary);
+}
+
+/* الظلال */
+html[data-theme] .shadow,
+html[data-theme] .shadow-sm,
+html[data-theme] .shadow-md,
+html[data-theme] .shadow-lg {
+  --tw-shadow-color: var(--app-border);
+}
+
+/* الوضع الداكن */
+html.dark[data-theme] {
+  color-scheme: dark;
+}
+
+html.dark[data-theme] input,
+html.dark[data-theme] textarea,
+html.dark[data-theme] select {
+  background-color: #252532;
+  color: #f5f0fa;
+  border-color: #3a3547;
+}
+
+html.dark[data-theme] [role="dialog"],
+html.dark[data-theme] [role="menu"],
+html.dark[data-theme] [role="listbox"],
+html.dark[data-theme] .dropdown-menu,
+html.dark[data-theme] .modal-content {
+  background-color: #252532;
+  color: #f5f0fa;
+  border-color: #3a3547;
+}
+
+/* =========================================
+   YAWMI - DARK MODE FINAL FIX
+   ========================================= */
+
+html.dark[data-theme] {
+  color-scheme: dark !important;
+  --app-bg: #191923;
+  --app-card: #252532;
+  --app-primary: #d98baf;
+  --app-primary-dark: #c8759b;
+  --app-soft: #353044;
+  --app-text: #f5f0fa;
+  --app-muted: #b9b3c8;
+  --app-border: #3a3547;
+  background-color: var(--app-bg) !important;
+  color: var(--app-text) !important;
+}
+
+html.dark[data-theme] body,
+html.dark[data-theme] #root,
+html.dark[data-theme] main {
+  background-color: var(--app-bg) !important;
+  color: var(--app-text) !important;
+}
+
+html.dark[data-theme] .card,
+html.dark[data-theme] .card-soft,
+html.dark[data-theme] [class~="bg-white"],
+html.dark[data-theme] [class~="bg-gray-50"],
+html.dark[data-theme] [class~="bg-slate-50"] {
+  background-color: var(--app-card) !important;
+  color: var(--app-text) !important;
+  border-color: var(--app-border) !important;
+}
+
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: #302b3b !important;
+}
+
+html.dark[data-theme] [class~="text-ink-900"],
+html.dark[data-theme] [class~="text-ink-700"],
+html.dark[data-theme] [class~="text-gray-900"],
+html.dark[data-theme] [class~="text-gray-800"],
+html.dark[data-theme] [class~="text-slate-900"],
+html.dark[data-theme] [class~="text-slate-800"] {
+  color: #f5f0fa !important;
+}
+
+html.dark[data-theme] [class~="text-ink-500"],
+html.dark[data-theme] [class~="text-ink-300"],
+html.dark[data-theme] [class~="text-gray-600"],
+html.dark[data-theme] [class~="text-gray-500"],
+html.dark[data-theme] [class~="text-slate-600"],
+html.dark[data-theme] [class~="text-slate-500"] {
+  color: #b9b3c8 !important;
+}
+
+html.dark[data-theme] input:not([type="checkbox"]):not([type="radio"]),
+html.dark[data-theme] textarea,
+html.dark[data-theme] select {
+  background-color: #252532 !important;
+  color: #f5f0fa !important;
+  border-color: #3a3547 !important;
+}
+
+html.dark[data-theme] input::placeholder,
+html.dark[data-theme] textarea::placeholder {
+  color: #a9a1b8 !important;
+}
+
+html.dark[data-theme] [role="dialog"],
+html.dark[data-theme] [role="menu"],
+html.dark[data-theme] [role="listbox"],
+html.dark[data-theme] .dropdown-menu,
+html.dark[data-theme] .modal-content {
+  background-color: #252532 !important;
+  color: #f5f0fa !important;
+  border-color: #3a3547 !important;
+}
+
+html.dark[data-theme] [class*="border-rose-"],
+html.dark[data-theme] [class*="border-lavender-"],
+html.dark[data-theme] [class*="border-peach-"],
+html.dark[data-theme] [class*="border-mint-"] {
+  border-color: #3a3547 !important;
+}
+
+html.dark[data-theme] .shadow,
+html.dark[data-theme] .shadow-sm,
+html.dark[data-theme] .shadow-md,
+html.dark[data-theme] .shadow-lg,
+html.dark[data-theme] .shadow-card,
+html.dark[data-theme] .shadow-soft {
+  --tw-shadow-color: rgb(0 0 0 / 20%);
+}
+
+
+/* RESTORE DISTINCT THEME COLORS IN DARK MODE */
+html.dark[data-theme="pink-blossom"] {
+  --app-primary: #ff8fb1;
+  --app-primary-dark: #f06a94;
+  --app-soft: #402b38;
+  --app-border: #593448;
+}
+html.dark[data-theme="lavender-dream"] {
+  --app-primary: #b99bea;
+  --app-primary-dark: #a990df;
+  --app-soft: #362e49;
+  --app-border: #493b61;
+}
+html.dark[data-theme="peach-cream"] {
+  --app-primary: #ffa878;
+  --app-primary-dark: #e88758;
+  --app-soft: #423126;
+  --app-border: #5a4030;
+}
+html.dark[data-theme="rose-gold"] {
+  --app-primary: #e5a0a5;
+  --app-primary-dark: #d98b91;
+  --app-soft: #412d34;
+  --app-border: #5a3b43;
+}
+html.dark[data-theme="mint-garden"] {
+  --app-primary: #75d6a3;
+  --app-primary-dark: #65bd91;
+  --app-soft: #293d35;
+  --app-border: #385448;
+}
+html.dark[data-theme="pure-white"] {
+  --app-primary: #b0b0c5;
+  --app-primary-dark: #9292a5;
+  --app-soft: #343440;
+  --app-border: #484856;
+}
+
+/* YAWMI - DISTINCT FEMININE DARK THEMES */
+html.dark[data-theme] {
+  --app-card: #252532;
+  --app-text: #fff7fb;
+  --app-muted: #c8bdcc;
+}
+
+html.dark[data-theme="pink-blossom"] {
+  --app-primary: #ff91b8;
+  --app-primary-dark: #ff6f9f;
+  --app-soft: #48283a;
+  --app-border: #704057;
+}
+
+html.dark[data-theme="lavender-dream"] {
+  --app-primary: #c4a5ff;
+  --app-primary-dark: #aa87f0;
+  --app-soft: #392d50;
+  --app-border: #594573;
+}
+
+html.dark[data-theme="peach-cream"] {
+  --app-primary: #ffb080;
+  --app-primary-dark: #ff9462;
+  --app-soft: #493126;
+  --app-border: #704936;
+}
+
+html.dark[data-theme="rose-gold"] {
+  --app-primary: #f2a6b2;
+  --app-primary-dark: #e98298;
+  --app-soft: #492d38;
+  --app-border: #704653;
+}
+
+html.dark[data-theme="mint-garden"] {
+  --app-primary: #80e0b0;
+  --app-primary-dark: #59c993;
+  --app-soft: #294638;
+  --app-border: #426b55;
+}
+
+html.dark[data-theme="pure-white"] {
+  --app-primary: #d0c5e8;
+  --app-primary-dark: #b5a6d4;
+  --app-soft: #393744;
+  --app-border: #555064;
+}
+
+/* Preserve each theme's identity */
+html.dark[data-theme] .card-soft,
+html.dark[data-theme] .theme-soft {
+  background: var(--app-soft) !important;
+  border-color: var(--app-border) !important;
+}
+
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: var(--app-soft) !important;
+}
+
+html.dark[data-theme] [class~="text-rose-600"],
+html.dark[data-theme] [class~="text-pink-600"],
+html.dark[data-theme] [class~="text-purple-600"] {
+  color: var(--app-primary) !important;
+}
+
+html.dark[data-theme] [class~="border-rose-100"],
+html.dark[data-theme] [class~="border-rose-200"],
+html.dark[data-theme] [class~="border-purple-100"],
+html.dark[data-theme] [class~="border-pink-100"] {
+  border-color: var(--app-border) !important;
+}
+
+html.dark[data-theme] button.bg-rose-500,
+html.dark[data-theme] button.bg-rose-600,
+html.dark[data-theme] .bg-rose-600 {
+  background-color: var(--app-primary-dark) !important;
+  color: #ffffff !important;
+}
+
+html.dark[data-theme] .text-theme,
+html.dark[data-theme] .text-primary {
+  color: var(--app-primary) !important;
+}
+
+
+/* YAWMI - DARK MODE COMPONENT SURFACES */
+html.dark[data-theme] {
+  --surface-main: #191923;
+  --surface-card: #252532;
+  --surface-raised: #302d3b;
+  --surface-hover: #393445;
+  --surface-border: #484052;
+  --surface-text: #fff7fb;
+  --surface-muted: #c2b8ca;
+}
+
+/* All common light card backgrounds */
+html.dark[data-theme] .card,
+html.dark[data-theme] .card-soft,
+html.dark[data-theme] .theme-card,
+html.dark[data-theme] .theme-item,
+html.dark[data-theme] .pack-card,
+html.dark[data-theme] .option-card,
+html.dark[data-theme] .stat-card,
+html.dark[data-theme] .modal-content {
+  background: var(--surface-card) !important;
+  color: var(--surface-text) !important;
+  border-color: var(--surface-border) !important;
+}
+
+/* Tailwind light backgrounds */
+html.dark[data-theme] [class~="bg-white"],
+html.dark[data-theme] [class~="bg-gray-50"],
+html.dark[data-theme] [class~="bg-gray-100"],
+html.dark[data-theme] [class~="bg-slate-50"],
+html.dark[data-theme] [class~="bg-slate-100"],
+html.dark[data-theme] [class~="bg-rose-50"],
+html.dark[data-theme] [class~="bg-rose-100"],
+html.dark[data-theme] [class~="bg-pink-50"],
+html.dark[data-theme] [class~="bg-pink-100"],
+html.dark[data-theme] [class~="bg-purple-50"],
+html.dark[data-theme] [class~="bg-purple-100"],
+html.dark[data-theme] [class~="bg-lavender-100"],
+html.dark[data-theme] [class~="bg-peach-100"],
+html.dark[data-theme] [class~="bg-mint-100"] {
+  background-color: var(--surface-card) !important;
+  color: var(--surface-text) !important;
+}
+
+/* Nested surfaces and selectable tiles */
+html.dark[data-theme] [class*="rounded-"][class*="bg-"] {
+  border-color: var(--surface-border);
+}
+
+html.dark[data-theme] [role="button"],
+html.dark[data-theme] button:not(.bg-rose-600):not(.bg-rose-500) {
+  color: var(--surface-text);
+}
+
+html.dark[data-theme] button[class~="bg-white"],
+html.dark[data-theme] button[class~="bg-gray-50"],
+html.dark[data-theme] button[class~="bg-rose-50"],
+html.dark[data-theme] button[class~="bg-pink-50"] {
+  background: var(--surface-raised) !important;
+  border-color: var(--surface-border) !important;
+}
+
+/* Text contrast */
+html.dark[data-theme] [class~="text-gray-900"],
+html.dark[data-theme] [class~="text-gray-800"],
+html.dark[data-theme] [class~="text-slate-900"],
+html.dark[data-theme] [class~="text-slate-800"],
+html.dark[data-theme] [class~="text-ink-900"],
+html.dark[data-theme] [class~="text-ink-700"] {
+  color: var(--surface-text) !important;
+}
+
+html.dark[data-theme] [class~="text-gray-600"],
+html.dark[data-theme] [class~="text-gray-500"],
+html.dark[data-theme] [class~="text-slate-600"],
+html.dark[data-theme] [class~="text-slate-500"],
+html.dark[data-theme] [class~="text-ink-500"] {
+  color: var(--surface-muted) !important;
+}
+
+/* Selected theme and active controls */
+html.dark[data-theme] [aria-selected="true"],
+html.dark[data-theme] [aria-pressed="true"],
+html.dark[data-theme] .selected {
+  border-color: var(--app-primary) !important;
+}
+
+/* Inputs and selectors */
+html.dark[data-theme] input,
+html.dark[data-theme] select,
+html.dark[data-theme] textarea {
+  background-color: var(--surface-raised) !important;
+  color: var(--surface-text) !important;
+  border-color: var(--surface-border) !important;
+}
+
+
+/* YAWMI - FIX TRANSPARENT LIGHT SURFACES IN DARK MODE */
+html.dark[data-theme] [class*="bg-white"],
+html.dark[data-theme] [class*="bg-gray-50"],
+html.dark[data-theme] [class*="bg-gray-100"],
+html.dark[data-theme] [class*="bg-slate-50"],
+html.dark[data-theme] [class*="bg-slate-100"],
+html.dark[data-theme] [class*="bg-rose-50"],
+html.dark[data-theme] [class*="bg-rose-100"],
+html.dark[data-theme] [class*="bg-pink-50"],
+html.dark[data-theme] [class*="bg-pink-100"],
+html.dark[data-theme] [class*="bg-purple-50"],
+html.dark[data-theme] [class*="bg-purple-100"],
+html.dark[data-theme] [class*="bg-lavender-100"],
+html.dark[data-theme] [class*="bg-peach-100"],
+html.dark[data-theme] [class*="bg-mint-100"] {
+  background-color: var(--surface-card, #252532) !important;
+  color: var(--surface-text, #fff7fb) !important;
+}
+
+/* Theme cards and option buttons */
+html.dark[data-theme] button:not([class*="bg-rose-500"]):not([class*="bg-rose-600"]):not([class*="bg-pink-500"]):not([class*="bg-purple-500"]),
+html.dark[data-theme] [role="button"]:not([class*="bg-rose-500"]) {
+  border-color: var(--surface-border, #484052);
+}
+
+html.dark[data-theme] [class*="border-white"],
+html.dark[data-theme] [class*="border-gray-100"],
+html.dark[data-theme] [class*="border-rose-100"],
+html.dark[data-theme] [class*="border-pink-100"] {
+  border-color: var(--surface-border, #484052) !important;
+}
+
+html.dark[data-theme] [class*="text-gray-"],
+html.dark[data-theme] [class*="text-slate-"],
+html.dark[data-theme] [class*="text-ink-"] {
+  color: var(--surface-muted, #c2b8ca);
+}
+
+html.dark[data-theme] img {
+  color-scheme: dark;
+}
+
+
+/* YAWMI - FIX TRANSPARENT LIGHT SURFACES IN DARK MODE */
+html.dark[data-theme] [class*="bg-white"],
+html.dark[data-theme] [class*="bg-gray-50"],
+html.dark[data-theme] [class*="bg-gray-100"],
+html.dark[data-theme] [class*="bg-slate-50"],
+html.dark[data-theme] [class*="bg-slate-100"],
+html.dark[data-theme] [class*="bg-rose-50"],
+html.dark[data-theme] [class*="bg-rose-100"],
+html.dark[data-theme] [class*="bg-pink-50"],
+html.dark[data-theme] [class*="bg-pink-100"],
+html.dark[data-theme] [class*="bg-purple-50"],
+html.dark[data-theme] [class*="bg-purple-100"],
+html.dark[data-theme] [class*="bg-lavender-100"],
+html.dark[data-theme] [class*="bg-peach-100"],
+html.dark[data-theme] [class*="bg-mint-100"] {
+  background-color: var(--surface-card, #252532) !important;
+  color: var(--surface-text, #fff7fb) !important;
+}
+
+/* Theme cards and option buttons */
+html.dark[data-theme] button:not([class*="bg-rose-500"]):not([class*="bg-rose-600"]):not([class*="bg-pink-500"]):not([class*="bg-purple-500"]),
+html.dark[data-theme] [role="button"]:not([class*="bg-rose-500"]) {
+  border-color: var(--surface-border, #484052);
+}
+
+html.dark[data-theme] [class*="border-white"],
+html.dark[data-theme] [class*="border-gray-100"],
+html.dark[data-theme] [class*="border-rose-100"],
+html.dark[data-theme] [class*="border-pink-100"] {
+  border-color: var(--surface-border, #484052) !important;
+}
+
+html.dark[data-theme] [class*="text-gray-"],
+html.dark[data-theme] [class*="text-slate-"],
+html.dark[data-theme] [class*="text-ink-"] {
+  color: var(--surface-muted, #c2b8ca);
+}
+
+html.dark[data-theme] img {
+  color-scheme: dark;
+}
+
+
+
+/* ═══ Premium Achievement Effects ═══ */
+@keyframes aura-bronze {
+  0% { box-shadow: 0 0 15px rgba(205,127,50,0.5), inset 0 0 15px rgba(205,127,50,0.2); }
+  50% { box-shadow: 0 0 40px rgba(205,127,50,1), inset 0 0 30px rgba(205,127,50,0.5); }
+  100% { box-shadow: 0 0 15px rgba(205,127,50,0.5), inset 0 0 15px rgba(205,127,50,0.2); }
+}
+@keyframes aura-silver {
+  0% { box-shadow: 0 0 15px rgba(192,192,192,0.5), inset 0 0 15px rgba(192,192,192,0.2); }
+  50% { box-shadow: 0 0 40px rgba(192,192,192,1), inset 0 0 30px rgba(192,192,192,0.5); }
+  100% { box-shadow: 0 0 15px rgba(192,192,192,0.5), inset 0 0 15px rgba(192,192,192,0.2); }
+}
+@keyframes aura-gold {
+  0% { box-shadow: 0 0 15px rgba(255,215,0,0.5), inset 0 0 15px rgba(255,215,0,0.2); }
+  50% { box-shadow: 0 0 50px rgba(255,215,0,1), inset 0 0 40px rgba(255,215,0,0.6); }
+  100% { box-shadow: 0 0 15px rgba(255,215,0,0.5), inset 0 0 15px rgba(255,215,0,0.2); }
+}
+@keyframes aura-platinum {
+  0% { box-shadow: 0 0 15px rgba(0,255,255,0.5), inset 0 0 15px rgba(0,255,255,0.2); }
+  50% { box-shadow: 0 0 50px rgba(0,255,255,1), inset 0 0 40px rgba(0,255,255,0.6); }
+  100% { box-shadow: 0 0 15px rgba(0,255,255,0.5), inset 0 0 15px rgba(0,255,255,0.2); }
+}
+@keyframes aura-diamond {
+  0% { box-shadow: 0 0 20px rgba(255,0,255,0.6), inset 0 0 20px rgba(138,43,226,0.4); }
+  50% { box-shadow: 0 0 60px rgba(255,0,255,1), inset 0 0 50px rgba(138,43,226,0.8); }
+  100% { box-shadow: 0 0 20px rgba(255,0,255,0.6), inset 0 0 20px rgba(138,43,226,0.4); }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(200%) skewX(-20deg); }
+}
+@keyframes float {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-8px) scale(1.05); }
+  100% { transform: translateY(0px) scale(1); }
+}
+@keyframes textShine {
+  to { background-position: 200% center; }
+}
+
+.premium-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.premium-card:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
+  transform: skewX(-20deg);
+  animation: shimmer 4s infinite;
+  pointer-events: none;
+}
+.premium-card.unlocked.bronze { animation: aura-bronze 2.5s infinite alternate; }
+.premium-card.unlocked.silver { animation: aura-silver 2.5s infinite alternate; }
+.premium-card.unlocked.gold { animation: aura-gold 2.5s infinite alternate; }
+.premium-card.unlocked.platinum { animation: aura-platinum 2.5s infinite alternate; }
+.premium-card.unlocked.diamond { animation: aura-diamond 2.5s infinite alternate; }
+
+.premium-icon {
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.5));
+}
+
+.text-metallic-gold {
+  background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: textShine 3s linear infinite;
+  font-weight: 900;
+  text-shadow: 0 0 15px rgba(255,215,0,0.5);
+}
+
+.text-metallic-diamond {
+  background: linear-gradient(to right, #13f1fc, #0470dc, #ff00cc, #333399, #13f1fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: textShine 3s linear infinite;
+  font-weight: 900;
+  text-shadow: 0 0 15px rgba(255,0,255,0.5);
+}
+
+/* ═══ Legendary Glow Effects ═══ */
+.legendary-glow {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+.legendary-glow::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(from 0deg, transparent, #FFD700, #FF69B4, #00FFFF, transparent);
+  animation: rotate-glow 4s linear infinite;
+  z-index: -1;
+  filter: blur(20px);
+}
+@keyframes rotate-glow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+/* ═══ Legendary AAA Effects ═══ */
+@keyframes float-icon {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(255,255,255,0.6)); }
+  50% { transform: translateY(-8px) scale(1.1); filter: drop-shadow(0 0 20px rgba(255,255,255,1)); }
+}
+.legendary-icon {
+  display: inline-block;
+  animation: float-icon 3s ease-in-out infinite;
+  font-size: 2rem;
+}
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+.text-metallic {
+  background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shine 3s linear infinite;
+  font-weight: 900;
+  display: inline-block;
+}
+.text-metallic-diamond {
+  background: linear-gradient(to right, #13f1fc, #0470dc, #ff00cc, #333399, #13f1fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shine 3s linear infinite;
+  font-weight: 900;
+  display: inline-block;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 4s linear infinite;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float-slow {
+  animation: float-slow 3s ease-in-out infinite;
+}
