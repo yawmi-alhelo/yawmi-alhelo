@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-XKyaHtl9.js";var t=`57X6y3wQZNzYjJB2L_10pxbackgroundhimselfUTF-8DEMOGRAPHICSVqvt4KW9`,n=e({nanoid:()=>r}),r=(e=21)=>{for(var n=``,r=crypto.getRandomValues(new Uint8Array(e|=0));e--;)n+=t[r[e]&63];return n};export{r as n,n as t};
